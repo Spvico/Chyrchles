@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v1.6 · Luck & Grind</title>
+  <title>Chyrchle v1.8 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -263,7 +263,7 @@
       border-color: #4f6280;
       color: white;
     }
-    .shop-item, .inventory-item-container {
+    .shop-item, .inventory-item-container, .upgrade-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -271,7 +271,7 @@
       padding: 8px;
       border-bottom: 1px solid #ddd;
     }
-    body.dark .shop-item, body.dark .inventory-item-container {
+    body.dark .shop-item, body.dark .inventory-item-container, body.dark .upgrade-item {
       border-bottom-color: #3a4a62;
     }
     .timer {
@@ -306,7 +306,7 @@
       max-height: 350px;
       overflow-y: auto;
     }
-    .equip-btn {
+    .equip-btn, .upgrade-btn {
       padding: 6px 12px;
       font-size: 0.8rem;
       min-width: 70px;
@@ -522,7 +522,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.6</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.8</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -573,13 +573,30 @@
       </div>
     </div>
     <div class="card">
-      <div class="flex-row" style="justify-content:space-between;">
-        <span>C/min: <span id="estimatedPerMin">0</span></span>
-        <span>C/hr: <span id="estimatedPerHour">0</span></span>
+      <div class="tab-container">
+        <button class="tab-btn active" data-bouncetab="stats">Stats</button>
+        <button class="tab-btn" data-bouncetab="upgrade">Upgrade</button>
       </div>
-      <div style="margin-top:8px;"><strong>Active best 5:</strong> <span id="best5Display" style="font-size:0.85rem;">-</span></div>
-      <div style="margin-top:4px;">All Chyrchles: <span id="deployedCount">0</span></div>
-      <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Only top 5 Chyrchles bounce · no offline gain</p>
+      
+      <div id="bounceStatsContent">
+        <div class="flex-row" style="justify-content:space-between;">
+          <span>C/min: <span id="estimatedPerMin">0</span></span>
+          <span>C/hr: <span id="estimatedPerHour">0</span></span>
+        </div>
+        <div style="margin-top:8px;"><strong>Active best <span id="maxDeployDisplay">5</span>:</strong> <span id="best5Display" style="font-size:0.85rem;">-</span></div>
+        <div style="margin-top:4px;">All Chyrchles: <span id="deployedCount">0</span></div>
+        <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Only top Chyrchles bounce · no offline gain</p>
+      </div>
+      
+      <div id="bounceUpgradeContent" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <strong>Max Deploy: <span id="currentMaxDeploy">5</span>/15</strong>
+        </div>
+        <div class="scrollable" style="max-height:250px;">
+          <div id="upgradeContainer"></div>
+        </div>
+        <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Upgrade to deploy more Chyrchles!</p>
+      </div>
     </div>
   </div>
 
@@ -658,10 +675,11 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.6</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.8</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- Code fix</div>
         <div class="changelog-item">- New code "FixSorry"</div>
+        <div class="changelog-item">- Upgrade system for bounce</div>
+        <div class="changelog-item">- A very secret code has been expired already</div>
       </div>
     </div>
   </div>
@@ -769,6 +787,8 @@
       { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special: 'bob' }
     ];
 
+    const UPGRADE_PRICES = [1000, 10000, 50000, 100000, 500000, 1000000, 8000000, 20000000, 50000000, 100000000];
+
     const CODES = {
       'CoolStart': { reward: 100, type: 'money' },
       'VIP666': { reward: 100, type: 'money' },
@@ -779,12 +799,11 @@
       'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
       'FreeMoneh': { reward: 100, type: 'money' },
-      'TheAbsoluteIsTheBestChyrchleNGL': { reward: 'bob', type: 'item' },
       'FixSorry': { reward: 5554, type: 'money' }
     };
 
     // Expired codes list (can't redeem, but items still exist if owned)
-    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy'];
+    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL'];
 
     // ---------- GAME STATE ----------
     let state = {
@@ -804,7 +823,9 @@
       codesUsed: [],
       skipCutsceneEnabled: true,
       skipCutsceneThreshold: 100000,
-      tutorialCompleted: false
+      tutorialCompleted: false,
+      maxDeployLevel: 0,
+      maxDeploy: 5
     };
 
     let canvas, ctx, animationFrame;
@@ -834,28 +855,28 @@
             <div class="tutorial-step-number">2</div>
             <div class="tutorial-step-content">
               <strong>Auto-deploy</strong><br>
-              Your top 5 Chyrchles automatically bounce and earn Chyrch (C) per bounce.
+              Your top Chyrchles automatically bounce and earn Chyrch (C) per bounce.
             </div>
           </div>
           <div class="tutorial-step">
             <div class="tutorial-step-number">3</div>
+            <div class="tutorial-step-content">
+              <strong>Upgrade Max Deploy</strong><br>
+              In Bounce tab, upgrade to deploy more Chyrchles (up to 15)!
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-number">4</div>
             <div class="tutorial-step-content">
               <strong>Shop for Items</strong><br>
               Buy items to boost your luck and gain multipliers!
             </div>
           </div>
           <div class="tutorial-step">
-            <div class="tutorial-step-number">4</div>
+            <div class="tutorial-step-number">5</div>
             <div class="tutorial-step-content">
               <strong>Redeem Codes</strong><br>
               Check Settings to redeem secret codes for rewards.
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">5</div>
-            <div class="tutorial-step-content">
-              <strong>Auto-delete</strong><br>
-              Enable in Settings to auto-delete low rarity rolls.
             </div>
           </div>
           <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
@@ -899,6 +920,8 @@
           if(state.skipCutsceneEnabled === undefined) state.skipCutsceneEnabled = true;
           if(state.skipCutsceneThreshold === undefined) state.skipCutsceneThreshold = 100000;
           if(state.tutorialCompleted === undefined) state.tutorialCompleted = false;
+          if(state.maxDeployLevel === undefined) state.maxDeployLevel = 0;
+          state.maxDeploy = 5 + state.maxDeployLevel;
         }
       } catch(e) {}
       
@@ -1055,19 +1078,9 @@
       if(state.equippedItem) {
         const item = ITEMS.find(i=> i.id === state.equippedItem);
         if(item && item.special === 'bob') {
-          // BOB: roll random Chyrchle directly without luck multiplier
-          let totalWeight = 0;
-          CHYRCHLES.forEach(c => totalWeight += 1/c.rarity);
-          
-          let rand = Math.random() * totalWeight;
-          for(let c of CHYRCHLES) {
-            const weight = 1/c.rarity;
-            if(rand < weight) {
-              return { ...c };
-            }
-            rand -= weight;
-          }
-          return { ...CHYRCHLES[0] };
+          // BOB: completely random roll from all Chyrchles
+          const randomIndex = Math.floor(Math.random() * CHYRCHLES.length);
+          return { ...CHYRCHLES[randomIndex] };
         }
       }
       
@@ -1183,6 +1196,53 @@
       saveState();
     }
 
+    function purchaseUpgrade(level) {
+      const price = UPGRADE_PRICES[level];
+      if(state.money >= price && state.maxDeployLevel === level) {
+        state.money -= price;
+        state.maxDeployLevel++;
+        state.maxDeploy = 5 + state.maxDeployLevel;
+        updateAllUI();
+        saveState();
+        initBounceSim();
+      }
+    }
+
+    function renderUpgrades() {
+      const container = document.getElementById('upgradeContainer');
+      if(!container) return;
+      
+      container.innerHTML = '';
+      
+      for(let i = 0; i < UPGRADE_PRICES.length; i++) {
+        const price = UPGRADE_PRICES[i];
+        const isUnlocked = i < state.maxDeployLevel;
+        const isNext = i === state.maxDeployLevel;
+        const canAfford = state.money >= price;
+        
+        const div = document.createElement('div');
+        div.className = 'upgrade-item';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <strong>Max Deploy +${i+1}</strong>
+            <div style="font-size:0.8rem;">Total: ${5 + i + 1} Chyrchles</div>
+          </div>
+          ${isUnlocked ? '<span style="color:#22c55e;">Unlocked</span>' : ''}
+          ${isNext ? `<button class="upgrade-btn" ${!canAfford ? 'disabled' : ''}>C${price.toLocaleString()}</button>` : ''}
+          ${!isUnlocked && !isNext ? '<span style="opacity:0.5;">Locked</span>' : ''}
+        `;
+        
+        if(isNext) {
+          const btn = div.querySelector('.upgrade-btn');
+          if(btn) {
+            btn.addEventListener('click', () => purchaseUpgrade(i));
+          }
+        }
+        
+        container.appendChild(div);
+      }
+    }
+
     function getColorStyle(c) {
       if(c.color === 'loop-shift') return 'linear-gradient(45deg, #1e3a8a, #7dd3fc)';
       if(c.color === 'loop-fast') return 'linear-gradient(145deg, #1e3a8a, #bae6fd, #1e3a8a)';
@@ -1232,7 +1292,11 @@
       renderInventory();
       renderShop();
       renderOwnedItems();
+      renderUpgrades();
       updateBounceEstimates();
+      
+      document.getElementById('maxDeployDisplay').innerText = state.maxDeploy;
+      document.getElementById('currentMaxDeploy').innerText = state.maxDeploy;
       
       const themeBtn = document.getElementById('toggleThemeBtn');
       if(themeBtn) themeBtn.innerText = state.theme === 'light' ? 'Switch to Dark' : 'Switch to Light';
@@ -1371,9 +1435,9 @@
       ctx = canvas.getContext('2d');
       
       const sorted = [...state.inventory].sort((a,b) => b.gain - a.gain);
-      const best5 = sorted.slice(0,5);
+      const bestN = sorted.slice(0, state.maxDeploy);
       
-      circles = best5.map((c) => ({
+      circles = bestN.map((c) => ({
         ...c,
         x: Math.random() * (canvas.width-30)+15,
         y: Math.random() * (canvas.height-30)+15,
@@ -1565,13 +1629,13 @@
 
     function updateBounceEstimates() {
       const sorted = [...state.inventory].sort((a,b) => b.gain - a.gain);
-      const best5 = sorted.slice(0,5);
-      const sumGain = best5.reduce((s,c)=> s+c.gain, 0);
+      const bestN = sorted.slice(0, state.maxDeploy);
+      const sumGain = bestN.reduce((s,c)=> s+c.gain, 0);
       const perMin = Math.floor(sumGain * 30);
       
       document.getElementById('estimatedPerMin').innerText = perMin;
       document.getElementById('estimatedPerHour').innerText = perMin * 60;
-      document.getElementById('best5Display').innerText = best5.map(c=>c.name).join(', ') || 'none';
+      document.getElementById('best5Display').innerText = bestN.map(c=>c.name).join(', ') || 'none';
       document.getElementById('deployedCount').innerText = state.inventory.length;
     }
 
@@ -1688,6 +1752,21 @@
         });
       });
       
+      document.querySelectorAll('[data-bouncetab]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('[data-bouncetab]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          const tab = btn.dataset.bouncetab;
+          document.getElementById('bounceStatsContent').style.display = tab === 'stats' ? 'block' : 'none';
+          document.getElementById('bounceUpgradeContent').style.display = tab === 'upgrade' ? 'block' : 'none';
+          
+          if(tab === 'upgrade') {
+            renderUpgrades();
+          }
+        });
+      });
+      
       document.getElementById('rollButton').addEventListener('click', () => performRoll());
       
       document.getElementById('autoRollToggle').addEventListener('click', (e) => {
@@ -1771,4 +1850,4 @@
   })();
 </script>
 </body>
-</html>
+  </html>
