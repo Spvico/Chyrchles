@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v1.5 · Luck & Grind</title>
+  <title>Chyrchle v1.6 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -522,7 +522,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.5</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.6</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -658,10 +658,10 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.5</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.6</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- Some codes expired</div>
-        <div class="changelog-item">- New code "FreeMoneh"</div>
+        <div class="changelog-item">- Code fix</div>
+        <div class="changelog-item">- New code "FixSorry"</div>
       </div>
     </div>
   </div>
@@ -755,6 +755,8 @@
       { id:'dimgate', name:'Dimensional Gate Key', price:234567, luck:0.5, gain:10.0 },
       { id:'guardian', name:'Guardian of Dimensions', price:342516, luck:25.0, gain:0.0 },
       { id:'enduniverse', name:'The End of Universe', price:1000000, luck:77.0, gain:55.0 },
+      { id:'godcrown', name:'The Crown of the Last Dying God...', price:999999, luck:100.0, gain:100.0 },
+      { id:'gracioushope', name:'Gracious Hope', price:9999999, luck:1000000.0, gain:1000.0 },
       { id:'luckycoin', name:'Lucky Coin', price:500, luck:1.3, gain:1.0 },
       { id:'fourleaf', name:'Four Leaf Clover', price:2000, luck:2.2, gain:1.0 },
       { id:'goldring', name:'Golden Ring', price:8000, luck:1.5, gain:2.5 },
@@ -764,7 +766,7 @@
       { id:'phoenixfeather', name:'Phoenix Feather', price:150000, luck:8.0, gain:3.0 },
       { id:'stardust', name:'Stardust Amulet', price:300000, luck:5.0, gain:8.0 },
       { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 },
-      { id:'bob', name:'BOB', price:99999999, luck:100000000.0, gain:1.0 }
+      { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special: 'bob' }
     ];
 
     const CODES = {
@@ -777,10 +779,11 @@
       'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
       'FreeMoneh': { reward: 100, type: 'money' },
-      'TheAbsoluteIsTheBestChyrchleNGL': { reward: 'bob', type: 'item' }
+      'TheAbsoluteIsTheBestChyrchleNGL': { reward: 'bob', type: 'item' },
+      'FixSorry': { reward: 5554, type: 'money' }
     };
 
-    // Expired codes list (will show error if tried)
+    // Expired codes list (can't redeem, but items still exist if owned)
     const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy'];
 
     // ---------- GAME STATE ----------
@@ -927,12 +930,14 @@
     function getLuckMultiplier() {
       if(!state.equippedItem) return 1.0;
       const item = ITEMS.find(i=> i.id === state.equippedItem);
+      if(item && item.special === 'bob') return 0;
       return item ? item.luck : 1.0;
     }
     
     function getGainMultiplier() {
       if(!state.equippedItem) return 1.0;
       const item = ITEMS.find(i=> i.id === state.equippedItem);
+      if(item && item.special === 'bob') return 0;
       return item ? item.gain : 1.0;
     }
 
@@ -1046,6 +1051,26 @@
     }
 
     function rollChyrchle() {
+      // Check if BOB is equipped
+      if(state.equippedItem) {
+        const item = ITEMS.find(i=> i.id === state.equippedItem);
+        if(item && item.special === 'bob') {
+          // BOB: roll random Chyrchle directly without luck multiplier
+          let totalWeight = 0;
+          CHYRCHLES.forEach(c => totalWeight += 1/c.rarity);
+          
+          let rand = Math.random() * totalWeight;
+          for(let c of CHYRCHLES) {
+            const weight = 1/c.rarity;
+            if(rand < weight) {
+              return { ...c };
+            }
+            rand -= weight;
+          }
+          return { ...CHYRCHLES[0] };
+        }
+      }
+      
       const luck = getLuckMultiplier();
       
       const rollsToMake = Math.max(1, Math.floor(luck));
@@ -1151,7 +1176,7 @@
     }
 
     function refreshShop() {
-      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob');
+      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope');
       const shuffled = [...availableItems].sort(()=>Math.random()-0.5);
       state.shopStock = shuffled.slice(0,4).map(i => ({...i}));
       state.lastShopUpdate = Date.now();
@@ -1254,10 +1279,18 @@
         const owned = state.ownedItems.includes(item.id);
         const div = document.createElement('div');
         div.className = 'shop-item';
+        
+        let luckDisplay = item.luck;
+        let gainDisplay = item.gain;
+        if(item.special === 'bob') {
+          luckDisplay = '0';
+          gainDisplay = '0';
+        }
+        
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">C${item.price} · Luck ${item.luck >= 1000000 ? item.luck.toLocaleString() : item.luck}x · Gain ${item.gain}x</div>
+            <div style="font-size:0.8rem;">C${item.price} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
           </div>
           <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''} style="padding:8px 12px;">
             ${owned ? 'Owned' : 'Buy'}
@@ -1299,10 +1332,18 @@
         const isEquipped = state.equippedItem === item.id;
         const div = document.createElement('div');
         div.className = 'inventory-item-container';
+        
+        let luckDisplay = item.luck;
+        let gainDisplay = item.gain;
+        if(item.special === 'bob') {
+          luckDisplay = '0';
+          gainDisplay = '0';
+        }
+        
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">Luck ${item.luck >= 1000000 ? item.luck.toLocaleString() : item.luck}x · Gain ${item.gain}x</div>
+            <div style="font-size:0.8rem;">Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
             ${isEquipped ? '<span style="color:#3b82f6;">[Equipped]</span>' : ''}
           </div>
           <button class="equip-btn" data-id="${item.id}" ${isEquipped ? 'disabled' : ''}>
@@ -1576,7 +1617,7 @@
       }
       
       if(EXPIRED_CODES.includes(code)) {
-        alert('This code has expired!');
+        alert('This code has expired and can no longer be redeemed!');
         return;
       }
       
