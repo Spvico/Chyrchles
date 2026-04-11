@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v1.2 · Luck & Grind</title>
+  <title>Chyrchle v1.5 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -522,7 +522,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.2</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.5</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -658,10 +658,10 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.2</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.5</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- New codes "VeryVeryLuckyDay" and "LuckyDay"</div>
-        <div class="changelog-item">- Effect revamp</div>
+        <div class="changelog-item">- Some codes expired</div>
+        <div class="changelog-item">- New code "FreeMoneh"</div>
       </div>
     </div>
   </div>
@@ -673,72 +673,72 @@
 
     // ---------- DATA DEFINITIONS ----------
     const CHYRCHLES = [
-      { name:'Pebble', rarity:3, color:'#a8a29e', effect:'none', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
-      { name:'Spark', rarity:5, color:'#fbbf24', effect:'spark', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
-      { name:'Dewdrop', rarity:7, color:'#bae6fd', effect:'none', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
-      { name:'Twig', rarity:10, color:'#78716c', effect:'none', effectType:'none', gain:2, theme:'nature', desc:'A small twig from an ancient tree.' },
-      { name:'Breeze', rarity:15, color:'#e0f2fe', effect:'breeze', effectType:'breeze', gain:3, theme:'air', desc:'A gentle cooling breeze.' },
-      { name:'Common', rarity:2, color:'#9e9e9e', effect:'none', effectType:'none', gain:1, theme:'neutral', desc:'A common Chyrchle.' },
-      { name:'Rare', rarity:8, color:'#3b82f6', effect:'none', effectType:'none', gain:2, theme:'water', desc:'A rare blue Chyrchle.' },
-      { name:'Epic', rarity:24, color:'#b983ff', effect:'none', effectType:'none', gain:3, theme:'magic', desc:'An epic purple Chyrchle.' },
-      { name:'Wind', rarity:64, color:'#f0f0f0', effect:'wind', effectType:'wind', gain:4, theme:'air', desc:'The wind itself made manifest.' },
-      { name:'Diamond', rarity:130, color:'#a5f0ff', effect:'sparkle', effectType:'sparkle', gain:5, theme:'gem', desc:'A brilliant diamond Chyrchle.' },
-      { name:'Darkness', rarity:350, color:'#222222', effect:'darkness', effectType:'darkness', gain:6, theme:'void', desc:'Pure darkness given form.' },
-      { name:'Legendary', rarity:580, color:'#fbbf24', effect:'glow', effectType:'glow', gain:7, theme:'light', desc:'A legendary golden Chyrchle.' },
-      { name:'Determination', rarity:999, color:'#ef4444', effect:'pulse', effectType:'pulse', gain:9, theme:'fire', desc:'Filled with determination.' },
-      { name:'Crystal', rarity:1500, color:'#c7d2fe', effect:'sparkle', effectType:'sparkle', gain:10, theme:'gem', desc:'A crystal that refracts light beautifully.' },
-      { name:'Ember', rarity:2500, color:'#f97316', effect:'flame', effectType:'flame', gain:12, theme:'fire', desc:'A dying ember that refuses to fade.' },
-      { name:'Tide', rarity:3500, color:'#06b6d4', effect:'wave', effectType:'wave', gain:14, theme:'water', desc:'The relentless ocean tide.' },
-      { name:'Gale', rarity:4500, color:'#94a3b8', effect:'wind', effectType:'wind', gain:16, theme:'air', desc:'A powerful howling gale.' },
-      { name:'Nebula', rarity:5000, color:'#c084fc', effect:'spiral', effectType:'spiral', gain:18, theme:'cosmic', desc:'A miniature nebula in your hands.' },
-      { name:'Thunder', rarity:7500, color:'#fbbf24', effect:'lightning', effectType:'lightning', gain:24, theme:'storm', desc:'The roar of thunder made solid.' },
-      { name:'Quake', rarity:8500, color:'#a16207', effect:'shake', effectType:'shake', gain:26, theme:'earth', desc:'The earth trembles at its presence.' },
-      { name:'Frostbite', rarity:12000, color:'#67e8f9', effect:'frost', effectType:'frost', gain:28, theme:'ice', desc:'Cold enough to freeze your soul.' },
-      { name:'Blaze', rarity:15000, color:'#ef4444', effect:'flame', effectType:'flame', gain:30, theme:'fire', desc:'An unstoppable blazing inferno.' },
-      { name:'Inferno', rarity:18000, color:'#dc2626', effect:'inferno', effectType:'inferno', gain:32, theme:'fire', desc:'Pillars of flame erupt around it.' },
-      { name:'Aquatic', rarity:1200, color:'#7dd3fc', effect:'wave', effectType:'wave', gain:11, theme:'water', desc:'Water flows endlessly around it.' },
-      { name:'Vortex', rarity:1333, color:'#8b5cf6', effect:'vortex', effectType:'vortex', gain:13, theme:'void', desc:'A spiraling vortex of chaos.' },
-      { name:'Reality', rarity:1999, color:'loop-shift', effect:'shift', effectType:'shift', gain:15, theme:'reality', desc:'Reality shifts and bends around it.' },
-      { name:'Heaven', rarity:2222, color:'#fffac2', effect:'divine', effectType:'divine', gain:22, theme:'holy', desc:'A piece of heaven descended.' },
-      { name:'Fire', rarity:3333, color:'#fca5a5', effect:'flame', effectType:'flame', gain:33, theme:'fire', desc:'An eternal flame that never dies.' },
-      { name:'Mortality', rarity:8978, color:'#dc2626', effect:'fade', effectType:'fade', gain:35, theme:'death', desc:'The fragile nature of mortal life.' },
-      { name:'Dunes', rarity:12121, color:'#22c55e', effect:'sand', effectType:'sand', gain:40, theme:'earth', desc:'Endless shifting desert sands.' },
-      { name:'Voidwalker', rarity:25000, color:'#2d1b4e', effect:'void', effectType:'void', gain:36, theme:'void', desc:'A walker between voids.' },
-      { name:'Darkness:Rebound', rarity:33333, color:'#1a1a1a', effect:'darkness', effectType:'darkness', gain:44, theme:'void', desc:'Darkness that rebounds eternally.' },
-      { name:'Starlight', rarity:42000, color:'#fef08a', effect:'star', effectType:'star', gain:42, theme:'cosmic', desc:'The light of distant stars.' },
-      { name:'Wind:Fogless', rarity:65536, color:'#ffffff', effect:'wind', effectType:'wind', gain:50, theme:'air', desc:'Perfect clarity without fog.' },
-      { name:'Abyssal', rarity:69000, color:'#064e3b', effect:'void', effectType:'void', gain:48, theme:'void', desc:'Pressure from the deepest abyss.' },
-      { name:'Celestial', rarity:88000, color:'#818cf8', effect:'ring', effectType:'ring', gain:55, theme:'cosmic', desc:'Rings of celestial light orbit it.' },
-      { name:'Determination:Undetermined', rarity:99999, color:'#b91c1c', effect:'pulse', effectType:'pulse', gain:49.5, theme:'fire', desc:'Determination that transcends logic.' },
-      { name:'Reality:Unleashed', rarity:111111, color:'loop-fast', effect:'shift', effectType:'shift', gain:60, theme:'reality', desc:'Reality fractures at its touch.' },
-      { name:'Phoenix', rarity:120000, color:'#f97316', effect:'phoenix', effectType:'phoenix', gain:65, theme:'fire', desc:'Rises from ashes in eternal rebirth.' },
-      { name:'Chrono', rarity:150000, color:'#14b8a6', effect:'time', effectType:'time', gain:72, theme:'time', desc:'Time itself bends around it.' },
-      { name:'Singularity', rarity:200000, color:'#111827', effect:'void', effectType:'void', gain:80, theme:'void', desc:'A point of infinite density.' },
-      { name:'Ethereal', rarity:300000, color:'#e0e7ff', effect:'ghost', effectType:'ghost', gain:90, theme:'spirit', desc:'Barely existing between realms.' },
-      { name:'Omnipotent', rarity:500000, color:'#fbbf24', effect:'divine', effectType:'divine', gain:110, theme:'holy', desc:'Beams of divine power radiate.' },
-      { name:'Cosmic Horror', rarity:777777, color:'#4c1d95', effect:'tentacle', effectType:'tentacle', gain:130, theme:'void', desc:'From beyond the stars... madness.' },
-      { name:'Infinity', rarity:1000000, color:'loop-rainbow', effect:'rainbow', effectType:'rainbow', gain:150, theme:'cosmic', desc:'Infinite fractals unto eternity.' },
-      { name:'Solar Flare', rarity:1800000, color:'#fcd34d', effect:'flare', effectType:'flare', gain:200, theme:'cosmic', desc:'The fury of a star unleashed.' },
-      { name:'Asteroid', rarity:3200000, color:'#9ca3af', effect:'debris', effectType:'debris', gain:240, theme:'cosmic', desc:'Remnants of cosmic destruction.' },
-      { name:'Pulsar', rarity:5500000, color:'#60a5fa', effect:'beam', effectType:'beam', gain:290, theme:'cosmic', desc:'A lighthouse of deadly radiation.' },
-      { name:'Red Giant', rarity:8400000, color:'#ef4444', effect:'expand', effectType:'expand', gain:340, theme:'cosmic', desc:'A dying star swelling to consume all.' },
-      { name:'Nebula Core', rarity:13500000, color:'#c084fc', effect:'spiral', effectType:'spiral', gain:400, theme:'cosmic', desc:'Where new stars are born.' },
-      { name:'Quantum', rarity:2500000, color:'#06b6d4', effect:'quantum', effectType:'quantum', gain:180, theme:'quantum', desc:'Existing in all states at once.' },
-      { name:'Nova', rarity:3800000, color:'#fde047', effect:'nova', effectType:'nova', gain:220, theme:'cosmic', desc:'The death cry of a massive star.' },
-      { name:'Galactic Core', rarity:5200000, color:'#d8b4fe', effect:'galaxy', effectType:'galaxy', gain:260, theme:'cosmic', desc:'The heart of a galaxy.' },
-      { name:'Temporal', rarity:7100000, color:'#34d399', effect:'time', effectType:'time', gain:300, theme:'time', desc:'Time flows backwards around it.' },
-      { name:'Dimensional Rift', rarity:9300000, color:'#818cf8', effect:'rift', effectType:'rift', gain:350, theme:'reality', desc:'A tear in the fabric of reality.' },
-      { name:'Primordial', rarity:12500000, color:'#fbbf24', effect:'ancient', effectType:'ancient', gain:400, theme:'cosmic', desc:'Energy from before time began.' },
-      { name:'Dark Matter', rarity:16800000, color:'#1e1b4b', effect:'distort', effectType:'distort', gain:460, theme:'void', desc:'The unseen mass that shapes reality.' },
-      { name:'Hypernova', rarity:22200000, color:'#f97316', effect:'hypernova', effectType:'hypernova', gain:530, theme:'cosmic', desc:'The most violent explosion known.' },
-      { name:'Wormhole', rarity:29000000, color:'#2dd4bf', effect:'wormhole', effectType:'wormhole', gain:610, theme:'cosmic', desc:'A tunnel through spacetime itself.' },
-      { name:'Quasar', rarity:37000000, color:'#e879f9', effect:'jet', effectType:'jet', gain:700, theme:'cosmic', desc:'Jets of energy at near light speed.' },
-      { name:'Multiverse', rarity:48000000, color:'loop-multiverse', effect:'multiverse', effectType:'multiverse', gain:800, theme:'reality', desc:'Echoes from infinite parallel worlds.' },
-      { name:'Big Bang', rarity:62000000, color:'#fca5a5', effect:'bang', effectType:'bang', gain:920, theme:'cosmic', desc:'The echo of creation itself.' },
-      { name:'Neutron Star', rarity:79000000, color:'#94a3b8', effect:'gravity', effectType:'gravity', gain:1050, theme:'cosmic', desc:'Gravity so strong it crushes atoms.' },
-      { name:'Black Hole', rarity:99000000, color:'#000000', effect:'blackhole', effectType:'blackhole', gain:1200, theme:'void', desc:'Where light itself cannot escape.' },
-      { name:'White Hole', rarity:150000000, color:'#ffffff', effect:'whitehole', effectType:'whitehole', gain:1400, theme:'cosmic', desc:'The opposite of a black hole.' },
-      { name:'THE ABSOLUTE', rarity:1000000000, color:'loop-absolute', effect:'absolute', effectType:'absolute', gain:5000, theme:'absolute', desc:'THE BEGINNING AND THE END. THE ALPHA AND OMEGA. REALITY ITSELF KNEELS.' }
+      { name:'Pebble', rarity:3, color:'#a8a29e', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
+      { name:'Spark', rarity:5, color:'#fbbf24', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
+      { name:'Dewdrop', rarity:7, color:'#bae6fd', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
+      { name:'Twig', rarity:10, color:'#78716c', effectType:'none', gain:2, theme:'nature', desc:'A small twig from an ancient tree.' },
+      { name:'Breeze', rarity:15, color:'#e0f2fe', effectType:'breeze', gain:3, theme:'air', desc:'A gentle cooling breeze.' },
+      { name:'Common', rarity:2, color:'#9e9e9e', effectType:'none', gain:1, theme:'neutral', desc:'A common Chyrchle.' },
+      { name:'Rare', rarity:8, color:'#3b82f6', effectType:'none', gain:2, theme:'water', desc:'A rare blue Chyrchle.' },
+      { name:'Epic', rarity:24, color:'#b983ff', effectType:'none', gain:3, theme:'magic', desc:'An epic purple Chyrchle.' },
+      { name:'Wind', rarity:64, color:'#f0f0f0', effectType:'wind', gain:4, theme:'air', desc:'The wind itself made manifest.' },
+      { name:'Diamond', rarity:130, color:'#a5f0ff', effectType:'sparkle', gain:5, theme:'gem', desc:'A brilliant diamond Chyrchle.' },
+      { name:'Darkness', rarity:350, color:'#222222', effectType:'darkness', gain:6, theme:'void', desc:'Pure darkness given form.' },
+      { name:'Legendary', rarity:580, color:'#fbbf24', effectType:'glow', gain:7, theme:'light', desc:'A legendary golden Chyrchle.' },
+      { name:'Determination', rarity:999, color:'#ef4444', effectType:'pulse', gain:9, theme:'fire', desc:'Filled with determination.' },
+      { name:'Crystal', rarity:1500, color:'#c7d2fe', effectType:'sparkle', gain:10, theme:'gem', desc:'A crystal that refracts light beautifully.' },
+      { name:'Ember', rarity:2500, color:'#f97316', effectType:'flame', gain:12, theme:'fire', desc:'A dying ember that refuses to fade.' },
+      { name:'Tide', rarity:3500, color:'#06b6d4', effectType:'wave', gain:14, theme:'water', desc:'The relentless ocean tide.' },
+      { name:'Gale', rarity:4500, color:'#94a3b8', effectType:'wind', gain:16, theme:'air', desc:'A powerful howling gale.' },
+      { name:'Nebula', rarity:5000, color:'#c084fc', effectType:'spiral', gain:18, theme:'cosmic', desc:'A miniature nebula in your hands.' },
+      { name:'Thunder', rarity:7500, color:'#fbbf24', effectType:'lightning', gain:24, theme:'storm', desc:'The roar of thunder made solid.' },
+      { name:'Quake', rarity:8500, color:'#a16207', effectType:'shake', gain:26, theme:'earth', desc:'The earth trembles at its presence.' },
+      { name:'Frostbite', rarity:12000, color:'#67e8f9', effectType:'frost', gain:28, theme:'ice', desc:'Cold enough to freeze your soul.' },
+      { name:'Blaze', rarity:15000, color:'#ef4444', effectType:'flame', gain:30, theme:'fire', desc:'An unstoppable blazing inferno.' },
+      { name:'Inferno', rarity:18000, color:'#dc2626', effectType:'inferno', gain:32, theme:'fire', desc:'Pillars of flame erupt around it.' },
+      { name:'Aquatic', rarity:1200, color:'#7dd3fc', effectType:'wave', gain:11, theme:'water', desc:'Water flows endlessly around it.' },
+      { name:'Vortex', rarity:1333, color:'#8b5cf6', effectType:'vortex', gain:13, theme:'void', desc:'A spiraling vortex of chaos.' },
+      { name:'Reality', rarity:1999, color:'loop-shift', effectType:'shift', gain:15, theme:'reality', desc:'Reality shifts and bends around it.' },
+      { name:'Heaven', rarity:2222, color:'#fffac2', effectType:'divine', gain:22, theme:'holy', desc:'A piece of heaven descended.' },
+      { name:'Fire', rarity:3333, color:'#fca5a5', effectType:'flame', gain:33, theme:'fire', desc:'An eternal flame that never dies.' },
+      { name:'Mortality', rarity:8978, color:'#dc2626', effectType:'fade', gain:35, theme:'death', desc:'The fragile nature of mortal life.' },
+      { name:'Dunes', rarity:12121, color:'#22c55e', effectType:'sand', gain:40, theme:'earth', desc:'Endless shifting desert sands.' },
+      { name:'Voidwalker', rarity:25000, color:'#2d1b4e', effectType:'void', gain:36, theme:'void', desc:'A walker between voids.' },
+      { name:'Darkness:Rebound', rarity:33333, color:'#1a1a1a', effectType:'darkness', gain:44, theme:'void', desc:'Darkness that rebounds eternally.' },
+      { name:'Starlight', rarity:42000, color:'#fef08a', effectType:'star', gain:42, theme:'cosmic', desc:'The light of distant stars.' },
+      { name:'Wind:Fogless', rarity:65536, color:'#ffffff', effectType:'wind', gain:50, theme:'air', desc:'Perfect clarity without fog.' },
+      { name:'Abyssal', rarity:69000, color:'#064e3b', effectType:'void', gain:48, theme:'void', desc:'Pressure from the deepest abyss.' },
+      { name:'Celestial', rarity:88000, color:'#818cf8', effectType:'ring', gain:55, theme:'cosmic', desc:'Rings of celestial light orbit it.' },
+      { name:'Determination:Undetermined', rarity:99999, color:'#b91c1c', effectType:'pulse', gain:49.5, theme:'fire', desc:'Determination that transcends logic.' },
+      { name:'Reality:Unleashed', rarity:111111, color:'loop-fast', effectType:'shift', gain:60, theme:'reality', desc:'Reality fractures at its touch.' },
+      { name:'Phoenix', rarity:120000, color:'#f97316', effectType:'phoenix', gain:65, theme:'fire', desc:'Rises from ashes in eternal rebirth.' },
+      { name:'Chrono', rarity:150000, color:'#14b8a6', effectType:'time', gain:72, theme:'time', desc:'Time itself bends around it.' },
+      { name:'Singularity', rarity:200000, color:'#111827', effectType:'void', gain:80, theme:'void', desc:'A point of infinite density.' },
+      { name:'Ethereal', rarity:300000, color:'#e0e7ff', effectType:'ghost', gain:90, theme:'spirit', desc:'Barely existing between realms.' },
+      { name:'Omnipotent', rarity:500000, color:'#fbbf24', effectType:'divine', gain:110, theme:'holy', desc:'Beams of divine power radiate.' },
+      { name:'Cosmic Horror', rarity:777777, color:'#4c1d95', effectType:'tentacle', gain:130, theme:'void', desc:'From beyond the stars... madness.' },
+      { name:'Infinity', rarity:1000000, color:'loop-rainbow', effectType:'rainbow', gain:150, theme:'cosmic', desc:'Infinite fractals unto eternity.' },
+      { name:'Solar Flare', rarity:1800000, color:'#fcd34d', effectType:'flare', gain:200, theme:'cosmic', desc:'The fury of a star unleashed.' },
+      { name:'Asteroid', rarity:3200000, color:'#9ca3af', effectType:'debris', gain:240, theme:'cosmic', desc:'Remnants of cosmic destruction.' },
+      { name:'Pulsar', rarity:5500000, color:'#60a5fa', effectType:'beam', gain:290, theme:'cosmic', desc:'A lighthouse of deadly radiation.' },
+      { name:'Red Giant', rarity:8400000, color:'#ef4444', effectType:'expand', gain:340, theme:'cosmic', desc:'A dying star swelling to consume all.' },
+      { name:'Nebula Core', rarity:13500000, color:'#c084fc', effectType:'spiral', gain:400, theme:'cosmic', desc:'Where new stars are born.' },
+      { name:'Quantum', rarity:2500000, color:'#06b6d4', effectType:'quantum', gain:180, theme:'quantum', desc:'Existing in all states at once.' },
+      { name:'Nova', rarity:3800000, color:'#fde047', effectType:'nova', gain:220, theme:'cosmic', desc:'The death cry of a massive star.' },
+      { name:'Galactic Core', rarity:5200000, color:'#d8b4fe', effectType:'galaxy', gain:260, theme:'cosmic', desc:'The heart of a galaxy.' },
+      { name:'Temporal', rarity:7100000, color:'#34d399', effectType:'time', gain:300, theme:'time', desc:'Time flows backwards around it.' },
+      { name:'Dimensional Rift', rarity:9300000, color:'#818cf8', effectType:'rift', gain:350, theme:'reality', desc:'A tear in the fabric of reality.' },
+      { name:'Primordial', rarity:12500000, color:'#fbbf24', effectType:'ancient', gain:400, theme:'cosmic', desc:'Energy from before time began.' },
+      { name:'Dark Matter', rarity:16800000, color:'#1e1b4b', effectType:'distort', gain:460, theme:'void', desc:'The unseen mass that shapes reality.' },
+      { name:'Hypernova', rarity:22200000, color:'#f97316', effectType:'hypernova', gain:530, theme:'cosmic', desc:'The most violent explosion known.' },
+      { name:'Wormhole', rarity:29000000, color:'#2dd4bf', effectType:'wormhole', gain:610, theme:'cosmic', desc:'A tunnel through spacetime itself.' },
+      { name:'Quasar', rarity:37000000, color:'#e879f9', effectType:'jet', gain:700, theme:'cosmic', desc:'Jets of energy at near light speed.' },
+      { name:'Multiverse', rarity:48000000, color:'loop-multiverse', effectType:'multiverse', gain:800, theme:'reality', desc:'Echoes from infinite parallel worlds.' },
+      { name:'Big Bang', rarity:62000000, color:'#fca5a5', effectType:'bang', gain:920, theme:'cosmic', desc:'The echo of creation itself.' },
+      { name:'Neutron Star', rarity:79000000, color:'#94a3b8', effectType:'gravity', gain:1050, theme:'cosmic', desc:'Gravity so strong it crushes atoms.' },
+      { name:'Black Hole', rarity:99000000, color:'#000000', effectType:'blackhole', gain:1200, theme:'void', desc:'Where light itself cannot escape.' },
+      { name:'White Hole', rarity:150000000, color:'#ffffff', effectType:'whitehole', gain:1400, theme:'cosmic', desc:'The opposite of a black hole.' },
+      { name:'THE ABSOLUTE', rarity:1000000000, color:'loop-absolute', effectType:'absolute', gain:5000, theme:'absolute', desc:'THE BEGINNING AND THE END. THE ALPHA AND OMEGA. REALITY ITSELF KNEELS.' }
     ];
 
     const ITEMS = [
@@ -755,8 +755,6 @@
       { id:'dimgate', name:'Dimensional Gate Key', price:234567, luck:0.5, gain:10.0 },
       { id:'guardian', name:'Guardian of Dimensions', price:342516, luck:25.0, gain:0.0 },
       { id:'enduniverse', name:'The End of Universe', price:1000000, luck:77.0, gain:55.0 },
-      { id:'godcrown', name:'The Crown of the Last Dying God...', price:999999, luck:100.0, gain:100.0 },
-      { id:'gracioushope', name:'Gracious Hope', price:9999999, luck:1000000.0, gain:1000.0 },
       { id:'luckycoin', name:'Lucky Coin', price:500, luck:1.3, gain:1.0 },
       { id:'fourleaf', name:'Four Leaf Clover', price:2000, luck:2.2, gain:1.0 },
       { id:'goldring', name:'Golden Ring', price:8000, luck:1.5, gain:2.5 },
@@ -765,21 +763,25 @@
       { id:'dragonscale', name:'Dragon Scale', price:80000, luck:2.0, gain:5.0 },
       { id:'phoenixfeather', name:'Phoenix Feather', price:150000, luck:8.0, gain:3.0 },
       { id:'stardust', name:'Stardust Amulet', price:300000, luck:5.0, gain:8.0 },
-      { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 }
+      { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 },
+      { id:'bob', name:'BOB', price:99999999, luck:100000000.0, gain:1.0 }
     ];
 
     const CODES = {
       'CoolStart': { reward: 100, type: 'money' },
-      'SpvicoIsUnlucky': { reward: 'godcrown', type: 'item' },
-      'SpvicoIsACoolGuy': { reward: 'gracioushope', type: 'item' },
       'VIP666': { reward: 100, type: 'money' },
       '666IsAGoodNumber': { reward: 100, type: 'money' },
       'Fahhhhhhh': { reward: 69, type: 'money' },
       'DoktorMakeUsUnhealthy': { reward: 666, type: 'money' },
       'NONVIP777': { reward: 777, type: 'money' },
+      'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
-      'VeryVeryLuckyDay': { reward: 66, type: 'money' }
+      'FreeMoneh': { reward: 100, type: 'money' },
+      'TheAbsoluteIsTheBestChyrchleNGL': { reward: 'bob', type: 'item' }
     };
+
+    // Expired codes list (will show error if tried)
+    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy'];
 
     // ---------- GAME STATE ----------
     let state = {
@@ -1149,7 +1151,7 @@
     }
 
     function refreshShop() {
-      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'gracioushope' && i.id !== 'tenleaf');
+      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob');
       const shuffled = [...availableItems].sort(()=>Math.random()-0.5);
       state.shopStock = shuffled.slice(0,4).map(i => ({...i}));
       state.lastShopUpdate = Date.now();
@@ -1255,7 +1257,7 @@
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">C${item.price} · Luck ${item.luck}x · Gain ${item.gain}x</div>
+            <div style="font-size:0.8rem;">C${item.price} · Luck ${item.luck >= 1000000 ? item.luck.toLocaleString() : item.luck}x · Gain ${item.gain}x</div>
           </div>
           <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''} style="padding:8px 12px;">
             ${owned ? 'Owned' : 'Buy'}
@@ -1358,7 +1360,6 @@
         const baseSize = getChyrchleSize(c.rarity);
         c.r = baseSize;
         
-        // Apply visual effects based on effectType
         if(c.effectType === 'spiral' || c.effectType === 'vortex' || c.effectType === 'galaxy') {
           ctx.translate(c.x, c.y);
           ctx.rotate(timeOffset * 2);
@@ -1571,6 +1572,11 @@
     function redeemCode(code) {
       if(state.codesUsed.includes(code)) {
         alert('Code already used!');
+        return;
+      }
+      
+      if(EXPIRED_CODES.includes(code)) {
+        alert('This code has expired!');
         return;
       }
       
