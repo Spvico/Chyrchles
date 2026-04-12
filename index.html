@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v2.0 · Luck & Grind</title>
+  <title>Chyrchle v2.1 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -572,7 +572,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.0</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.1</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -725,11 +725,9 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.0</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.1</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- Quick roll rework (only make the current roll 2x faster and reducing the luck by 20%)</div>
-        <div class="changelog-item">- New best item "Windy Amethyst"</div>
-        <div class="changelog-item">- New code "NewBestItem" for an exclusive chyrchle</div>
+        <div class="changelog-item">- New special "Common:Unordinary" chyrchle with 1 in 1000 regardless of luck</div>
       </div>
     </div>
   </div>
@@ -754,6 +752,7 @@
       { name:'Diamond', rarity:130, color:'#a5f0ff', effectType:'sparkle', gain:5, theme:'gem', desc:'A brilliant diamond Chyrchle.' },
       { name:'Darkness', rarity:350, color:'#222222', effectType:'darkness', gain:6, theme:'void', desc:'Pure darkness given form.' },
       { name:'Legendary', rarity:580, color:'#fbbf24', effectType:'glow', gain:7, theme:'light', desc:'A legendary golden Chyrchle.' },
+      { name:'Common:Unordinary', rarity:1000, color:'#808080', effectType:'unordinary', gain:1000, theme:'neutral', desc:'Unusually common. Always at the bottom.', special:'alwaysLast', fixedRoll: true },
       { name:'Determination', rarity:999, color:'#ef4444', effectType:'pulse', gain:9, theme:'fire', desc:'Filled with determination.' },
       { name:'Crystal', rarity:1500, color:'#c7d2fe', effectType:'sparkle', gain:10, theme:'gem', desc:'A crystal that refracts light beautifully.' },
       { name:'Ember', rarity:2500, color:'#f97316', effectType:'flame', gain:12, theme:'fire', desc:'A dying ember that refuses to fade.' },
@@ -1088,21 +1087,21 @@
     }
 
     function showCutscene(chyrchle) {
-      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED') {
+      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') {
         return;
       }
       
       if(activeCutscene) activeCutscene.remove();
       
       const duration = getCutsceneDuration(chyrchle.rarity);
-      if(duration === 0 && chyrchle.name !== 'UNHONORED') return;
+      if(duration === 0 && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') return;
       
       const overlay = document.createElement('div');
       overlay.className = 'cutscene-overlay';
       activeCutscene = overlay;
       
-      const rarityColor = chyrchle.name === 'UNHONORED' ? '#ffffff' : getRarityColor(chyrchle.rarity);
-      const rarityName = chyrchle.name === 'UNHONORED' ? 'UNHONORED' : getRarityName(chyrchle.rarity);
+      const rarityColor = (chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') ? '#ffffff' : getRarityColor(chyrchle.rarity);
+      const rarityName = chyrchle.name === 'UNHONORED' ? 'UNHONORED' : (chyrchle.name === 'Common:Unordinary' ? 'UNORDINARY' : getRarityName(chyrchle.rarity));
       
       const starsDiv = document.createElement('div');
       starsDiv.className = 'cutscene-stars';
@@ -1134,7 +1133,7 @@
       content.style.color = rarityColor;
       
       let extraHtml = '';
-      if(chyrchle.rarity >= 1000000 || chyrchle.name === 'UNHONORED') {
+      if(chyrchle.rarity >= 1000000 || chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') {
         extraHtml = `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:300px; background:radial-gradient(circle, ${rarityColor}20 0%, transparent 70%); border-radius:50%; animation:pulse 2s infinite;"></div>`;
       }
       
@@ -1157,7 +1156,7 @@
       
       document.body.appendChild(overlay);
       
-      const cutsceneDuration = chyrchle.name === 'UNHONORED' ? 5000 : duration;
+      const cutsceneDuration = (chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') ? 5000 : duration;
       setTimeout(() => {
         overlay.remove();
         activeCutscene = null;
@@ -1173,6 +1172,12 @@
         }
       }
       
+      // Check for Common:Unordinary fixed roll
+      const unordinaryChyrchle = CHYRCHLES.find(c => c.name === 'Common:Unordinary');
+      if(unordinaryChyrchle && Math.random() < 1/1000) {
+        return { ...unordinaryChyrchle };
+      }
+      
       const luck = getLuckMultiplier();
       
       const rollsToMake = Math.max(1, Math.floor(luck));
@@ -1184,10 +1189,10 @@
       
       for(let i = 0; i < totalRolls; i++) {
         let totalWeight = 0;
-        CHYRCHLES.forEach(c => totalWeight += 1/c.rarity);
+        CHYRCHLES.filter(c => !c.fixedRoll).forEach(c => totalWeight += 1/c.rarity);
         
         let rand = Math.random() * totalWeight;
-        for(let c of CHYRCHLES) {
+        for(let c of CHYRCHLES.filter(c => !c.fixedRoll)) {
           const weight = 1/c.rarity;
           if(rand < weight) {
             if(c.rarity > bestRarity) {
@@ -1358,11 +1363,12 @@
     function deleteFromInventory(index) {
       const chyrchle = state.inventory[index];
       
-      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special === 'alwaysDeploy' || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE';
+      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special === 'alwaysDeploy' || chyrchle.special === 'alwaysLast' || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE' || chyrchle.name === 'Common:Unordinary';
       
       if(needsConfirm) {
         let message = `Delete ${chyrchle.name} (1 in ${chyrchle.rarity.toLocaleString()})?`;
         if(chyrchle.name === 'UNHONORED') message = 'Delete UNHONORED? This is a special Chyrchle!';
+        if(chyrchle.name === 'Common:Unordinary') message = 'Delete Common:Unordinary? This is a special Chyrchle!';
         if(chyrchle.name === 'THE ABSOLUTE') message = 'Delete THE ABSOLUTE? This is extremely rare!';
         
         showConfirmDialog(message, () => {
@@ -1560,6 +1566,8 @@
       const sorted = [...state.inventory].sort((a,b) => {
         if(a.special === 'alwaysDeploy') return -1;
         if(b.special === 'alwaysDeploy') return 1;
+        if(a.special === 'alwaysLast') return 1;
+        if(b.special === 'alwaysLast') return -1;
         return b.gain - a.gain;
       });
       const bestN = sorted.slice(0, state.maxDeploy);
@@ -1568,8 +1576,8 @@
         ...c,
         x: Math.random() * (canvas.width-30)+15,
         y: Math.random() * (canvas.height-30)+15,
-        vx: (Math.random()-0.5)*2.5,
-        vy: (Math.random()-0.5)*2.5,
+        vx: (Math.random()-0.5) * (c.special === 'alwaysLast' ? 5 : 2.5),
+        vy: (Math.random()-0.5) * (c.special === 'alwaysLast' ? 5 : 2.5),
         r: getChyrchleSize(c.rarity)
       }));
       
@@ -1660,6 +1668,16 @@
           ctx.arc(c.x, c.y, c.r + 8 + Math.sin(timeOffset) * 3, 0, 2*Math.PI);
           ctx.strokeStyle = '#ffffff80';
           ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        
+        if(c.effectType === 'unordinary') {
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 25 + Math.sin(timeOffset * 3) * 8;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.r + 3, 0, 2*Math.PI);
           ctx.stroke();
         }
         
@@ -1788,6 +1806,8 @@
       const sorted = [...state.inventory].sort((a,b) => {
         if(a.special === 'alwaysDeploy') return -1;
         if(b.special === 'alwaysDeploy') return 1;
+        if(a.special === 'alwaysLast') return 1;
+        if(b.special === 'alwaysLast') return -1;
         return b.gain - a.gain;
       });
       const bestN = sorted.slice(0, state.maxDeploy);
@@ -2031,4 +2051,4 @@
   })();
 </script>
 </body>
-</html>
+  </html>
