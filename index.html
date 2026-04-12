@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v2.1 · Luck & Grind</title>
+  <title>Chyrchle v2.5 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -306,10 +306,15 @@
       max-height: 350px;
       overflow-y: auto;
     }
-    .equip-btn, .upgrade-btn {
+    .equip-btn, .upgrade-btn, .unequip-btn {
       padding: 6px 12px;
       font-size: 0.8rem;
       min-width: 70px;
+    }
+    .unequip-btn {
+      background: #f97316;
+      color: white;
+      border: none;
     }
     .toggle-switch {
       display: flex;
@@ -325,7 +330,7 @@
       margin-left: 8px;
     }
     
-    .tutorial-overlay {
+    .tutorial-overlay, .zenith-overlay, .chyrchle-selector-overlay, .capacity-upgrade-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -338,7 +343,7 @@
       z-index: 1000;
       backdrop-filter: blur(5px);
     }
-    .tutorial-content {
+    .tutorial-content, .zenith-content, .chyrchle-selector-content, .capacity-upgrade-content {
       background: #1e2432;
       padding: 30px;
       border-radius: 30px;
@@ -349,7 +354,10 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
       border: 1px solid #3b82f6;
     }
-    .tutorial-content h2 {
+    .chyrchle-selector-content {
+      max-width: 600px;
+    }
+    .tutorial-content h2, .zenith-content h2, .chyrchle-selector-content h2, .capacity-upgrade-content h2 {
       color: #3b82f6;
       margin-bottom: 20px;
     }
@@ -375,6 +383,18 @@
     }
     .tutorial-step-content strong {
       color: #60a5fa;
+    }
+    
+    .chyrchle-selector-item {
+      padding: 10px;
+      margin-bottom: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chyrchle-selector-item:hover {
+      background: rgba(59,130,246,0.3);
     }
     
     .cutscene-overlay {
@@ -557,6 +577,16 @@
       background: #3b82f6;
       color: white;
     }
+    
+    .special-tag {
+      background: linear-gradient(45deg, gold, orange);
+      color: black;
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 5px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -572,13 +602,16 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.1</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.5</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span><strong>Inventory</strong> <span id="invCount">0/50</span></span>
-        <button id="openInventoryBtn" style="padding:8px 16px;">View</button>
+        <div style="display:flex; gap:8px;">
+          <button id="openCapacityUpgradeBtn" style="padding:8px 12px;">Upgrade</button>
+          <button id="openInventoryBtn" style="padding:8px 16px;">View</button>
+        </div>
       </div>
       <div id="bestChyrchleDisplay" style="margin-top:8px; font-size:0.9rem;">Best: none</div>
     </div>
@@ -725,9 +758,12 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.1</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.5</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- New special "Common:Unordinary" chyrchle with 1 in 1000 regardless of luck</div>
+        <div class="changelog-item">- New "Format" code for a large amount of Chyrch</div>
+        <div class="changelog-item">- Inventory max capacity upgrade</div>
+        <div class="changelog-item">- Chyrch value formats (M, T, Qa, etc)</div>
+        <div class="changelog-item">- Items can be unequipped now</div>
       </div>
     </div>
   </div>
@@ -739,7 +775,7 @@
 
     // ---------- DATA DEFINITIONS ----------
     const CHYRCHLES = [
-      { name:'UNHONORED', rarity:1, color:'#ffffff', effectType:'unhonored', gain:1, theme:'holy', desc:'The forgotten one. Always deployed.', special:'alwaysDeploy' },
+      { name:'UNHONORED', rarity:1, color:'#ffffff', effectType:'unhonored', gain:1, theme:'holy', desc:'Am i really the unhonored one?', special:'alwaysDeploy' },
       { name:'Pebble', rarity:3, color:'#a8a29e', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
       { name:'Spark', rarity:5, color:'#fbbf24', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
       { name:'Dewdrop', rarity:7, color:'#bae6fd', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
@@ -835,7 +871,8 @@
       { id:'phoenixfeather', name:'Phoenix Feather', price:150000, luck:8.0, gain:3.0 },
       { id:'stardust', name:'Stardust Amulet', price:300000, luck:5.0, gain:8.0 },
       { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 },
-      { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special: 'bob' }
+      { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special: 'bob' },
+      { id:'thezenith', name:'THE ZENITH', price:0, luck:-1, gain:1000000, special: 'zenith', fakeGain: -1 }
     ];
 
     const UPGRADE_PRICES = [1000, 10000, 50000, 100000, 500000, 1000000, 8000000, 20000000, 50000000, 100000000];
@@ -850,11 +887,10 @@
       'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
       'FreeMoneh': { reward: 100, type: 'money' },
-      'FixSorry': { reward: 5554, type: 'money' },
-      'NewBestItem': { reward: 'unhonored', type: 'chyrchle' }
+      'Format': { reward: 100000, type: 'money' }
     };
 
-    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL'];
+    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL', 'FixSorry', 'NewBestItem'];
 
     // ---------- GAME STATE ----------
     let state = {
@@ -877,7 +913,10 @@
       tutorialCompleted: false,
       maxDeployLevel: 0,
       maxDeploy: 5,
-      quickRollActive: false
+      quickRollActive: false,
+      specialPlayer: false,
+      maxInventorySlots: 50,
+      inventoryUpgradeLevel: 0
     };
 
     let canvas, ctx, animationFrame;
@@ -890,6 +929,27 @@
     let activeCutscene = null;
     let simulationActive = true;
     let lastMoneyUpdate = Date.now();
+    let pendingZenithRoll = false;
+
+    // ---------- NUMBER FORMATTING ----------
+    function formatNumber(num) {
+      if(num === undefined || num === null) return '0';
+      if(num >= 1e33) {
+        const val = num / 1e33;
+        return val.toFixed(2) + 'Oc';
+      }
+      const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
+      let tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+      if(tier <= 0) return num.toFixed(0);
+      if(tier >= suffixes.length) {
+        const val = num / Math.pow(10, tier * 3);
+        return val.toFixed(2) + 'e' + (tier * 3);
+      }
+      const suffix = suffixes[tier];
+      const scale = Math.pow(10, tier * 3);
+      const scaled = num / scale;
+      return scaled.toFixed(2) + suffix;
+    }
 
     // ---------- CONFIRMATION DIALOG ----------
     function showConfirmDialog(message, onConfirm) {
@@ -923,6 +983,71 @@
       });
     }
 
+    // ---------- CHYRCHLE SELECTOR (for ZENITH) ----------
+    function showChyrchleSelector() {
+      const overlay = document.createElement('div');
+      overlay.className = 'chyrchle-selector-overlay';
+      overlay.innerHTML = `
+        <div class="chyrchle-selector-content">
+          <h2>THE ZENITH - Choose your Chyrchle</h2>
+          <div class="scrollable" style="max-height:400px;">
+            ${CHYRCHLES.map(c => `
+              <div class="chyrchle-selector-item" data-name="${c.name}">
+                <strong>${c.name}</strong> - 1 in ${c.rarity.toLocaleString()} - Gain: ${c.gain}
+              </div>
+            `).join('')}
+          </div>
+          <button id="closeSelectorBtn" style="width:100%; margin-top:20px;">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      overlay.querySelectorAll('.chyrchle-selector-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const name = item.dataset.name;
+          const selected = CHYRCHLES.find(c => c.name === name);
+          if(selected) {
+            overlay.remove();
+            finishZenithRoll(selected);
+          }
+        });
+      });
+      
+      overlay.querySelector('#closeSelectorBtn').addEventListener('click', () => {
+        overlay.remove();
+        pendingZenithRoll = false;
+      });
+    }
+
+    function finishZenithRoll(selected) {
+      const gainMult = getGainMultiplier();
+      const rolledWithGain = { ...selected, gain: selected.gain * gainMult };
+      
+      if(state.inventory.length < state.maxInventorySlots) {
+        state.inventory.push(rolledWithGain);
+      }
+      
+      if(!state.bestChyrchle || selected.rarity > state.bestChyrchle.rarity) {
+        state.bestChyrchle = { ...selected };
+      }
+      
+      state.rollHistory.unshift(selected.name);
+      if(state.rollHistory.length > 10) state.rollHistory.pop();
+      
+      const resultDiv = document.getElementById('rolledResult');
+      resultDiv.innerHTML = `
+        <div style="font-weight:bold;">${selected.name}</div>
+        <div style="font-size:0.85rem;">1 in ${selected.rarity.toLocaleString()}</div>
+        <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(selected)}; margin-top:4px;">
+          Gain: ${rolledWithGain.gain.toFixed(1)}/bounce
+        </div>
+      `;
+      
+      updateAllUI();
+      saveState();
+      pendingZenithRoll = false;
+    }
+
     // ---------- TUTORIAL ----------
     function showTutorial() {
       const overlay = document.createElement('div');
@@ -948,21 +1073,14 @@
             <div class="tutorial-step-number">3</div>
             <div class="tutorial-step-content">
               <strong>Auto-deploy</strong><br>
-              Your top Chyrchles automatically bounce and earn Chyrch. Simulation always active!
+              Your top Chyrchles automatically bounce and earn Chyrch.
             </div>
           </div>
           <div class="tutorial-step">
             <div class="tutorial-step-number">4</div>
             <div class="tutorial-step-content">
-              <strong>Upgrade Max Deploy</strong><br>
-              In Bounce tab, upgrade to deploy more Chyrchles (up to 15)!
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">5</div>
-            <div class="tutorial-step-content">
-              <strong>Shop for Items</strong><br>
-              Buy items to boost your luck and gain multipliers!
+              <strong>Upgrade Inventory</strong><br>
+              Click Upgrade next to View to increase max capacity!
             </div>
           </div>
           <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
@@ -985,6 +1103,51 @@
       });
     }
 
+    // ---------- CAPACITY UPGRADE ----------
+    function showCapacityUpgrade() {
+      const overlay = document.createElement('div');
+      overlay.className = 'capacity-upgrade-overlay';
+      
+      const nextLevel = state.inventoryUpgradeLevel + 1;
+      const price = Math.floor(Math.pow(nextLevel, 3) * 1500);
+      const newSlots = 50 + nextLevel;
+      
+      overlay.innerHTML = `
+        <div class="capacity-upgrade-content">
+          <h2>Upgrade Inventory Capacity</h2>
+          <p>Current Slots: ${state.maxInventorySlots}</p>
+          <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
+          <p>Price: C${formatNumber(price)}</p>
+          ${state.money >= price ? `
+            <button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>
+          ` : `
+            <p style="color:#ef4444;">Not enough Chyrch!</p>
+          `}
+          <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      overlay.querySelector('#closeCapacityBtn').addEventListener('click', () => {
+        overlay.remove();
+      });
+      
+      const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
+      if(upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+          if(state.money >= price) {
+            state.money -= price;
+            state.inventoryUpgradeLevel++;
+            state.maxInventorySlots = 50 + state.inventoryUpgradeLevel;
+            overlay.remove();
+            updateAllUI();
+            saveState();
+            alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
+          }
+        });
+      }
+    }
+
     // ---------- STORAGE ----------
     function saveState() {
       try {
@@ -999,7 +1162,7 @@
           const parsed = JSON.parse(saved);
           Object.assign(state, parsed);
           if(!state.inventory) state.inventory = [];
-          if(state.inventory.length > 50) state.inventory = state.inventory.slice(0,50);
+          if(state.inventory.length > state.maxInventorySlots) state.inventory = state.inventory.slice(0, state.maxInventorySlots);
           if(!state.codesUsed) state.codesUsed = [];
           if(!state.ownedItems) state.ownedItems = [];
           if(state.autoDeleteEnabled === undefined) state.autoDeleteEnabled = false;
@@ -1009,8 +1172,16 @@
           if(state.maxDeployLevel === undefined) state.maxDeployLevel = 0;
           state.maxDeploy = 5 + state.maxDeployLevel;
           if(state.quickRollActive === undefined) state.quickRollActive = false;
+          if(state.specialPlayer === undefined) state.specialPlayer = false;
+          if(state.maxInventorySlots === undefined) state.maxInventorySlots = 50;
+          if(state.inventoryUpgradeLevel === undefined) state.inventoryUpgradeLevel = 0;
         }
       } catch(e) {}
+      
+      // Check for BOB item to tag as special player
+      if(state.ownedItems.includes('bob')) {
+        state.specialPlayer = true;
+      }
       
       if(!state.shopStock || state.shopStock.length === 0) refreshShop();
       
@@ -1041,6 +1212,7 @@
       if(!state.equippedItem) return 1.0;
       const item = ITEMS.find(i=> i.id === state.equippedItem);
       if(item && item.special === 'bob') return 0;
+      if(item && item.special === 'zenith') return -1;
       let luck = item ? item.luck : 1.0;
       if(state.quickRollActive) luck *= 0.8;
       return luck;
@@ -1050,6 +1222,7 @@
       if(!state.equippedItem) return 1.0;
       const item = ITEMS.find(i=> i.id === state.equippedItem);
       if(item && item.special === 'bob') return 0;
+      if(item && item.special === 'zenith') return 1000000;
       return item ? item.gain : 1.0;
     }
 
@@ -1170,9 +1343,12 @@
           const randomIndex = Math.floor(Math.random() * CHYRCHLES.length);
           return { ...CHYRCHLES[randomIndex] };
         }
+        if(item && item.special === 'zenith') {
+          pendingZenithRoll = true;
+          return null;
+        }
       }
       
-      // Check for Common:Unordinary fixed roll
       const unordinaryChyrchle = CHYRCHLES.find(c => c.name === 'Common:Unordinary');
       if(unordinaryChyrchle && Math.random() < 1/1000) {
         return { ...unordinaryChyrchle };
@@ -1180,8 +1356,8 @@
       
       const luck = getLuckMultiplier();
       
-      const rollsToMake = Math.max(1, Math.floor(luck));
-      const fractionalLuck = luck - Math.floor(luck);
+      const rollsToMake = Math.max(1, Math.floor(Math.abs(luck)));
+      const fractionalLuck = Math.abs(luck) - Math.floor(Math.abs(luck));
       const totalRolls = rollsToMake + (Math.random() < fractionalLuck ? 1 : 0);
       
       let bestRoll = null;
@@ -1222,15 +1398,13 @@
       const resultDiv = document.getElementById('rolledResult');
       resultDiv.innerHTML = '<div>Rolling...</div>';
       
-      const rollSpeed = 150;
-      
       rollInterval = setInterval(() => {
         const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
         resultDiv.innerHTML = `
           <div style="font-weight:bold;">${fakeRoll.name}</div>
           <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
         `;
-      }, rollSpeed);
+      }, 150);
       
       const quickHandler = () => {
         clearInterval(rollInterval);
@@ -1252,6 +1426,15 @@
       const finishRoll = () => {
         clearInterval(rollInterval);
         const rolled = rollChyrchle();
+        
+        if(rolled === null) {
+          isRolling = false;
+          rollBtn.disabled = false;
+          quickBtn.style.display = 'none';
+          showChyrchleSelector();
+          return;
+        }
+        
         const gainMult = getGainMultiplier();
         const rolledWithGain = { ...rolled, gain: rolled.gain * gainMult };
         
@@ -1264,7 +1447,7 @@
             <div style="color:#ef4444; margin-top:4px;">Auto-deleted (under 1 in ${state.filterThreshold})</div>
           `;
         } else {
-          if(state.inventory.length < 50) {
+          if(state.inventory.length < state.maxInventorySlots) {
             state.inventory.push(rolledWithGain);
           }
           
@@ -1297,7 +1480,7 @@
     }
 
     function refreshShop() {
-      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope');
+      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope' && i.id !== 'thezenith');
       const shuffled = [...availableItems].sort(()=>Math.random()-0.5);
       state.shopStock = shuffled.slice(0,4).map(i => ({...i}));
       state.lastShopUpdate = Date.now();
@@ -1336,7 +1519,7 @@
             <div style="font-size:0.8rem;">Total: ${5 + i + 1} Chyrchles</div>
           </div>
           ${isUnlocked ? '<span style="color:#22c55e;">Unlocked</span>' : ''}
-          ${isNext ? `<button class="upgrade-btn" ${!canAfford ? 'disabled' : ''}>C${price.toLocaleString()}</button>` : ''}
+          ${isNext ? `<button class="upgrade-btn" ${!canAfford ? 'disabled' : ''}>C${formatNumber(price)}</button>` : ''}
           ${!isUnlocked && !isNext ? '<span style="opacity:0.5;">Locked</span>' : ''}
         `;
         
@@ -1401,9 +1584,9 @@
 
     // ---------- UI UPDATE ----------
     function updateAllUI() {
-      document.getElementById('moneyDisplay').innerText = Math.floor(state.money);
-      document.getElementById('shopMoney').innerText = Math.floor(state.money);
-      document.getElementById('invCount').innerText = `${state.inventory.length}/50`;
+      document.getElementById('moneyDisplay').innerText = formatNumber(Math.floor(state.money));
+      document.getElementById('shopMoney').innerText = formatNumber(Math.floor(state.money));
+      document.getElementById('invCount').innerText = `${state.inventory.length}/${state.maxInventorySlots}`;
       
       const bestEl = document.getElementById('bestChyrchleDisplay');
       if(state.bestChyrchle) {
@@ -1478,11 +1661,15 @@
           luckDisplay = '0';
           gainDisplay = '0';
         }
+        if(item.special === 'zenith') {
+          luckDisplay = '-1';
+          gainDisplay = '-1';
+        }
         
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">C${item.price.toLocaleString()} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
+            <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
           </div>
           <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''} style="padding:8px 12px;">
             ${owned ? 'Owned' : 'Buy'}
@@ -1531,6 +1718,10 @@
           luckDisplay = '0';
           gainDisplay = '0';
         }
+        if(item.special === 'zenith') {
+          luckDisplay = '-1';
+          gainDisplay = '-1';
+        }
         
         div.innerHTML = `
           <div style="flex:1;">
@@ -1538,9 +1729,12 @@
             <div style="font-size:0.8rem;">Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
             ${isEquipped ? '<span style="color:#3b82f6;">[Equipped]</span>' : ''}
           </div>
-          <button class="equip-btn" data-id="${item.id}" ${isEquipped ? 'disabled' : ''}>
-            ${isEquipped ? 'Equipped' : 'Equip'}
-          </button>
+          <div style="display:flex; gap:5px;">
+            ${isEquipped ? `<button class="unequip-btn" data-id="${item.id}">Unequip</button>` : ''}
+            <button class="equip-btn" data-id="${item.id}" ${isEquipped ? 'disabled' : ''}>
+              ${isEquipped ? 'Equipped' : 'Equip'}
+            </button>
+          </div>
         `;
         container.appendChild(div);
       });
@@ -1554,6 +1748,15 @@
             saveState();
             initBounceSim();
           }
+        });
+      });
+      
+      container.querySelectorAll('.unequip-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          state.equippedItem = null;
+          updateAllUI();
+          saveState();
+          initBounceSim();
         });
       });
     }
@@ -1815,8 +2018,8 @@
       const sumGain = bestN.reduce((s,c)=> s + (c.gain * gainMult), 0);
       const perMin = Math.floor(sumGain * 30);
       
-      document.getElementById('estimatedPerMin').innerText = perMin;
-      document.getElementById('estimatedPerHour').innerText = perMin * 60;
+      document.getElementById('estimatedPerMin').innerText = formatNumber(perMin);
+      document.getElementById('estimatedPerHour').innerText = formatNumber(perMin * 60);
       document.getElementById('best5Display').innerText = bestN.map(c=>c.name).join(', ') || 'none';
       document.getElementById('deployedCount').innerText = state.inventory.length;
     }
@@ -1878,7 +2081,7 @@
         state.codesUsed.push(code);
         saveState();
         updateAllUI();
-        alert(`${codeData.reward} Chyrch added!`);
+        alert(`${formatNumber(codeData.reward)} Chyrch added!`);
       } else if(codeData.type === 'item') {
         const itemId = codeData.reward;
         if(!state.ownedItems.includes(itemId)) {
@@ -1890,25 +2093,6 @@
           saveState();
           updateAllUI();
           alert('Special item added to your inventory!');
-        }
-      } else if(codeData.type === 'chyrchle') {
-        const chyrchleName = codeData.reward;
-        const targetChyrchle = CHYRCHLES.find(c => c.name.toLowerCase() === chyrchleName.toLowerCase());
-        if(targetChyrchle) {
-          if(state.inventory.length < 50) {
-            const gainMult = getGainMultiplier();
-            state.inventory.push({ ...targetChyrchle, gain: targetChyrchle.gain * gainMult });
-            if(!state.bestChyrchle || targetChyrchle.rarity > state.bestChyrchle.rarity) {
-              state.bestChyrchle = { ...targetChyrchle };
-            }
-            state.codesUsed.push(code);
-            saveState();
-            updateAllUI();
-            initBounceSim();
-            alert(`${targetChyrchle.name} added to your inventory!`);
-          } else {
-            alert('Inventory full!');
-          }
         }
       }
     }
@@ -1986,6 +2170,10 @@
         document.getElementById('inventoryOverlay').style.display = 'block';
         applyTheme();
         renderInventory();
+      });
+      
+      document.getElementById('openCapacityUpgradeBtn').addEventListener('click', () => {
+        showCapacityUpgrade();
       });
       
       document.getElementById('closeInventoryBtn').addEventListener('click', () => {
