@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v1.8 · Luck & Grind</title>
+  <title>Chyrchle v2.0 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -507,6 +507,56 @@
     .skip-cutscene-checkbox input {
       width: auto;
     }
+
+    .confirm-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(3px);
+    }
+    .confirm-box {
+      background: #1e2432;
+      padding: 25px;
+      border-radius: 20px;
+      max-width: 350px;
+      text-align: center;
+      color: white;
+      border: 1px solid #ef4444;
+    }
+    .confirm-box h3 {
+      color: #ef4444;
+      margin-bottom: 15px;
+    }
+    .confirm-box p {
+      margin-bottom: 20px;
+    }
+    .confirm-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .confirm-btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .confirm-yes {
+      background: #ef4444;
+      color: white;
+    }
+    .confirm-no {
+      background: #3b82f6;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -522,7 +572,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v1.8</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.0</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -675,11 +725,11 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v1.8</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.0</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- New code "FixSorry"</div>
-        <div class="changelog-item">- Upgrade system for bounce</div>
-        <div class="changelog-item">- A very secret code has been expired already</div>
+        <div class="changelog-item">- Quick roll rework (only make the current roll 2x faster and reducing the luck by 20%)</div>
+        <div class="changelog-item">- New best item "Windy Amethyst"</div>
+        <div class="changelog-item">- New code "NewBestItem" for an exclusive chyrchle</div>
       </div>
     </div>
   </div>
@@ -691,6 +741,7 @@
 
     // ---------- DATA DEFINITIONS ----------
     const CHYRCHLES = [
+      { name:'UNHONORED', rarity:1, color:'#ffffff', effectType:'unhonored', gain:1, theme:'holy', desc:'The forgotten one. Always deployed.', special:'alwaysDeploy' },
       { name:'Pebble', rarity:3, color:'#a8a29e', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
       { name:'Spark', rarity:5, color:'#fbbf24', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
       { name:'Dewdrop', rarity:7, color:'#bae6fd', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
@@ -775,6 +826,7 @@
       { id:'enduniverse', name:'The End of Universe', price:1000000, luck:77.0, gain:55.0 },
       { id:'godcrown', name:'The Crown of the Last Dying God...', price:999999, luck:100.0, gain:100.0 },
       { id:'gracioushope', name:'Gracious Hope', price:9999999, luck:1000000.0, gain:1000.0 },
+      { id:'windyamethyst', name:'Windy Amethyst', price:50000000, luck:110.0, gain:10.0 },
       { id:'luckycoin', name:'Lucky Coin', price:500, luck:1.3, gain:1.0 },
       { id:'fourleaf', name:'Four Leaf Clover', price:2000, luck:2.2, gain:1.0 },
       { id:'goldring', name:'Golden Ring', price:8000, luck:1.5, gain:2.5 },
@@ -799,10 +851,10 @@
       'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
       'FreeMoneh': { reward: 100, type: 'money' },
-      'FixSorry': { reward: 5554, type: 'money' }
+      'FixSorry': { reward: 5554, type: 'money' },
+      'NewBestItem': { reward: 'unhonored', type: 'chyrchle' }
     };
 
-    // Expired codes list (can't redeem, but items still exist if owned)
     const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL'];
 
     // ---------- GAME STATE ----------
@@ -825,7 +877,8 @@
       skipCutsceneThreshold: 100000,
       tutorialCompleted: false,
       maxDeployLevel: 0,
-      maxDeploy: 5
+      maxDeploy: 5,
+      quickRollActive: false
     };
 
     let canvas, ctx, animationFrame;
@@ -836,6 +889,38 @@
     let shopTimerInterval = null;
     let timeOffset = 0;
     let activeCutscene = null;
+
+    // ---------- CONFIRMATION DIALOG ----------
+    function showConfirmDialog(message, onConfirm) {
+      const overlay = document.createElement('div');
+      overlay.className = 'confirm-overlay';
+      overlay.innerHTML = `
+        <div class="confirm-box">
+          <h3>Are you sure?</h3>
+          <p>${message}</p>
+          <div class="confirm-buttons">
+            <button class="confirm-btn confirm-yes">Yes</button>
+            <button class="confirm-btn confirm-no">No</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      overlay.querySelector('.confirm-yes').addEventListener('click', () => {
+        overlay.remove();
+        onConfirm();
+      });
+      
+      overlay.querySelector('.confirm-no').addEventListener('click', () => {
+        overlay.remove();
+      });
+      
+      overlay.addEventListener('click', (e) => {
+        if(e.target === overlay) {
+          overlay.remove();
+        }
+      });
+    }
 
     // ---------- TUTORIAL ----------
     function showTutorial() {
@@ -854,29 +939,29 @@
           <div class="tutorial-step">
             <div class="tutorial-step-number">2</div>
             <div class="tutorial-step-content">
-              <strong>Auto-deploy</strong><br>
-              Your top Chyrchles automatically bounce and earn Chyrch (C) per bounce.
+              <strong>Quick Roll</strong><br>
+              Makes roll 2x faster but reduces luck by 20%.
             </div>
           </div>
           <div class="tutorial-step">
             <div class="tutorial-step-number">3</div>
+            <div class="tutorial-step-content">
+              <strong>Auto-deploy</strong><br>
+              Your top Chyrchles automatically bounce and earn Chyrch.
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-number">4</div>
             <div class="tutorial-step-content">
               <strong>Upgrade Max Deploy</strong><br>
               In Bounce tab, upgrade to deploy more Chyrchles (up to 15)!
             </div>
           </div>
           <div class="tutorial-step">
-            <div class="tutorial-step-number">4</div>
+            <div class="tutorial-step-number">5</div>
             <div class="tutorial-step-content">
               <strong>Shop for Items</strong><br>
               Buy items to boost your luck and gain multipliers!
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">5</div>
-            <div class="tutorial-step-content">
-              <strong>Redeem Codes</strong><br>
-              Check Settings to redeem secret codes for rewards.
             </div>
           </div>
           <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
@@ -922,6 +1007,7 @@
           if(state.tutorialCompleted === undefined) state.tutorialCompleted = false;
           if(state.maxDeployLevel === undefined) state.maxDeployLevel = 0;
           state.maxDeploy = 5 + state.maxDeployLevel;
+          if(state.quickRollActive === undefined) state.quickRollActive = false;
         }
       } catch(e) {}
       
@@ -954,7 +1040,9 @@
       if(!state.equippedItem) return 1.0;
       const item = ITEMS.find(i=> i.id === state.equippedItem);
       if(item && item.special === 'bob') return 0;
-      return item ? item.luck : 1.0;
+      let luck = item ? item.luck : 1.0;
+      if(state.quickRollActive) luck *= 0.8;
+      return luck;
     }
     
     function getGainMultiplier() {
@@ -998,21 +1086,21 @@
     }
 
     function showCutscene(chyrchle) {
-      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold) {
+      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED') {
         return;
       }
       
       if(activeCutscene) activeCutscene.remove();
       
       const duration = getCutsceneDuration(chyrchle.rarity);
-      if(duration === 0) return;
+      if(duration === 0 && chyrchle.name !== 'UNHONORED') return;
       
       const overlay = document.createElement('div');
       overlay.className = 'cutscene-overlay';
       activeCutscene = overlay;
       
-      const rarityColor = getRarityColor(chyrchle.rarity);
-      const rarityName = getRarityName(chyrchle.rarity);
+      const rarityColor = chyrchle.name === 'UNHONORED' ? '#ffffff' : getRarityColor(chyrchle.rarity);
+      const rarityName = chyrchle.name === 'UNHONORED' ? 'UNHONORED' : getRarityName(chyrchle.rarity);
       
       const starsDiv = document.createElement('div');
       starsDiv.className = 'cutscene-stars';
@@ -1044,7 +1132,7 @@
       content.style.color = rarityColor;
       
       let extraHtml = '';
-      if(chyrchle.rarity >= 1000000) {
+      if(chyrchle.rarity >= 1000000 || chyrchle.name === 'UNHONORED') {
         extraHtml = `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:300px; background:radial-gradient(circle, ${rarityColor}20 0%, transparent 70%); border-radius:50%; animation:pulse 2s infinite;"></div>`;
       }
       
@@ -1067,18 +1155,17 @@
       
       document.body.appendChild(overlay);
       
+      const cutsceneDuration = chyrchle.name === 'UNHONORED' ? 5000 : duration;
       setTimeout(() => {
         overlay.remove();
         activeCutscene = null;
-      }, duration);
+      }, cutsceneDuration);
     }
 
     function rollChyrchle() {
-      // Check if BOB is equipped
       if(state.equippedItem) {
         const item = ITEMS.find(i=> i.id === state.equippedItem);
         if(item && item.special === 'bob') {
-          // BOB: completely random roll from all Chyrchles
           const randomIndex = Math.floor(Math.random() * CHYRCHLES.length);
           return { ...CHYRCHLES[randomIndex] };
         }
@@ -1123,9 +1210,12 @@
       
       rollBtn.disabled = true;
       quickBtn.style.display = 'block';
+      state.quickRollActive = false;
       
       const resultDiv = document.getElementById('rolledResult');
       resultDiv.innerHTML = '<div>Rolling...</div>';
+      
+      const rollSpeed = 150;
       
       rollInterval = setInterval(() => {
         const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
@@ -1133,12 +1223,22 @@
           <div style="font-weight:bold;">${fakeRoll.name}</div>
           <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
         `;
-      }, 150);
+      }, rollSpeed);
       
       const quickHandler = () => {
         clearInterval(rollInterval);
         clearTimeout(rollTimeout);
-        finishRoll();
+        state.quickRollActive = true;
+        
+        rollInterval = setInterval(() => {
+          const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
+          resultDiv.innerHTML = `
+            <div style="font-weight:bold;">${fakeRoll.name}</div>
+            <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
+          `;
+        }, 75);
+        
+        rollTimeout = setTimeout(finishRoll, 750);
       };
       quickBtn.addEventListener('click', quickHandler, { once: true });
       
@@ -1150,7 +1250,8 @@
         
         showCutscene(rolled);
         
-        if(state.autoDeleteEnabled && rolled.rarity < state.filterThreshold) {
+        // UNHONORED is never auto-deleted
+        if(state.autoDeleteEnabled && rolled.rarity < state.filterThreshold && rolled.name !== 'UNHONORED') {
           resultDiv.innerHTML = `
             <div style="font-weight:bold;">${rolled.name}</div>
             <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
@@ -1180,6 +1281,7 @@
         isRolling = false;
         rollBtn.disabled = false;
         quickBtn.style.display = 'none';
+        state.quickRollActive = false;
         
         updateAllUI();
         saveState();
@@ -1253,16 +1355,34 @@
     }
 
     function deleteFromInventory(index) {
-      state.inventory.splice(index, 1);
-      updateAllUI();
-      saveState();
+      const chyrchle = state.inventory[index];
+      
+      // Check if it needs confirmation
+      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special === 'alwaysDeploy' || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE';
+      
+      if(needsConfirm) {
+        let message = `Delete ${chyrchle.name} (1 in ${chyrchle.rarity.toLocaleString()})?`;
+        if(chyrchle.name === 'UNHONORED') message = 'Delete UNHONORED? This is a special Chyrchle!';
+        if(chyrchle.name === 'THE ABSOLUTE') message = 'Delete THE ABSOLUTE? This is extremely rare!';
+        
+        showConfirmDialog(message, () => {
+          state.inventory.splice(index, 1);
+          updateAllUI();
+          saveState();
+        });
+      } else {
+        state.inventory.splice(index, 1);
+        updateAllUI();
+        saveState();
+      }
     }
 
     function applyFilterNow() {
       const thresh = parseInt(document.getElementById('filterThreshold').value) || 8;
       state.filterThreshold = thresh;
       const beforeCount = state.inventory.length;
-      state.inventory = state.inventory.filter(c => c.rarity >= thresh);
+      // Never delete UNHONORED
+      state.inventory = state.inventory.filter(c => c.rarity >= thresh || c.name === 'UNHONORED');
       const afterCount = state.inventory.length;
       
       updateAllUI();
@@ -1314,7 +1434,7 @@
         div.className = 'inventory-item';
         
         const bgColor = getColorStyle(c);
-        const textColor = (c.color === '#ffffff' || c.color === '#f0f0f0' || c.color === '#e0e7ff' || c.color === '#000000') ? '#fff' : 'white';
+        const textColor = (c.color === '#ffffff' || c.color === '#f0f0f0' || c.color === '#e0e7ff' || c.color === '#000000') ? '#111' : 'white';
         
         div.innerHTML = `
           <span style="background:${bgColor}; color:${textColor}; padding:4px 12px; border-radius:20px; text-shadow:0 1px 2px rgba(0,0,0,0.5); font-size:0.85rem;">
@@ -1354,7 +1474,7 @@
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">C${item.price} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
+            <div style="font-size:0.8rem;">C${item.price.toLocaleString()} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
           </div>
           <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''} style="padding:8px 12px;">
             ${owned ? 'Owned' : 'Buy'}
@@ -1434,7 +1554,11 @@
       if(!canvas) return;
       ctx = canvas.getContext('2d');
       
-      const sorted = [...state.inventory].sort((a,b) => b.gain - a.gain);
+      const sorted = [...state.inventory].sort((a,b) => {
+        if(a.special === 'alwaysDeploy') return -1;
+        if(b.special === 'alwaysDeploy') return 1;
+        return b.gain - a.gain;
+      });
       const bestN = sorted.slice(0, state.maxDeploy);
       
       circles = bestN.map((c) => ({
@@ -1474,6 +1598,20 @@
         if(c.effectType === 'pulse' || c.effectType === 'wave') {
           const pulse = Math.sin(timeOffset * 5) * 2;
           c.r = Math.max(baseSize - 2, Math.min(baseSize + 3, baseSize + pulse));
+        }
+        
+        if(c.effectType === 'unhonored') {
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 30 + Math.sin(timeOffset * 2) * 10;
+          
+          const pulse = Math.sin(timeOffset * 1.5) * 3;
+          c.r = Math.max(baseSize - 2, Math.min(baseSize + 4, baseSize + pulse));
+          
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.r + 8 + Math.sin(timeOffset) * 3, 0, 2*Math.PI);
+          ctx.strokeStyle = '#ffffff80';
+          ctx.lineWidth = 2;
+          ctx.stroke();
         }
         
         if(c.effectType === 'spark' || c.effectType === 'sparkle') {
@@ -1576,9 +1714,9 @@
         
         ctx.fill();
         
-        if(c.effectType === 'ring' || c.effectType === 'absolute') {
+        if(c.effectType === 'ring' || c.effectType === 'absolute' || c.effectType === 'unhonored') {
           ctx.shadowBlur = 0;
-          ctx.strokeStyle = '#ffffff80';
+          ctx.strokeStyle = c.effectType === 'unhonored' ? '#ffffff80' : '#ffffff80';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(c.x, c.y, c.r + 5 + Math.sin(timeOffset * 2) * 2, 0, 2*Math.PI);
@@ -1628,7 +1766,11 @@
     }
 
     function updateBounceEstimates() {
-      const sorted = [...state.inventory].sort((a,b) => b.gain - a.gain);
+      const sorted = [...state.inventory].sort((a,b) => {
+        if(a.special === 'alwaysDeploy') return -1;
+        if(b.special === 'alwaysDeploy') return 1;
+        return b.gain - a.gain;
+      });
       const bestN = sorted.slice(0, state.maxDeploy);
       const sumGain = bestN.reduce((s,c)=> s+c.gain, 0);
       const perMin = Math.floor(sumGain * 30);
@@ -1708,6 +1850,23 @@
           saveState();
           updateAllUI();
           alert('Special item added to your inventory!');
+        }
+      } else if(codeData.type === 'chyrchle') {
+        const chyrchleName = codeData.reward;
+        const targetChyrchle = CHYRCHLES.find(c => c.name.toLowerCase() === chyrchleName.toLowerCase());
+        if(targetChyrchle) {
+          if(state.inventory.length < 50) {
+            state.inventory.push({ ...targetChyrchle });
+            if(!state.bestChyrchle || targetChyrchle.rarity > state.bestChyrchle.rarity) {
+              state.bestChyrchle = { ...targetChyrchle };
+            }
+            state.codesUsed.push(code);
+            saveState();
+            updateAllUI();
+            alert(`${targetChyrchle.name} added to your inventory!`);
+          } else {
+            alert('Inventory full!');
+          }
         }
       }
     }
@@ -1850,4 +2009,4 @@
   })();
 </script>
 </body>
-  </html>
+</html>
