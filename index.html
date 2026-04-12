@@ -635,7 +635,7 @@
         </div>
         <div style="margin-top:8px;"><strong>Active best <span id="maxDeployDisplay">5</span>:</strong> <span id="best5Display" style="font-size:0.85rem;">-</span></div>
         <div style="margin-top:4px;">All Chyrchles: <span id="deployedCount">0</span></div>
-        <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Only top Chyrchles bounce · no offline gain</p>
+        <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Only top Chyrchles bounce · simulation always active</p>
       </div>
       
       <div id="bounceUpgradeContent" style="display:none;">
@@ -889,6 +889,8 @@
     let shopTimerInterval = null;
     let timeOffset = 0;
     let activeCutscene = null;
+    let simulationActive = true;
+    let lastMoneyUpdate = Date.now();
 
     // ---------- CONFIRMATION DIALOG ----------
     function showConfirmDialog(message, onConfirm) {
@@ -947,7 +949,7 @@
             <div class="tutorial-step-number">3</div>
             <div class="tutorial-step-content">
               <strong>Auto-deploy</strong><br>
-              Your top Chyrchles automatically bounce and earn Chyrch.
+              Your top Chyrchles automatically bounce and earn Chyrch. Simulation always active!
             </div>
           </div>
           <div class="tutorial-step">
@@ -1250,7 +1252,6 @@
         
         showCutscene(rolled);
         
-        // UNHONORED is never auto-deleted
         if(state.autoDeleteEnabled && rolled.rarity < state.filterThreshold && rolled.name !== 'UNHONORED') {
           resultDiv.innerHTML = `
             <div style="font-weight:bold;">${rolled.name}</div>
@@ -1357,7 +1358,6 @@
     function deleteFromInventory(index) {
       const chyrchle = state.inventory[index];
       
-      // Check if it needs confirmation
       const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special === 'alwaysDeploy' || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE';
       
       if(needsConfirm) {
@@ -1369,11 +1369,13 @@
           state.inventory.splice(index, 1);
           updateAllUI();
           saveState();
+          initBounceSim();
         });
       } else {
         state.inventory.splice(index, 1);
         updateAllUI();
         saveState();
+        initBounceSim();
       }
     }
 
@@ -1381,12 +1383,12 @@
       const thresh = parseInt(document.getElementById('filterThreshold').value) || 8;
       state.filterThreshold = thresh;
       const beforeCount = state.inventory.length;
-      // Never delete UNHONORED
       state.inventory = state.inventory.filter(c => c.rarity >= thresh || c.name === 'UNHONORED');
       const afterCount = state.inventory.length;
       
       updateAllUI();
       saveState();
+      initBounceSim();
       
       alert(`Deleted ${beforeCount - afterCount} Chyrchles below 1 in ${thresh}`);
     }
@@ -1544,6 +1546,7 @@
             state.equippedItem = id;
             updateAllUI();
             saveState();
+            initBounceSim();
           }
         });
       });
@@ -1573,8 +1576,54 @@
       timeOffset = 0;
     }
 
+    function updateSimulation() {
+      if(!simulationActive) return;
+      if(!circles.length) return;
+      
+      const gainMult = getGainMultiplier();
+      
+      circles.forEach(c => {
+        c.x += c.vx;
+        c.y += c.vy;
+        
+        const currentR = c.r;
+        
+        if(c.x < currentR) { c.x = currentR; c.vx *= -0.9; }
+        if(c.x > canvas.width-currentR) { c.x = canvas.width-currentR; c.vx *= -0.9; }
+        if(c.y < currentR) { c.y = currentR; c.vy *= -0.9; }
+        if(c.y > canvas.height-currentR) { c.y = canvas.height-currentR; c.vy *= -0.9; }
+        
+        if(c.x <= currentR || c.x >= canvas.width-currentR || c.y <= currentR || c.y >= canvas.height-currentR) {
+          state.money = Math.floor(state.money + (c.gain * gainMult));
+        }
+      });
+      
+      for(let i=0; i<circles.length; i++) {
+        for(let j=i+1; j<circles.length; j++) {
+          const a = circles[i], b = circles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.hypot(dx, dy);
+          if(dist < a.r + b.r) {
+            const angle = Math.atan2(dy, dx);
+            const overlap = (a.r + b.r) - dist;
+            a.x += Math.cos(angle) * overlap/2;
+            a.y += Math.sin(angle) * overlap/2;
+            b.x -= Math.cos(angle) * overlap/2;
+            b.y -= Math.sin(angle) * overlap/2;
+            
+            const tempVx = a.vx;
+            a.vx = b.vx * 0.9;
+            b.vx = tempVx * 0.9;
+          }
+        }
+      }
+    }
+
     function drawBounce() {
       if(!canvas || !ctx) return;
+      
+      updateSimulation();
+      
       if(!document.getElementById('screen-bounce').classList.contains('active')) {
         animationFrame = requestAnimationFrame(drawBounce);
         return;
@@ -1726,43 +1775,13 @@
         ctx.restore();
       });
       
-      circles.forEach(c => {
-        c.x += c.vx;
-        c.y += c.vy;
-        
-        const currentR = c.r;
-        
-        if(c.x < currentR) { c.x = currentR; c.vx *= -0.9; }
-        if(c.x > canvas.width-currentR) { c.x = canvas.width-currentR; c.vx *= -0.9; }
-        if(c.y < currentR) { c.y = currentR; c.vy *= -0.9; }
-        if(c.y > canvas.height-currentR) { c.y = canvas.height-currentR; c.vy *= -0.9; }
-        
-        if(c.x <= currentR || c.x >= canvas.width-currentR || c.y <= currentR || c.y >= canvas.height-currentR) {
-          state.money = Math.floor(state.money + c.gain);
-        }
-      });
-      
-      for(let i=0; i<circles.length; i++) {
-        for(let j=i+1; j<circles.length; j++) {
-          const a = circles[i], b = circles[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if(dist < a.r + b.r) {
-            const angle = Math.atan2(dy, dx);
-            const overlap = (a.r + b.r) - dist;
-            a.x += Math.cos(angle) * overlap/2;
-            a.y += Math.sin(angle) * overlap/2;
-            b.x -= Math.cos(angle) * overlap/2;
-            b.y -= Math.sin(angle) * overlap/2;
-            
-            const tempVx = a.vx;
-            a.vx = b.vx * 0.9;
-            b.vx = tempVx * 0.9;
-          }
-        }
-      }
-      
       animationFrame = requestAnimationFrame(drawBounce);
+      
+      const now = Date.now();
+      if(now - lastMoneyUpdate > 1000) {
+        updateAllUI();
+        lastMoneyUpdate = now;
+      }
     }
 
     function updateBounceEstimates() {
@@ -1772,7 +1791,8 @@
         return b.gain - a.gain;
       });
       const bestN = sorted.slice(0, state.maxDeploy);
-      const sumGain = bestN.reduce((s,c)=> s+c.gain, 0);
+      const gainMult = getGainMultiplier();
+      const sumGain = bestN.reduce((s,c)=> s + (c.gain * gainMult), 0);
       const perMin = Math.floor(sumGain * 30);
       
       document.getElementById('estimatedPerMin').innerText = perMin;
@@ -1856,13 +1876,15 @@
         const targetChyrchle = CHYRCHLES.find(c => c.name.toLowerCase() === chyrchleName.toLowerCase());
         if(targetChyrchle) {
           if(state.inventory.length < 50) {
-            state.inventory.push({ ...targetChyrchle });
+            const gainMult = getGainMultiplier();
+            state.inventory.push({ ...targetChyrchle, gain: targetChyrchle.gain * gainMult });
             if(!state.bestChyrchle || targetChyrchle.rarity > state.bestChyrchle.rarity) {
               state.bestChyrchle = { ...targetChyrchle };
             }
             state.codesUsed.push(code);
             saveState();
             updateAllUI();
+            initBounceSim();
             alert(`${targetChyrchle.name} added to your inventory!`);
           } else {
             alert('Inventory full!');
@@ -1890,7 +1912,7 @@
           document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
           
           if(btn.dataset.screen === 'bounce') {
-            initBounceSim();
+            // Canvas already running
           }
           updateAllUI();
         });
