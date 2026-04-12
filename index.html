@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v2.5 · Luck & Grind</title>
+  <title>Chyrchle v3.0 · Luck & Grind</title>
   <style>
     * {
       box-sizing: border-box;
@@ -114,6 +114,9 @@
       #screen-main .roll-area {
         grid-column: 1 / 2;
       }
+      #screen-main .effects-area {
+        grid-column: 1 / 2;
+      }
       #screen-main .history-area {
         grid-column: 2 / 3;
       }
@@ -199,6 +202,48 @@
       background: #242d3eb3;
       border-color: #3d4b60;
     }
+    .effects-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+    .effect-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .effect-icon:hover {
+      transform: scale(1.05);
+    }
+    .effect-timer {
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      font-size: 0.6rem;
+      padding: 2px 5px;
+      border-radius: 10px;
+    }
+    .effect-tooltip {
+      position: fixed;
+      background: #1e2432;
+      color: white;
+      padding: 15px;
+      border-radius: 15px;
+      max-width: 250px;
+      z-index: 1000;
+      border: 1px solid #3b82f6;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
     .inventory-item {
       display: flex;
       align-items: center;
@@ -263,7 +308,7 @@
       border-color: #4f6280;
       color: white;
     }
-    .shop-item, .inventory-item-container, .upgrade-item {
+    .shop-item, .inventory-item-container, .upgrade-item, .potion-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -271,7 +316,7 @@
       padding: 8px;
       border-bottom: 1px solid #ddd;
     }
-    body.dark .shop-item, body.dark .inventory-item-container, body.dark .upgrade-item {
+    body.dark .shop-item, body.dark .inventory-item-container, body.dark .upgrade-item, body.dark .potion-item {
       border-bottom-color: #3a4a62;
     }
     .timer {
@@ -306,13 +351,18 @@
       max-height: 350px;
       overflow-y: auto;
     }
-    .equip-btn, .upgrade-btn, .unequip-btn {
+    .equip-btn, .upgrade-btn, .unequip-btn, .use-btn {
       padding: 6px 12px;
       font-size: 0.8rem;
       min-width: 70px;
     }
     .unequip-btn {
       background: #f97316;
+      color: white;
+      border: none;
+    }
+    .use-btn {
+      background: #10b981;
       color: white;
       border: none;
     }
@@ -330,7 +380,7 @@
       margin-left: 8px;
     }
     
-    .tutorial-overlay, .zenith-overlay, .chyrchle-selector-overlay, .capacity-upgrade-overlay {
+    .tutorial-overlay, .chyrchle-selector-overlay, .capacity-upgrade-overlay, .potion-selector-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -343,7 +393,7 @@
       z-index: 1000;
       backdrop-filter: blur(5px);
     }
-    .tutorial-content, .zenith-content, .chyrchle-selector-content, .capacity-upgrade-content {
+    .tutorial-content, .chyrchle-selector-content, .capacity-upgrade-content, .potion-selector-content {
       background: #1e2432;
       padding: 30px;
       border-radius: 30px;
@@ -357,34 +407,6 @@
     .chyrchle-selector-content {
       max-width: 600px;
     }
-    .tutorial-content h2, .zenith-content h2, .chyrchle-selector-content h2, .capacity-upgrade-content h2 {
-      color: #3b82f6;
-      margin-bottom: 20px;
-    }
-    .tutorial-step {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: flex-start;
-    }
-    .tutorial-step-number {
-      width: 30px;
-      height: 30px;
-      background: #3b82f6;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-    .tutorial-step-content {
-      flex: 1;
-    }
-    .tutorial-step-content strong {
-      color: #60a5fa;
-    }
-    
     .chyrchle-selector-item {
       padding: 10px;
       margin-bottom: 5px;
@@ -476,9 +498,6 @@
       cursor: pointer;
       transition: all 0.3s;
     }
-    .cutscene-continue:hover {
-      background: rgba(255,255,255,0.1);
-    }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -490,18 +509,6 @@
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
-    }
-    .cutscene-particle {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: white;
-      border-radius: 50%;
-      animation: float 3s infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
     }
     
     .changelog-item {
@@ -517,15 +524,6 @@
     body.dark #inventoryPanel {
       background: #1e2432;
       border-color: #3d4b60;
-    }
-    .skip-cutscene-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .skip-cutscene-checkbox input {
-      width: auto;
     }
 
     .confirm-overlay {
@@ -577,16 +575,6 @@
       background: #3b82f6;
       color: white;
     }
-    
-    .special-tag {
-      background: linear-gradient(45deg, gold, orange);
-      color: black;
-      font-size: 0.6rem;
-      padding: 2px 6px;
-      border-radius: 10px;
-      margin-left: 5px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
@@ -602,7 +590,7 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v2.5</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v3.0</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
       
@@ -629,6 +617,11 @@
       </div>
     </div>
 
+    <div class="card effects-area">
+      <h3 style="font-size:1rem;">Active Effects</h3>
+      <div id="effectsContainer" class="effects-container"></div>
+    </div>
+
     <div class="card history-area">
       <h3 style="font-size:1rem;">Previous 10 rolls</h3>
       <div id="rollHistoryList" style="max-height:200px; overflow-y:auto; font-size:0.85rem;">-</div>
@@ -640,7 +633,16 @@
         <h3 style="font-size:1rem;">Inventory</h3>
         <button id="closeInventoryBtn" style="padding:6px 12px;">Close</button>
       </div>
-      <div id="inventoryContainer" class="scrollable" style="max-height:300px;"></div>
+      <div class="tab-container">
+        <button class="tab-btn active" data-invtab="chyrchles">Chyrchles</button>
+        <button class="tab-btn" data-invtab="potions">Potions</button>
+      </div>
+      <div id="chyrchlesInvContent" class="scrollable" style="max-height:300px;">
+        <div id="inventoryContainer"></div>
+      </div>
+      <div id="potionsInvContent" class="scrollable" style="max-height:300px; display:none;">
+        <div id="potionsInventoryContainer"></div>
+      </div>
     </div>
     <div id="inventoryOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:99;" onclick="document.getElementById('inventoryPanel').style.display='none';this.style.display='none';"></div>
   </div>
@@ -691,6 +693,7 @@
       <div class="tab-container">
         <button class="tab-btn active" data-shoptab="shop">Shop</button>
         <button class="tab-btn" data-shoptab="items">My Items</button>
+        <button class="tab-btn" data-shoptab="potions">My Potions</button>
       </div>
       
       <div id="shopTabContent">
@@ -703,6 +706,12 @@
       <div id="itemsTabContent" style="display:none;">
         <div class="scrollable" style="max-height:350px;">
           <div id="ownedItemsContainer"></div>
+        </div>
+      </div>
+      
+      <div id="potionsTabContent" style="display:none;">
+        <div class="scrollable" style="max-height:350px;">
+          <div id="ownedPotionsContainer"></div>
         </div>
       </div>
       
@@ -758,12 +767,11 @@
     </div>
     
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v2.5</h3>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v3.0</h3>
       <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- New "Format" code for a large amount of Chyrch</div>
-        <div class="changelog-item">- Inventory max capacity upgrade</div>
-        <div class="changelog-item">- Chyrch value formats (M, T, Qa, etc)</div>
-        <div class="changelog-item">- Items can be unequipped now</div>
+        <div class="changelog-item">- Potion Update!</div>
+        <div class="changelog-item">- Reworked shop mechanic</div>
+        <div class="changelog-item">- New "FreePotions" code</div>
       </div>
     </div>
   </div>
@@ -875,6 +883,26 @@
       { id:'thezenith', name:'THE ZENITH', price:0, luck:-1, gain:1000000, special: 'zenith', fakeGain: -1 }
     ];
 
+    const POTIONS = [
+      // Luck type
+      { id:'luck1', name:'Luck Potion I', type:'luck', effect:'luck', value:2.0, duration:180, rarity:500, price:2500, maxStock:5 },
+      { id:'luck2', name:'Luck Potion II', type:'luck', effect:'luck', value:3.5, duration:180, rarity:1000, price:7500, maxStock:5 },
+      { id:'luck3', name:'Luck Potion III', type:'luck', effect:'luck', value:6.0, duration:180, rarity:2000, price:20000, maxStock:5 },
+      // Speed type
+      { id:'speed1', name:'Speed Potion I', type:'speed', effect:'speed', value:1.4, duration:120, rarity:2000, price:3000, maxStock:5 },
+      { id:'speed2', name:'Speed Potion II', type:'speed', effect:'speed', value:1.6, duration:120, rarity:4000, price:8000, maxStock:5 },
+      { id:'speed3', name:'Speed Potion III', type:'speed', effect:'speed', value:1.8, duration:120, rarity:6000, price:15000, maxStock:5 },
+      // Special 1
+      { id:'stone', name:'Stone Potion', type:'special1', effect:'stone', luckValue:4.0, speedValue:0.5, duration:300, rarity:3000, price:12000, maxStock:5 },
+      { id:'charged', name:'Charged Potion', type:'special1', effect:'charged', luckValue:2.0, speedValue:1.3, duration:300, rarity:4500, price:18000, maxStock:5 },
+      // Special 2 (Unrestricted - 1 roll)
+      { id:'unrestricted1', name:'Unrestricted Potion I', type:'special2', effect:'unrestricted', value:101, rolls:1, rarity:25000, price:100000, maxStock:1 },
+      { id:'unrestricted2', name:'Unrestricted Potion II', type:'special2', effect:'unrestricted', value:1001, rolls:1, rarity:200000, price:1000000, maxStock:1 },
+      { id:'unrestricted3', name:'Unrestricted Potion III', type:'special2', effect:'unrestricted', value:10001, rolls:1, rarity:3000000, price:10000000, maxStock:1 },
+      // Special 3
+      { id:'purifying', name:'Purifying Potion', type:'special3', effect:'purify', rarity:5000, price:5000, maxStock:5 }
+    ];
+
     const UPGRADE_PRICES = [1000, 10000, 50000, 100000, 500000, 1000000, 8000000, 20000000, 50000000, 100000000];
 
     const CODES = {
@@ -887,7 +915,8 @@
       'VeryVeryLuckyDay': { reward: 66, type: 'money' },
       'LuckyDay': { reward: 'tenleaf', type: 'item' },
       'FreeMoneh': { reward: 100, type: 'money' },
-      'Format': { reward: 100000, type: 'money' }
+      'Format': { reward: 100000, type: 'money' },
+      'FreePotions': { reward: [{id:'luck1', count:5}, {id:'luck2', count:3}], type: 'potions' }
     };
 
     const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL', 'FixSorry', 'NewBestItem'];
@@ -902,6 +931,7 @@
       autoRollTimer: null,
       equippedItem: null,
       ownedItems: [],
+      ownedPotions: [],
       shopStock: [],
       lastShopUpdate: Date.now(),
       theme: 'light',
@@ -916,7 +946,10 @@
       quickRollActive: false,
       specialPlayer: false,
       maxInventorySlots: 50,
-      inventoryUpgradeLevel: 0
+      inventoryUpgradeLevel: 0,
+      activeEffects: [],
+      unrestrictedRolls: 0,
+      unrestrictedValue: 1
     };
 
     let canvas, ctx, animationFrame;
@@ -925,297 +958,266 @@
     let rollTimeout = null;
     let rollInterval = null;
     let shopTimerInterval = null;
+    let effectTimerInterval = null;
     let timeOffset = 0;
     let activeCutscene = null;
     let simulationActive = true;
     let lastMoneyUpdate = Date.now();
-    let pendingZenithRoll = false;
+    let pendingPotionPurchase = null;
+    let activeTooltip = null;
 
     // ---------- NUMBER FORMATTING ----------
     function formatNumber(num) {
       if(num === undefined || num === null) return '0';
-      if(num >= 1e33) {
-        const val = num / 1e33;
-        return val.toFixed(2) + 'Oc';
-      }
+      if(num >= 1e33) return (num / 1e33).toFixed(2) + 'Oc';
       const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
       let tier = Math.floor(Math.log10(Math.abs(num)) / 3);
       if(tier <= 0) return num.toFixed(0);
-      if(tier >= suffixes.length) {
-        const val = num / Math.pow(10, tier * 3);
-        return val.toFixed(2) + 'e' + (tier * 3);
-      }
+      if(tier >= suffixes.length) return (num / Math.pow(10, tier * 3)).toFixed(2) + 'e' + (tier * 3);
       const suffix = suffixes[tier];
-      const scale = Math.pow(10, tier * 3);
-      const scaled = num / scale;
+      const scaled = num / Math.pow(10, tier * 3);
       return scaled.toFixed(2) + suffix;
     }
 
-    // ---------- CONFIRMATION DIALOG ----------
-    function showConfirmDialog(message, onConfirm) {
-      const overlay = document.createElement('div');
-      overlay.className = 'confirm-overlay';
-      overlay.innerHTML = `
-        <div class="confirm-box">
-          <h3>Are you sure?</h3>
-          <p>${message}</p>
-          <div class="confirm-buttons">
-            <button class="confirm-btn confirm-yes">Yes</button>
-            <button class="confirm-btn confirm-no">No</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      
-      overlay.querySelector('.confirm-yes').addEventListener('click', () => {
-        overlay.remove();
-        onConfirm();
-      });
-      
-      overlay.querySelector('.confirm-no').addEventListener('click', () => {
-        overlay.remove();
-      });
-      
-      overlay.addEventListener('click', (e) => {
-        if(e.target === overlay) {
-          overlay.remove();
-        }
-      });
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // ---------- CHYRCHLE SELECTOR (for ZENITH) ----------
-    function showChyrchleSelector() {
-      const overlay = document.createElement('div');
-      overlay.className = 'chyrchle-selector-overlay';
-      overlay.innerHTML = `
-        <div class="chyrchle-selector-content">
-          <h2>THE ZENITH - Choose your Chyrchle</h2>
-          <div class="scrollable" style="max-height:400px;">
-            ${CHYRCHLES.map(c => `
-              <div class="chyrchle-selector-item" data-name="${c.name}">
-                <strong>${c.name}</strong> - 1 in ${c.rarity.toLocaleString()} - Gain: ${c.gain}
-              </div>
-            `).join('')}
-          </div>
-          <button id="closeSelectorBtn" style="width:100%; margin-top:20px;">Cancel</button>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      
-      overlay.querySelectorAll('.chyrchle-selector-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const name = item.dataset.name;
-          const selected = CHYRCHLES.find(c => c.name === name);
-          if(selected) {
-            overlay.remove();
-            finishZenithRoll(selected);
-          }
+    // ---------- EFFECTS SYSTEM ----------
+    function addEffect(effect) {
+      const existingSameType = state.activeEffects.find(e => e.type === effect.type && e.effect === effect.effect);
+      if(existingSameType) {
+        existingSameType.remaining = Math.max(existingSameType.remaining, effect.duration || effect.rolls);
+        existingSameType.value = effect.value;
+        if(effect.luckValue) existingSameType.luckValue = effect.luckValue;
+        if(effect.speedValue) existingSameType.speedValue = effect.speedValue;
+      } else {
+        state.activeEffects.push({
+          ...effect,
+          remaining: effect.duration || effect.rolls,
+          startTime: Date.now()
         });
-      });
-      
-      overlay.querySelector('#closeSelectorBtn').addEventListener('click', () => {
-        overlay.remove();
-        pendingZenithRoll = false;
-      });
-    }
-
-    function finishZenithRoll(selected) {
-      const gainMult = getGainMultiplier();
-      const rolledWithGain = { ...selected, gain: selected.gain * gainMult };
-      
-      if(state.inventory.length < state.maxInventorySlots) {
-        state.inventory.push(rolledWithGain);
       }
-      
-      if(!state.bestChyrchle || selected.rarity > state.bestChyrchle.rarity) {
-        state.bestChyrchle = { ...selected };
-      }
-      
-      state.rollHistory.unshift(selected.name);
-      if(state.rollHistory.length > 10) state.rollHistory.pop();
-      
-      const resultDiv = document.getElementById('rolledResult');
-      resultDiv.innerHTML = `
-        <div style="font-weight:bold;">${selected.name}</div>
-        <div style="font-size:0.85rem;">1 in ${selected.rarity.toLocaleString()}</div>
-        <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(selected)}; margin-top:4px;">
-          Gain: ${rolledWithGain.gain.toFixed(1)}/bounce
-        </div>
-      `;
-      
-      updateAllUI();
+      renderEffects();
       saveState();
-      pendingZenithRoll = false;
     }
 
-    // ---------- TUTORIAL ----------
-    function showTutorial() {
-      const overlay = document.createElement('div');
-      overlay.className = 'tutorial-overlay';
-      overlay.innerHTML = `
-        <div class="tutorial-content">
-          <h2>Welcome to Chyrchle!</h2>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">1</div>
-            <div class="tutorial-step-content">
-              <strong>Roll for Chyrchles</strong><br>
-              Tap ROLL to get random Chyrchles. Higher rarity = better gains!
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">2</div>
-            <div class="tutorial-step-content">
-              <strong>Quick Roll</strong><br>
-              Makes roll 2x faster but reduces luck by 20%.
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">3</div>
-            <div class="tutorial-step-content">
-              <strong>Auto-deploy</strong><br>
-              Your top Chyrchles automatically bounce and earn Chyrch.
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <div class="tutorial-step-number">4</div>
-            <div class="tutorial-step-content">
-              <strong>Upgrade Inventory</strong><br>
-              Click Upgrade next to View to increase max capacity!
-            </div>
-          </div>
-          <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      
-      overlay.querySelector('#closeTutorialBtn').addEventListener('click', () => {
-        overlay.remove();
-        state.tutorialCompleted = true;
-        saveState();
-      });
-      
-      overlay.addEventListener('click', (e) => {
-        if(e.target === overlay) {
-          overlay.remove();
-          state.tutorialCompleted = true;
-          saveState();
+    function removeEffect(index) {
+      state.activeEffects.splice(index, 1);
+      renderEffects();
+      saveState();
+    }
+
+    function getEffectMultiplier(type) {
+      let multiplier = 1.0;
+      state.activeEffects.forEach(e => {
+        if(e.type === 'luck' && type === 'luck') multiplier *= e.value;
+        if(e.type === 'speed' && type === 'speed') multiplier *= e.value;
+        if(e.type === 'special1') {
+          if(e.effect === 'stone' && type === 'luck') multiplier *= e.luckValue;
+          if(e.effect === 'stone' && type === 'speed') multiplier *= e.speedValue;
+          if(e.effect === 'charged' && type === 'luck') multiplier *= e.luckValue;
+          if(e.effect === 'charged' && type === 'speed') multiplier *= e.speedValue;
         }
       });
+      return multiplier;
     }
 
-    // ---------- CAPACITY UPGRADE ----------
-    function showCapacityUpgrade() {
-      const overlay = document.createElement('div');
-      overlay.className = 'capacity-upgrade-overlay';
+    function updateEffects() {
+      const now = Date.now();
+      state.activeEffects = state.activeEffects.filter(e => {
+        if(e.duration) {
+          const elapsed = (now - e.startTime) / 1000;
+          e.remaining = Math.max(0, e.duration - elapsed);
+          return e.remaining > 0;
+        }
+        return e.rolls > 0;
+      });
+      renderEffects();
+    }
+
+    function renderEffects() {
+      const container = document.getElementById('effectsContainer');
+      if(!container) return;
       
-      const nextLevel = state.inventoryUpgradeLevel + 1;
-      const price = Math.floor(Math.pow(nextLevel, 3) * 1500);
-      const newSlots = 50 + nextLevel;
+      container.innerHTML = '';
+      state.activeEffects.forEach((effect, index) => {
+        const icon = document.createElement('div');
+        icon.className = 'effect-icon';
+        
+        let bgColor = '#3b82f6';
+        let emoji = '🧪';
+        if(effect.type === 'luck') { bgColor = '#22c55e'; emoji = '🍀'; }
+        if(effect.type === 'speed') { bgColor = '#fbbf24'; emoji = '⚡'; }
+        if(effect.type === 'special1') { bgColor = '#a855f7'; emoji = '💎'; }
+        if(effect.type === 'special2') { bgColor = '#ec4899'; emoji = '🌟'; }
+        if(effect.effect === 'purify') { bgColor = '#ffffff'; emoji = '✨'; }
+        
+        icon.style.background = bgColor;
+        icon.innerHTML = emoji;
+        
+        if(effect.duration) {
+          const timer = document.createElement('span');
+          timer.className = 'effect-timer';
+          timer.textContent = formatTime(effect.remaining);
+          icon.appendChild(timer);
+        } else if(effect.rolls) {
+          const timer = document.createElement('span');
+          timer.className = 'effect-timer';
+          timer.textContent = effect.rolls + ' roll';
+          if(effect.rolls > 1) timer.textContent += 's';
+          icon.appendChild(timer);
+        }
+        
+        icon.addEventListener('click', (e) => {
+          if(activeTooltip) activeTooltip.remove();
+          const tooltip = document.createElement('div');
+          tooltip.className = 'effect-tooltip';
+          let desc = '';
+          if(effect.type === 'luck') desc = `+${Math.round((effect.value-1)*100)}% Luck`;
+          if(effect.type === 'speed') desc = `+${Math.round((effect.value-1)*100)}% Roll Speed`;
+          if(effect.effect === 'stone') desc = `+300% Luck, -50% Roll Speed`;
+          if(effect.effect === 'charged') desc = `+100% Luck, +30% Roll Speed`;
+          if(effect.type === 'special2') desc = `+${Math.round((effect.value-1)*100)}% Luck for ${effect.rolls} roll${effect.rolls>1?'s':''}`;
+          if(effect.effect === 'purify') desc = 'Removes all effects when used';
+          tooltip.innerHTML = `<strong>${effect.name || 'Effect'}</strong><br>${desc}`;
+          tooltip.style.left = e.clientX + 'px';
+          tooltip.style.top = e.clientY - 60 + 'px';
+          document.body.appendChild(tooltip);
+          activeTooltip = tooltip;
+          setTimeout(() => { if(activeTooltip) activeTooltip.remove(); activeTooltip = null; }, 3000);
+        });
+        
+        container.appendChild(icon);
+      });
+    }
+
+    // ---------- POTION SELECTOR ----------
+    function showPotionSelector(potion) {
+      const overlay = document.createElement('div');
+      overlay.className = 'potion-selector-overlay';
+      
+      const totalPrice = potion.price;
+      const canAfford = state.money >= totalPrice;
       
       overlay.innerHTML = `
-        <div class="capacity-upgrade-content">
-          <h2>Upgrade Inventory Capacity</h2>
-          <p>Current Slots: ${state.maxInventorySlots}</p>
-          <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
-          <p>Price: C${formatNumber(price)}</p>
-          ${state.money >= price ? `
-            <button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>
-          ` : `
-            <p style="color:#ef4444;">Not enough Chyrch!</p>
-          `}
-          <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
+        <div class="potion-selector-content">
+          <h2>Buy ${potion.name}</h2>
+          <p>Price: C${formatNumber(totalPrice)}</p>
+          <p>Your Chyrch: C${formatNumber(state.money)}</p>
+          ${canAfford ? '<p style="color:#22c55e;">Can afford!</p>' : '<p style="color:#ef4444;">Not enough Chyrch!</p>'}
+          <button id="confirmPotionBtn" style="width:100%; margin-top:20px;" ${!canAfford ? 'disabled' : ''}>
+            ${canAfford ? 'Purchase' : 'Not Enough'}
+          </button>
+          <button id="cancelPotionBtn" style="width:100%; margin-top:10px;">Cancel</button>
         </div>
       `;
       document.body.appendChild(overlay);
       
-      overlay.querySelector('#closeCapacityBtn').addEventListener('click', () => {
-        overlay.remove();
-      });
+      overlay.querySelector('#cancelPotionBtn').addEventListener('click', () => overlay.remove());
       
-      const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
-      if(upgradeBtn) {
-        upgradeBtn.addEventListener('click', () => {
-          if(state.money >= price) {
-            state.money -= price;
-            state.inventoryUpgradeLevel++;
-            state.maxInventorySlots = 50 + state.inventoryUpgradeLevel;
+      const confirmBtn = overlay.querySelector('#confirmPotionBtn');
+      if(confirmBtn && canAfford) {
+        confirmBtn.addEventListener('click', () => {
+          if(state.money >= totalPrice) {
+            state.money -= totalPrice;
+            const existing = state.ownedPotions.find(p => p.id === potion.id);
+            if(existing) {
+              existing.count++;
+            } else {
+              state.ownedPotions.push({ id: potion.id, count: 1 });
+            }
+            const stockItem = state.shopStock.find(s => s.id === potion.id && s.type === 'potion');
+            if(stockItem) stockItem.currentStock--;
             overlay.remove();
             updateAllUI();
             saveState();
-            alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
+            alert(`Purchased ${potion.name}!`);
           }
         });
       }
     }
 
-    // ---------- STORAGE ----------
-    function saveState() {
-      try {
-        localStorage.setItem('chyrchle_save', JSON.stringify(state));
-      } catch(e) {}
-    }
-    
-    function loadState() {
-      try {
-        const saved = localStorage.getItem('chyrchle_save');
-        if(saved) {
-          const parsed = JSON.parse(saved);
-          Object.assign(state, parsed);
-          if(!state.inventory) state.inventory = [];
-          if(state.inventory.length > state.maxInventorySlots) state.inventory = state.inventory.slice(0, state.maxInventorySlots);
-          if(!state.codesUsed) state.codesUsed = [];
-          if(!state.ownedItems) state.ownedItems = [];
-          if(state.autoDeleteEnabled === undefined) state.autoDeleteEnabled = false;
-          if(state.skipCutsceneEnabled === undefined) state.skipCutsceneEnabled = true;
-          if(state.skipCutsceneThreshold === undefined) state.skipCutsceneThreshold = 100000;
-          if(state.tutorialCompleted === undefined) state.tutorialCompleted = false;
-          if(state.maxDeployLevel === undefined) state.maxDeployLevel = 0;
-          state.maxDeploy = 5 + state.maxDeployLevel;
-          if(state.quickRollActive === undefined) state.quickRollActive = false;
-          if(state.specialPlayer === undefined) state.specialPlayer = false;
-          if(state.maxInventorySlots === undefined) state.maxInventorySlots = 50;
-          if(state.inventoryUpgradeLevel === undefined) state.inventoryUpgradeLevel = 0;
-        }
-      } catch(e) {}
+    // ---------- USE POTION ----------
+    function usePotion(potionId) {
+      const potion = POTIONS.find(p => p.id === potionId);
+      if(!potion) return;
       
-      // Check for BOB item to tag as special player
-      if(state.ownedItems.includes('bob')) {
-        state.specialPlayer = true;
+      const owned = state.ownedPotions.find(p => p.id === potionId);
+      if(!owned || owned.count <= 0) return;
+      
+      if(potion.effect === 'purify') {
+        state.activeEffects = [];
+        owned.count--;
+        renderEffects();
+        updateAllUI();
+        saveState();
+        return;
       }
       
-      if(!state.shopStock || state.shopStock.length === 0) refreshShop();
+      const effect = {
+        name: potion.name,
+        type: potion.type,
+        effect: potion.effect
+      };
       
-      const now = Date.now();
-      if(now - state.lastShopUpdate > 10 * 60 * 1000) {
-        refreshShop();
+      if(potion.type === 'luck' || potion.type === 'speed') {
+        effect.value = potion.value;
+        effect.duration = potion.duration;
+      } else if(potion.type === 'special1') {
+        effect.luckValue = potion.luckValue;
+        effect.speedValue = potion.speedValue;
+        effect.duration = potion.duration;
+      } else if(potion.type === 'special2') {
+        effect.value = potion.value;
+        effect.rolls = potion.rolls;
       }
       
-      applyTheme();
+      addEffect(effect);
+      owned.count--;
       updateAllUI();
+      saveState();
+    }
+
+    // ---------- SHOP ROTATION ----------
+    function refreshShop() {
+      const newStock = [];
       
-      const autoDeleteCheckbox = document.getElementById('autoDeleteToggle');
-      if(autoDeleteCheckbox) autoDeleteCheckbox.checked = state.autoDeleteEnabled;
+      // Add regular items
+      const availableItems = ITEMS.filter(i => i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope' && i.id !== 'thezenith');
+      const shuffledItems = [...availableItems].sort(()=>Math.random()-0.5);
+      newStock.push(...shuffledItems.slice(0, 2).map(i => ({...i, type: 'item'})));
       
-      const skipCutsceneCheckbox = document.getElementById('skipCutsceneToggle');
-      if(skipCutsceneCheckbox) skipCutsceneCheckbox.checked = state.skipCutsceneEnabled;
+      // Add potions
+      POTIONS.forEach(potion => {
+        if(Math.random() < 1/potion.rarity) {
+          newStock.push({
+            ...potion,
+            type: 'potion',
+            currentStock: potion.maxStock
+          });
+        }
+      });
       
-      const skipThresholdInput = document.getElementById('skipCutsceneThreshold');
-      if(skipThresholdInput) skipThresholdInput.value = state.skipCutsceneThreshold;
-      
-      if(!state.tutorialCompleted) {
-        setTimeout(() => showTutorial(), 500);
-      }
+      state.shopStock = newStock;
+      state.lastShopUpdate = Date.now();
+      saveState();
     }
 
     // ---------- HELPERS ----------
     function getLuckMultiplier() {
-      if(!state.equippedItem) return 1.0;
-      const item = ITEMS.find(i=> i.id === state.equippedItem);
-      if(item && item.special === 'bob') return 0;
-      if(item && item.special === 'zenith') return -1;
-      let luck = item ? item.luck : 1.0;
-      if(state.quickRollActive) luck *= 0.8;
-      return luck;
+      let multiplier = 1.0;
+      if(state.equippedItem) {
+        const item = ITEMS.find(i=> i.id === state.equippedItem);
+        if(item && item.special === 'bob') return 0;
+        if(item && item.special === 'zenith') return -1;
+        if(item) multiplier = item.luck;
+      }
+      multiplier *= getEffectMultiplier('luck');
+      if(state.quickRollActive) multiplier *= 0.8;
+      return multiplier;
     }
     
     function getGainMultiplier() {
@@ -1224,6 +1226,12 @@
       if(item && item.special === 'bob') return 0;
       if(item && item.special === 'zenith') return 1000000;
       return item ? item.gain : 1.0;
+    }
+
+    function getRollSpeed() {
+      let speed = 1.0;
+      speed *= getEffectMultiplier('speed');
+      return Math.max(0.3, speed);
     }
 
     function getChyrchleSize(rarity) {
@@ -1260,10 +1268,7 @@
     }
 
     function showCutscene(chyrchle) {
-      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') {
-        return;
-      }
-      
+      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') return;
       if(activeCutscene) activeCutscene.remove();
       
       const duration = getCutsceneDuration(chyrchle.rarity);
@@ -1288,30 +1293,13 @@
         star.style.animationDelay = Math.random() * 2 + 's';
         starsDiv.appendChild(star);
       }
-      
-      for(let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'cutscene-particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 3 + 's';
-        particle.style.background = rarityColor;
-        starsDiv.appendChild(particle);
-      }
-      
       overlay.appendChild(starsDiv);
       
       const content = document.createElement('div');
       content.className = 'cutscene-content';
       content.style.color = rarityColor;
       
-      let extraHtml = '';
-      if(chyrchle.rarity >= 1000000 || chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') {
-        extraHtml = `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:300px; background:radial-gradient(circle, ${rarityColor}20 0%, transparent 70%); border-radius:50%; animation:pulse 2s infinite;"></div>`;
-      }
-      
       content.innerHTML = `
-        ${extraHtml}
         <div class="cutscene-rarity">${rarityName}</div>
         <div class="cutscene-name" style="color: ${rarityColor};">${chyrchle.name}</div>
         <div class="cutscene-rarity-text">1 in ${chyrchle.rarity.toLocaleString()}</div>
@@ -1321,8 +1309,7 @@
       
       overlay.appendChild(content);
       
-      const continueBtn = content.querySelector('.cutscene-continue');
-      continueBtn.onclick = () => {
+      content.querySelector('.cutscene-continue').onclick = () => {
         overlay.remove();
         activeCutscene = null;
       };
@@ -1330,22 +1317,14 @@
       document.body.appendChild(overlay);
       
       const cutsceneDuration = (chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') ? 5000 : duration;
-      setTimeout(() => {
-        overlay.remove();
-        activeCutscene = null;
-      }, cutsceneDuration);
+      setTimeout(() => { overlay.remove(); activeCutscene = null; }, cutsceneDuration);
     }
 
     function rollChyrchle() {
       if(state.equippedItem) {
         const item = ITEMS.find(i=> i.id === state.equippedItem);
         if(item && item.special === 'bob') {
-          const randomIndex = Math.floor(Math.random() * CHYRCHLES.length);
-          return { ...CHYRCHLES[randomIndex] };
-        }
-        if(item && item.special === 'zenith') {
-          pendingZenithRoll = true;
-          return null;
+          return { ...CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)] };
         }
       }
       
@@ -1354,7 +1333,18 @@
         return { ...unordinaryChyrchle };
       }
       
-      const luck = getLuckMultiplier();
+      let luck = getLuckMultiplier();
+      
+      // Check for unrestricted rolls
+      const unrestricted = state.activeEffects.find(e => e.type === 'special2' && e.rolls > 0);
+      if(unrestricted) {
+        luck = unrestricted.value;
+        unrestricted.rolls--;
+        if(unrestricted.rolls <= 0) {
+          state.activeEffects = state.activeEffects.filter(e => e !== unrestricted);
+        }
+        renderEffects();
+      }
       
       const rollsToMake = Math.max(1, Math.floor(Math.abs(luck)));
       const fractionalLuck = Math.abs(luck) - Math.floor(Math.abs(luck));
@@ -1398,43 +1388,39 @@
       const resultDiv = document.getElementById('rolledResult');
       resultDiv.innerHTML = '<div>Rolling...</div>';
       
+      const baseSpeed = 150;
+      const speedMultiplier = getRollSpeed();
+      const rollSpeed = Math.max(50, Math.floor(baseSpeed / speedMultiplier));
+      
       rollInterval = setInterval(() => {
         const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
         resultDiv.innerHTML = `
           <div style="font-weight:bold;">${fakeRoll.name}</div>
           <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
         `;
-      }, 150);
+      }, rollSpeed);
       
       const quickHandler = () => {
         clearInterval(rollInterval);
         clearTimeout(rollTimeout);
         state.quickRollActive = true;
         
+        const quickSpeed = Math.max(30, Math.floor(75 / speedMultiplier));
         rollInterval = setInterval(() => {
           const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
           resultDiv.innerHTML = `
             <div style="font-weight:bold;">${fakeRoll.name}</div>
             <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
           `;
-        }, 75);
+        }, quickSpeed);
         
-        rollTimeout = setTimeout(finishRoll, 750);
+        rollTimeout = setTimeout(finishRoll, Math.max(500, Math.floor(750 / speedMultiplier)));
       };
       quickBtn.addEventListener('click', quickHandler, { once: true });
       
       const finishRoll = () => {
         clearInterval(rollInterval);
         const rolled = rollChyrchle();
-        
-        if(rolled === null) {
-          isRolling = false;
-          rollBtn.disabled = false;
-          quickBtn.style.display = 'none';
-          showChyrchleSelector();
-          return;
-        }
-        
         const gainMult = getGainMultiplier();
         const rolledWithGain = { ...rolled, gain: rolled.gain * gainMult };
         
@@ -1476,15 +1462,8 @@
         saveState();
       };
       
-      rollTimeout = setTimeout(finishRoll, 1500);
-    }
-
-    function refreshShop() {
-      const availableItems = ITEMS.filter(i => !state.ownedItems.includes(i.id) && i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope' && i.id !== 'thezenith');
-      const shuffled = [...availableItems].sort(()=>Math.random()-0.5);
-      state.shopStock = shuffled.slice(0,4).map(i => ({...i}));
-      state.lastShopUpdate = Date.now();
-      saveState();
+      const duration = Math.max(1000, Math.floor(1500 / speedMultiplier));
+      rollTimeout = setTimeout(finishRoll, duration);
     }
 
     function purchaseUpgrade(level) {
@@ -1525,9 +1504,7 @@
         
         if(isNext) {
           const btn = div.querySelector('.upgrade-btn');
-          if(btn) {
-            btn.addEventListener('click', () => purchaseUpgrade(i));
-          }
+          if(btn) btn.addEventListener('click', () => purchaseUpgrade(i));
         }
         
         container.appendChild(div);
@@ -1545,15 +1522,10 @@
 
     function deleteFromInventory(index) {
       const chyrchle = state.inventory[index];
-      
-      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special === 'alwaysDeploy' || chyrchle.special === 'alwaysLast' || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE' || chyrchle.name === 'Common:Unordinary';
+      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE' || chyrchle.name === 'Common:Unordinary';
       
       if(needsConfirm) {
         let message = `Delete ${chyrchle.name} (1 in ${chyrchle.rarity.toLocaleString()})?`;
-        if(chyrchle.name === 'UNHONORED') message = 'Delete UNHONORED? This is a special Chyrchle!';
-        if(chyrchle.name === 'Common:Unordinary') message = 'Delete Common:Unordinary? This is a special Chyrchle!';
-        if(chyrchle.name === 'THE ABSOLUTE') message = 'Delete THE ABSOLUTE? This is extremely rare!';
-        
         showConfirmDialog(message, () => {
           state.inventory.splice(index, 1);
           updateAllUI();
@@ -1568,18 +1540,71 @@
       }
     }
 
+    function showConfirmDialog(message, onConfirm) {
+      const overlay = document.createElement('div');
+      overlay.className = 'confirm-overlay';
+      overlay.innerHTML = `
+        <div class="confirm-box">
+          <h3>Are you sure?</h3>
+          <p>${message}</p>
+          <div class="confirm-buttons">
+            <button class="confirm-btn confirm-yes">Yes</button>
+            <button class="confirm-btn confirm-no">No</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.querySelector('.confirm-yes').addEventListener('click', () => { overlay.remove(); onConfirm(); });
+      overlay.querySelector('.confirm-no').addEventListener('click', () => overlay.remove());
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+    }
+
     function applyFilterNow() {
       const thresh = parseInt(document.getElementById('filterThreshold').value) || 8;
       state.filterThreshold = thresh;
       const beforeCount = state.inventory.length;
       state.inventory = state.inventory.filter(c => c.rarity >= thresh || c.name === 'UNHONORED');
       const afterCount = state.inventory.length;
-      
       updateAllUI();
       saveState();
       initBounceSim();
-      
       alert(`Deleted ${beforeCount - afterCount} Chyrchles below 1 in ${thresh}`);
+    }
+
+    function showCapacityUpgrade() {
+      const overlay = document.createElement('div');
+      overlay.className = 'capacity-upgrade-overlay';
+      const nextLevel = state.inventoryUpgradeLevel + 1;
+      const price = Math.floor(Math.pow(nextLevel, 3) * 1500);
+      const newSlots = 50 + nextLevel;
+      
+      overlay.innerHTML = `
+        <div class="capacity-upgrade-content">
+          <h2>Upgrade Inventory Capacity</h2>
+          <p>Current Slots: ${state.maxInventorySlots}</p>
+          <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
+          <p>Price: C${formatNumber(price)}</p>
+          ${state.money >= price ? `<button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>` : '<p style="color:#ef4444;">Not enough Chyrch!</p>'}
+          <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      overlay.querySelector('#closeCapacityBtn').addEventListener('click', () => overlay.remove());
+      const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
+      if(upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+          if(state.money >= price) {
+            state.money -= price;
+            state.inventoryUpgradeLevel++;
+            state.maxInventorySlots = 50 + state.inventoryUpgradeLevel;
+            overlay.remove();
+            updateAllUI();
+            saveState();
+            alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
+          }
+        });
+      }
     }
 
     // ---------- UI UPDATE ----------
@@ -1595,14 +1620,14 @@
       
       const histDiv = document.getElementById('rollHistoryList');
       if(state.rollHistory.length) {
-        histDiv.innerHTML = state.rollHistory.map(name => 
-          `<div style="padding:2px 0;">- ${name}</div>`
-        ).join('');
+        histDiv.innerHTML = state.rollHistory.map(name => `<div style="padding:2px 0;">- ${name}</div>`).join('');
       }
       
       renderInventory();
+      renderPotionsInventory();
       renderShop();
       renderOwnedItems();
+      renderOwnedPotions();
       renderUpgrades();
       updateBounceEstimates();
       
@@ -1623,7 +1648,6 @@
       state.inventory.forEach((c, index) => {
         const div = document.createElement('div');
         div.className = 'inventory-item';
-        
         const bgColor = getColorStyle(c);
         const textColor = (c.color === '#ffffff' || c.color === '#f0f0f0' || c.color === '#e0e7ff' || c.color === '#000000') ? '#111' : 'white';
         
@@ -1633,15 +1657,37 @@
           </span>
           <button class="delete-btn" data-index="${index}">Delete</button>
         `;
-        
         container.appendChild(div);
       });
       
       container.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const index = parseInt(e.target.dataset.index);
-          deleteFromInventory(index);
-        });
+        btn.addEventListener('click', (e) => deleteFromInventory(parseInt(e.target.dataset.index)));
+      });
+    }
+
+    function renderPotionsInventory() {
+      const container = document.getElementById('potionsInventoryContainer');
+      if(!container) return;
+      
+      container.innerHTML = '';
+      state.ownedPotions.forEach((potion, index) => {
+        const data = POTIONS.find(p => p.id === potion.id);
+        if(!data || potion.count <= 0) return;
+        
+        const div = document.createElement('div');
+        div.className = 'potion-item';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <strong>${data.name}</strong>
+            <div style="font-size:0.8rem;">Quantity: ${potion.count}</div>
+          </div>
+          <button class="use-btn" data-id="${data.id}">Use</button>
+        `;
+        container.appendChild(div);
+      });
+      
+      container.querySelectorAll('.use-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => usePotion(e.target.dataset.id));
       });
     }
 
@@ -1651,45 +1697,63 @@
       
       cont.innerHTML = '';
       state.shopStock.forEach(item => {
-        const owned = state.ownedItems.includes(item.id);
-        const div = document.createElement('div');
-        div.className = 'shop-item';
-        
-        let luckDisplay = item.luck;
-        let gainDisplay = item.gain;
-        if(item.special === 'bob') {
-          luckDisplay = '0';
-          gainDisplay = '0';
+        if(item.type === 'item') {
+          const owned = state.ownedItems.includes(item.id);
+          const div = document.createElement('div');
+          div.className = 'shop-item';
+          let luckDisplay = item.luck;
+          let gainDisplay = item.gain;
+          if(item.special === 'bob') { luckDisplay = '0'; gainDisplay = '0'; }
+          if(item.special === 'zenith') { luckDisplay = '-1'; gainDisplay = '-1'; }
+          
+          div.innerHTML = `
+            <div style="flex:1;">
+              <strong>${item.name}</strong>
+              <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Luck ${luckDisplay}x · Gain ${gainDisplay}x</div>
+            </div>
+            <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''}>
+              ${owned ? 'Owned' : 'Buy'}
+            </button>
+          `;
+          cont.appendChild(div);
+        } else if(item.type === 'potion') {
+          const div = document.createElement('div');
+          div.className = 'potion-item';
+          const canBuy = item.currentStock > 0;
+          
+          div.innerHTML = `
+            <div style="flex:1;">
+              <strong>${item.name}</strong>
+              <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Stock: ${item.currentStock}</div>
+            </div>
+            <button class="buy-potion-btn" data-id="${item.id}" ${!canBuy ? 'disabled' : ''}>
+              ${canBuy ? 'Buy' : 'Out of Stock'}
+            </button>
+          `;
+          cont.appendChild(div);
         }
-        if(item.special === 'zenith') {
-          luckDisplay = '-1';
-          gainDisplay = '-1';
-        }
-        
-        div.innerHTML = `
-          <div style="flex:1;">
-            <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
-          </div>
-          <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''} style="padding:8px 12px;">
-            ${owned ? 'Owned' : 'Buy'}
-          </button>
-        `;
-        cont.appendChild(div);
       });
       
       cont.querySelectorAll('.buy-item-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const id = btn.dataset.id;
+          const id = e.target.dataset.id;
           const item = ITEMS.find(i=>i.id===id);
           if(item && state.money >= item.price && !state.ownedItems.includes(id)) {
             state.money -= item.price;
             state.ownedItems.push(id);
-            if(!state.equippedItem) {
-              state.equippedItem = id;
-            }
+            if(!state.equippedItem) state.equippedItem = id;
             updateAllUI();
             saveState();
+          }
+        });
+      });
+      
+      cont.querySelectorAll('.buy-potion-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.dataset.id;
+          const potion = state.shopStock.find(s => s.id === id && s.type === 'potion');
+          if(potion && potion.currentStock > 0) {
+            showPotionSelector(potion);
           }
         });
       });
@@ -1714,19 +1778,13 @@
         
         let luckDisplay = item.luck;
         let gainDisplay = item.gain;
-        if(item.special === 'bob') {
-          luckDisplay = '0';
-          gainDisplay = '0';
-        }
-        if(item.special === 'zenith') {
-          luckDisplay = '-1';
-          gainDisplay = '-1';
-        }
+        if(item.special === 'bob') { luckDisplay = '0'; gainDisplay = '0'; }
+        if(item.special === 'zenith') { luckDisplay = '-1'; gainDisplay = '-1'; }
         
         div.innerHTML = `
           <div style="flex:1;">
             <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">Luck ${luckDisplay >= 1000000 ? luckDisplay.toLocaleString() : luckDisplay}x · Gain ${gainDisplay}x</div>
+            <div style="font-size:0.8rem;">Luck ${luckDisplay}x · Gain ${gainDisplay}x</div>
             ${isEquipped ? '<span style="color:#3b82f6;">[Equipped]</span>' : ''}
           </div>
           <div style="display:flex; gap:5px;">
@@ -1741,7 +1799,7 @@
       
       container.querySelectorAll('.equip-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const id = btn.dataset.id;
+          const id = e.target.dataset.id;
           if(state.ownedItems.includes(id)) {
             state.equippedItem = id;
             updateAllUI();
@@ -1752,12 +1810,45 @@
       });
       
       container.querySelectorAll('.unequip-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           state.equippedItem = null;
           updateAllUI();
           saveState();
           initBounceSim();
         });
+      });
+    }
+
+    function renderOwnedPotions() {
+      const container = document.getElementById('ownedPotionsContainer');
+      if(!container) return;
+      
+      const owned = state.ownedPotions.filter(p => p.count > 0);
+      
+      if(owned.length === 0) {
+        container.innerHTML = '<p style="opacity:0.7;">No potions owned yet</p>';
+        return;
+      }
+      
+      container.innerHTML = '';
+      owned.forEach(potion => {
+        const data = POTIONS.find(p => p.id === potion.id);
+        if(!data) return;
+        
+        const div = document.createElement('div');
+        div.className = 'potion-item';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <strong>${data.name}</strong>
+            <div style="font-size:0.8rem;">Quantity: ${potion.count}</div>
+          </div>
+          <button class="use-btn" data-id="${data.id}">Use</button>
+        `;
+        container.appendChild(div);
+      });
+      
+      container.querySelectorAll('.use-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => usePotion(e.target.dataset.id));
       });
     }
 
@@ -1788,15 +1879,13 @@
     }
 
     function updateSimulation() {
-      if(!simulationActive) return;
-      if(!circles.length) return;
+      if(!simulationActive || !circles.length) return;
       
       const gainMult = getGainMultiplier();
       
       circles.forEach(c => {
         c.x += c.vx;
         c.y += c.vy;
-        
         const currentR = c.r;
         
         if(c.x < currentR) { c.x = currentR; c.vx *= -0.9; }
@@ -1845,7 +1934,6 @@
       
       circles.forEach(c => {
         ctx.save();
-        
         const baseSize = getChyrchleSize(c.rarity);
         c.r = baseSize;
         
@@ -1855,18 +1943,11 @@
           ctx.translate(-c.x, -c.y);
         }
         
-        if(c.effectType === 'pulse' || c.effectType === 'wave') {
-          const pulse = Math.sin(timeOffset * 5) * 2;
-          c.r = Math.max(baseSize - 2, Math.min(baseSize + 3, baseSize + pulse));
-        }
-        
         if(c.effectType === 'unhonored') {
           ctx.shadowColor = '#ffffff';
           ctx.shadowBlur = 30 + Math.sin(timeOffset * 2) * 10;
-          
           const pulse = Math.sin(timeOffset * 1.5) * 3;
           c.r = Math.max(baseSize - 2, Math.min(baseSize + 4, baseSize + pulse));
-          
           ctx.beginPath();
           ctx.arc(c.x, c.y, c.r + 8 + Math.sin(timeOffset) * 3, 0, 2*Math.PI);
           ctx.strokeStyle = '#ffffff80';
@@ -1884,53 +1965,9 @@
           ctx.stroke();
         }
         
-        if(c.effectType === 'spark' || c.effectType === 'sparkle') {
-          ctx.shadowColor = '#fbbf24';
-          ctx.shadowBlur = 15 + Math.sin(timeOffset * 8) * 5;
-        }
-        
-        if(c.effectType === 'flame' || c.effectType === 'inferno') {
-          ctx.shadowColor = '#ef4444';
-          ctx.shadowBlur = 20 + Math.sin(timeOffset * 6) * 8;
-        }
-        
-        if(c.effectType === 'frost') {
-          ctx.shadowColor = '#67e8f9';
-          ctx.shadowBlur = 20;
-        }
-        
-        if(c.effectType === 'lightning') {
-          ctx.shadowColor = '#fbbf24';
-          ctx.shadowBlur = 25 + Math.sin(timeOffset * 12) * 10;
-        }
-        
-        if(c.effectType === 'void' || c.effectType === 'darkness') {
-          ctx.shadowColor = '#1a1a1a';
-          ctx.shadowBlur = 30;
-        }
-        
-        if(c.effectType === 'divine' || c.effectType === 'glow') {
-          ctx.shadowColor = '#fbbf24';
-          ctx.shadowBlur = 25;
-        }
-        
-        if(c.effectType === 'rainbow') {
-          ctx.shadowColor = `hsl(${timeOffset * 50 % 360}, 100%, 50%)`;
-          ctx.shadowBlur = 30;
-        }
-        
-        if(c.effectType === 'quantum') {
-          ctx.globalAlpha = 0.8 + Math.sin(timeOffset * 4) * 0.2;
-        }
-        
-        if(c.effectType === 'ghost') {
-          ctx.globalAlpha = 0.5 + Math.sin(timeOffset * 2) * 0.2;
-        }
-        
         if(c.effectType === 'absolute') {
           ctx.shadowColor = `hsl(${timeOffset * 100 % 360}, 100%, 50%)`;
           ctx.shadowBlur = 50 + Math.sin(timeOffset * 5) * 20;
-          
           for(let i = 0; i < 5; i++) {
             ctx.beginPath();
             ctx.arc(c.x, c.y, c.r + 10 + i * 8 + Math.sin(timeOffset * 3 + i) * 5, 0, 2*Math.PI);
@@ -1945,54 +1982,31 @@
         
         if(c.color === 'loop-shift') {
           const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, '#1e3a8a');
-          grad.addColorStop(1, '#7dd3fc');
+          grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#7dd3fc');
           ctx.fillStyle = grad;
         } else if(c.color === 'loop-fast') {
           const grad = ctx.createRadialGradient(c.x-8, c.y-8, 2, c.x, c.y, c.r);
-          grad.addColorStop(0, '#1e3a8a');
-          grad.addColorStop(0.5, '#bae6fd');
-          grad.addColorStop(1, '#1e3a8a');
+          grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(0.5, '#bae6fd'); grad.addColorStop(1, '#1e3a8a');
           ctx.fillStyle = grad;
         } else if(c.color === 'loop-rainbow') {
           const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, 'red');
-          grad.addColorStop(0.16, 'orange');
-          grad.addColorStop(0.33, 'yellow');
-          grad.addColorStop(0.5, 'green');
-          grad.addColorStop(0.66, 'blue');
-          grad.addColorStop(0.83, 'indigo');
-          grad.addColorStop(1, 'violet');
+          grad.addColorStop(0, 'red'); grad.addColorStop(0.16, 'orange'); grad.addColorStop(0.33, 'yellow');
+          grad.addColorStop(0.5, 'green'); grad.addColorStop(0.66, 'blue'); grad.addColorStop(0.83, 'indigo'); grad.addColorStop(1, 'violet');
           ctx.fillStyle = grad;
         } else if(c.color === 'loop-multiverse') {
           const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, '#ff00ff');
-          grad.addColorStop(0.5, '#00ffff');
-          grad.addColorStop(1, '#ff00ff');
+          grad.addColorStop(0, '#ff00ff'); grad.addColorStop(0.5, '#00ffff'); grad.addColorStop(1, '#ff00ff');
           ctx.fillStyle = grad;
         } else if(c.color === 'loop-absolute') {
           const grad = ctx.createRadialGradient(c.x-10, c.y-10, 2, c.x, c.y, c.r + 10);
-          grad.addColorStop(0, 'gold');
-          grad.addColorStop(0.25, 'crimson');
-          grad.addColorStop(0.5, 'purple');
-          grad.addColorStop(0.75, 'cyan');
-          grad.addColorStop(1, 'gold');
+          grad.addColorStop(0, 'gold'); grad.addColorStop(0.25, 'crimson'); grad.addColorStop(0.5, 'purple');
+          grad.addColorStop(0.75, 'cyan'); grad.addColorStop(1, 'gold');
           ctx.fillStyle = grad;
         } else {
           ctx.fillStyle = c.color;
         }
         
         ctx.fill();
-        
-        if(c.effectType === 'ring' || c.effectType === 'absolute' || c.effectType === 'unhonored') {
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = c.effectType === 'unhonored' ? '#ffffff80' : '#ffffff80';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, c.r + 5 + Math.sin(timeOffset * 2) * 2, 0, 2*Math.PI);
-          ctx.stroke();
-        }
-        
         ctx.restore();
       });
       
@@ -2026,18 +2040,12 @@
 
     function applyTheme() {
       document.body.classList.toggle('dark', state.theme === 'dark');
-      const inventoryPanel = document.getElementById('inventoryPanel');
-      if(inventoryPanel) {
-        inventoryPanel.style.background = state.theme === 'dark' ? '#1e2432' : 'white';
-      }
     }
 
     function startAutoRoll() {
       if(state.autoRollTimer) clearInterval(state.autoRollTimer);
       if(state.autoRoll) {
-        state.autoRollTimer = setInterval(() => {
-          if(!isRolling) performRoll();
-        }, 1600);
+        state.autoRollTimer = setInterval(() => { if(!isRolling) performRoll(); }, 1600);
       }
     }
 
@@ -2047,7 +2055,7 @@
       
       const now = Date.now();
       const timeSinceUpdate = now - state.lastShopUpdate;
-      const timeUntilNext = (10 * 60 * 1000) - timeSinceUpdate;
+      const timeUntilNext = (15 * 60 * 1000) - timeSinceUpdate;
       
       if(timeUntilNext <= 0) {
         refreshShop();
@@ -2064,9 +2072,8 @@
         alert('Code already used!');
         return;
       }
-      
       if(EXPIRED_CODES.includes(code)) {
-        alert('This code has expired and can no longer be redeemed!');
+        alert('This code has expired!');
         return;
       }
       
@@ -2086,15 +2093,73 @@
         const itemId = codeData.reward;
         if(!state.ownedItems.includes(itemId)) {
           state.ownedItems.push(itemId);
-          if(!state.equippedItem) {
-            state.equippedItem = itemId;
-          }
+          if(!state.equippedItem) state.equippedItem = itemId;
           state.codesUsed.push(code);
           saveState();
           updateAllUI();
-          alert('Special item added to your inventory!');
+          alert('Special item added!');
         }
+      } else if(codeData.type === 'potions') {
+        codeData.reward.forEach(p => {
+          const existing = state.ownedPotions.find(op => op.id === p.id);
+          if(existing) existing.count += p.count;
+          else state.ownedPotions.push({ id: p.id, count: p.count });
+        });
+        state.codesUsed.push(code);
+        saveState();
+        updateAllUI();
+        alert('Potions added to inventory!');
       }
+    }
+
+    // ---------- TUTORIAL ----------
+    function showTutorial() {
+      const overlay = document.createElement('div');
+      overlay.className = 'tutorial-overlay';
+      overlay.innerHTML = `
+        <div class="tutorial-content">
+          <h2>Welcome to Chyrchle v3.0!</h2>
+          <div class="tutorial-step"><div class="tutorial-step-number">1</div><div class="tutorial-step-content"><strong>Roll for Chyrchles</strong><br>Tap ROLL to get random Chyrchles.</div></div>
+          <div class="tutorial-step"><div class="tutorial-step-number">2</div><div class="tutorial-step-content"><strong>Potions</strong><br>Buy potions from shop to boost luck and speed!</div></div>
+          <div class="tutorial-step"><div class="tutorial-step-number">3</div><div class="tutorial-step-content"><strong>Effects</strong><br>Active effects appear between roll and history. Click for info!</div></div>
+          <div class="tutorial-step"><div class="tutorial-step-number">4</div><div class="tutorial-step-content"><strong>Shop</strong><br>Shop rotates every 15 minutes. Potions can be bought multiple times!</div></div>
+          <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#closeTutorialBtn').addEventListener('click', () => {
+        overlay.remove();
+        state.tutorialCompleted = true;
+        saveState();
+      });
+    }
+
+    // ---------- STORAGE ----------
+    function saveState() {
+      try { localStorage.setItem('chyrchle_save', JSON.stringify(state)); } catch(e) {}
+    }
+    
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('chyrchle_save');
+        if(saved) {
+          const parsed = JSON.parse(saved);
+          Object.assign(state, parsed);
+          if(!state.inventory) state.inventory = [];
+          if(!state.ownedItems) state.ownedItems = [];
+          if(!state.ownedPotions) state.ownedPotions = [];
+          if(!state.activeEffects) state.activeEffects = [];
+          if(state.maxInventorySlots === undefined) state.maxInventorySlots = 50;
+          if(state.specialPlayer === undefined) state.specialPlayer = false;
+        }
+      } catch(e) {}
+      
+      if(state.ownedItems.includes('bob')) state.specialPlayer = true;
+      if(!state.shopStock || state.shopStock.length === 0) refreshShop();
+      
+      applyTheme();
+      updateAllUI();
+      renderEffects();
     }
 
     // ---------- INITIALIZATION ----------
@@ -2114,10 +2179,6 @@
           btn.classList.add('active');
           document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
           document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
-          
-          if(btn.dataset.screen === 'bounce') {
-            // Canvas already running
-          }
           updateAllUI();
         });
       });
@@ -2126,14 +2187,22 @@
         btn.addEventListener('click', (e) => {
           document.querySelectorAll('[data-shoptab]').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          
           const tab = btn.dataset.shoptab;
           document.getElementById('shopTabContent').style.display = tab === 'shop' ? 'block' : 'none';
           document.getElementById('itemsTabContent').style.display = tab === 'items' ? 'block' : 'none';
-          
-          if(tab === 'items') {
-            renderOwnedItems();
-          }
+          document.getElementById('potionsTabContent').style.display = tab === 'potions' ? 'block' : 'none';
+          if(tab === 'potions') renderOwnedPotions();
+        });
+      });
+      
+      document.querySelectorAll('[data-invtab]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('[data-invtab]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.dataset.invtab;
+          document.getElementById('chyrchlesInvContent').style.display = tab === 'chyrchles' ? 'block' : 'none';
+          document.getElementById('potionsInvContent').style.display = tab === 'potions' ? 'block' : 'none';
+          if(tab === 'potions') renderPotionsInventory();
         });
       });
       
@@ -2141,41 +2210,28 @@
         btn.addEventListener('click', (e) => {
           document.querySelectorAll('[data-bouncetab]').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          
           const tab = btn.dataset.bouncetab;
           document.getElementById('bounceStatsContent').style.display = tab === 'stats' ? 'block' : 'none';
           document.getElementById('bounceUpgradeContent').style.display = tab === 'upgrade' ? 'block' : 'none';
-          
-          if(tab === 'upgrade') {
-            renderUpgrades();
-          }
         });
       });
       
-      document.getElementById('rollButton').addEventListener('click', () => performRoll());
-      
+      document.getElementById('rollButton').addEventListener('click', performRoll);
       document.getElementById('autoRollToggle').addEventListener('click', (e) => {
         state.autoRoll = !state.autoRoll;
         e.target.innerText = state.autoRoll ? 'Auto ON' : 'Auto OFF';
-        if(state.autoRoll) {
-          startAutoRoll();
-        } else if(state.autoRollTimer) {
-          clearInterval(state.autoRollTimer);
-        }
+        if(state.autoRoll) startAutoRoll();
+        else if(state.autoRollTimer) clearInterval(state.autoRollTimer);
         saveState();
       });
       
       document.getElementById('openInventoryBtn').addEventListener('click', () => {
         document.getElementById('inventoryPanel').style.display = 'block';
         document.getElementById('inventoryOverlay').style.display = 'block';
-        applyTheme();
         renderInventory();
       });
       
-      document.getElementById('openCapacityUpgradeBtn').addEventListener('click', () => {
-        showCapacityUpgrade();
-      });
-      
+      document.getElementById('openCapacityUpgradeBtn').addEventListener('click', showCapacityUpgrade);
       document.getElementById('closeInventoryBtn').addEventListener('click', () => {
         document.getElementById('inventoryPanel').style.display = 'none';
         document.getElementById('inventoryOverlay').style.display = 'none';
@@ -2184,51 +2240,35 @@
       document.getElementById('toggleThemeBtn').addEventListener('click', () => {
         state.theme = state.theme === 'light' ? 'dark' : 'light';
         applyTheme();
-        updateAllUI();
         saveState();
       });
       
-      document.getElementById('showTutorialBtn').addEventListener('click', () => showTutorial());
-      
-      document.getElementById('skipCutsceneToggle').addEventListener('change', (e) => {
-        state.skipCutsceneEnabled = e.target.checked;
-        saveState();
-      });
-      
-      document.getElementById('skipCutsceneThreshold').addEventListener('change', (e) => {
-        state.skipCutsceneThreshold = parseInt(e.target.value) || 100000;
-        saveState();
-      });
-      
-      document.getElementById('autoDeleteToggle').addEventListener('change', (e) => {
-        state.autoDeleteEnabled = e.target.checked;
-        saveState();
-      });
-      
+      document.getElementById('showTutorialBtn').addEventListener('click', showTutorial);
+      document.getElementById('skipCutsceneToggle').addEventListener('change', e => { state.skipCutsceneEnabled = e.target.checked; saveState(); });
+      document.getElementById('skipCutsceneThreshold').addEventListener('change', e => { state.skipCutsceneThreshold = parseInt(e.target.value) || 100000; saveState(); });
+      document.getElementById('autoDeleteToggle').addEventListener('change', e => { state.autoDeleteEnabled = e.target.checked; saveState(); });
       document.getElementById('applyFilterBtn').addEventListener('click', applyFilterNow);
-      
-      document.getElementById('filterThreshold').addEventListener('change', (e) => {
-        state.filterThreshold = parseInt(e.target.value) || 8;
-        saveState();
-      });
-      
+      document.getElementById('filterThreshold').addEventListener('change', e => { state.filterThreshold = parseInt(e.target.value) || 8; saveState(); });
       document.getElementById('submitCodeBtn').addEventListener('click', () => {
-        const codeInput = document.getElementById('codeInput');
-        redeemCode(codeInput.value);
-        codeInput.value = '';
+        const input = document.getElementById('codeInput');
+        redeemCode(input.value);
+        input.value = '';
       });
       
       shopTimerInterval = setInterval(updateShopTimer, 1000);
+      effectTimerInterval = setInterval(updateEffects, 1000);
       updateShopTimer();
       
       setInterval(saveState, 30000);
       
+      if(!state.tutorialCompleted) setTimeout(showTutorial, 500);
       updateAllUI();
     });
 
     window.addEventListener('beforeunload', ()=>{
       if(animationFrame) cancelAnimationFrame(animationFrame);
       if(shopTimerInterval) clearInterval(shopTimerInterval);
+      if(effectTimerInterval) clearInterval(effectTimerInterval);
       if(state.autoRollTimer) clearInterval(state.autoRollTimer);
       if(rollInterval) clearInterval(rollInterval);
       if(rollTimeout) clearTimeout(rollTimeout);
@@ -2239,4 +2279,4 @@
   })();
 </script>
 </body>
-  </html>
+</html>
