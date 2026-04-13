@@ -3,578 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chyrchle v3.0 · Luck & Grind</title>
+  <title>Chyrchle v3 · Luck & Grind</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    }
+    * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
     body {
-      margin: 0;
-      min-height: 100vh;
-      background: #f5f7fa;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: background 0.2s, color 0.2s;
-      padding: 8px;
+      margin: 0; min-height: 100vh; background: #f5f7fa;
+      display: flex; justify-content: center; align-items: center;
+      transition: background 0.2s, color 0.2s; padding: 8px;
     }
-    body.dark {
-      background: #121826;
-      color: #e8ecf2;
-    }
+    body.dark { background: #121826; color: #e8ecf2; }
     #app {
-      width: 100%;
-      max-width: 1200px;
-      height: 780px;
-      max-height: 95vh;
-      background: inherit;
-      border-radius: 24px;
+      width: 100%; max-width: 1200px; height: 780px; max-height: 95vh;
+      background: inherit; border-radius: 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border: 1px solid rgba(128,128,128,0.15);
-      position: relative;
+      display: flex; flex-direction: column; overflow: hidden;
+      border: 1px solid rgba(128,128,128,0.15); position: relative;
     }
-    @media (min-width: 768px) {
-      #app {
-        height: 90vh;
-      }
-    }
-    body.dark #app {
-      background: #1e2432;
-      border-color: #2e3a4a;
-    }
+    @media (min-width: 768px) { #app { height: 90vh; } }
+    body.dark #app { background: #1e2432; border-color: #2e3a4a; }
     nav {
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 6px;
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #ccc;
-      flex-shrink: 0;
+      display: flex; justify-content: space-around; padding: 8px 6px;
+      background: rgba(255,255,255,0.7); backdrop-filter: blur(12px);
+      border-bottom: 1px solid #ccc; flex-shrink: 0;
     }
-    body.dark nav {
-      background: rgba(20,28,40,0.8);
-      border-bottom: 1px solid #2a3548;
-    }
+    body.dark nav { background: rgba(20,28,40,0.8); border-bottom: 1px solid #2a3548; }
     .nav-btn {
-      background: transparent;
-      border: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 10px 8px;
-      border-radius: 48px;
-      color: #2c3e50;
-      transition: all 0.1s;
-      cursor: pointer;
-      flex: 1;
-      text-align: center;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      background: transparent; border: none; font-size: 0.9rem; font-weight: 600;
+      padding: 10px 8px; border-radius: 48px; color: #2c3e50;
+      transition: all 0.1s; cursor: pointer; flex: 1; text-align: center;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     }
+    @media (min-width: 768px) { .nav-btn { font-size: 1.1rem; padding: 12px 16px; } }
+    body.dark .nav-btn { color: #cfdbf5; }
+    .nav-btn.active { background: #3b82f6; color: white; box-shadow: 0 6px 12px #3b82f680; }
+    .screen { flex: 1; overflow-y: auto; padding: 12px; scroll-behavior: smooth; display: none; -webkit-overflow-scrolling: touch; }
+    .screen.active { display: block; }
     @media (min-width: 768px) {
-      .nav-btn {
-        font-size: 1.1rem;
-        padding: 12px 16px;
-      }
+      #screen-main.active { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+      #screen-main .main-header { grid-column: 1 / -1; }
+      #screen-main .effects-bar-wrapper { grid-column: 1 / -1; }
+      #screen-main .roll-area { grid-column: 1 / 2; }
+      #screen-main .history-area { grid-column: 2 / 3; }
+      #screen-bounce.active { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; padding: 20px; }
+      #screen-bounce .bounce-header { grid-column: 1 / -1; }
+      #screen-shop.active { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 20px; }
+      #screen-settings.active { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 20px; }
+      #screen-settings .settings-header { grid-column: 1 / -1; }
+      #screen-settings .changelog-card { grid-column: 1 / -1; }
     }
-    body.dark .nav-btn {
-      color: #cfdbf5;
-    }
-    .nav-btn.active {
-      background: #3b82f6;
-      color: white;
-      box-shadow: 0 6px 12px #3b82f680;
-    }
-    
-    .screen {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      scroll-behavior: smooth;
-      display: none;
-      -webkit-overflow-scrolling: touch;
-    }
-    .screen.active {
-      display: block;
-    }
-    
-    @media (min-width: 768px) {
-      #screen-main.active {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        padding: 20px;
-      }
-      #screen-main .main-header {
-        grid-column: 1 / -1;
-      }
-      #screen-main .roll-area {
-        grid-column: 1 / 2;
-      }
-      #screen-main .effects-area {
-        grid-column: 1 / 2;
-      }
-      #screen-main .history-area {
-        grid-column: 2 / 3;
-      }
-      
-      #screen-bounce.active {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: 16px;
-        padding: 20px;
-      }
-      #screen-bounce .bounce-header {
-        grid-column: 1 / -1;
-      }
-      
-      #screen-shop.active {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-        padding: 20px;
-      }
-      
-      #screen-settings.active {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        padding: 20px;
-      }
-      #screen-settings .settings-header {
-        grid-column: 1 / -1;
-      }
-      #screen-settings .changelog-card {
-        grid-column: 1 / -1;
-      }
-    }
-    
-    h1, h2, h3 {
-      margin: 0 0 8px;
-      font-weight: 600;
-    }
+    h1, h2, h3 { margin: 0 0 8px; font-weight: 600; }
     button {
-      background: #edf2f7;
-      border: none;
-      border-radius: 40px;
-      padding: 12px 16px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 6px #0000000d;
-      transition: 0.1s;
-      border: 1px solid #d0d9e8;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      user-select: none;
+      background: #edf2f7; border: none; border-radius: 40px;
+      padding: 12px 16px; font-weight: 600; font-size: 1rem;
+      cursor: pointer; box-shadow: 0 4px 6px #0000000d;
+      transition: 0.1s; border: 1px solid #d0d9e8;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none;
     }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    body.dark button {
-      background: #2c384e;
-      border-color: #465872;
-      color: white;
-    }
-    button:active:not(:disabled) {
-      transform: scale(0.97);
-    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    body.dark button { background: #2c384e; border-color: #465872; color: white; }
+    button:active:not(:disabled) { transform: scale(0.97); }
     .card {
-      background: #ffffffc2;
-      backdrop-filter: blur(8px);
-      padding: 14px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-      box-shadow: 0 8px 16px #0000000a;
-      border: 1px solid #ffffff70;
+      background: #ffffffc2; backdrop-filter: blur(8px);
+      padding: 14px; border-radius: 20px; margin-bottom: 12px;
+      box-shadow: 0 8px 16px #0000000a; border: 1px solid #ffffff70;
     }
-    @media (min-width: 768px) {
-      .card {
-        margin-bottom: 0;
-        height: fit-content;
-      }
+    @media (min-width: 768px) { .card { margin-bottom: 0; height: fit-content; } }
+    body.dark .card { background: #242d3eb3; border-color: #3d4b60; }
+    .inventory-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.5); border-radius: 20px;
+      padding: 4px 8px 4px 12px; margin-bottom: 4px;
     }
-    body.dark .card {
-      background: #242d3eb3;
-      border-color: #3d4b60;
+    body.dark .inventory-item { background: rgba(30,40,60,0.5); }
+    .delete-btn { padding: 4px 8px; font-size: 0.8rem; background: #ef4444; color: white; border: none; min-width: 60px; }
+    .bounce-area {
+      background: #e9eef4; border-radius: 20px; height: 250px;
+      position: relative; overflow: hidden; margin-bottom: 12px; border: 2px solid #bac8dc;
     }
-    .effects-container {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 8px 0;
+    @media (min-width: 768px) { .bounce-area { height: 350px; } }
+    body.dark .bounce-area { background: #10161f; border-color: #3a4a62; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    .flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input {
+      padding: 12px 14px; border-radius: 40px; border: 1px solid #bdc9db;
+      background: white; font-size: 1rem; width: 100%; max-width: 200px;
+    }
+    body.dark input { background: #1f2a3c; border-color: #4f6280; color: white; }
+    .shop-item, .inventory-item-container, .upgrade-item {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px; padding: 8px; border-bottom: 1px solid #ddd;
+    }
+    body.dark .shop-item, body.dark .inventory-item-container, body.dark .upgrade-item { border-bottom-color: #3a4a62; }
+    .tab-container { display: flex; gap: 4px; margin-bottom: 12px; }
+    .tab-btn { flex: 1; padding: 8px; background: #e0e7ff; border-radius: 20px; font-size: 0.9rem; }
+    .tab-btn.active { background: #3b82f6; color: white; }
+    body.dark .tab-btn { background: #2a3a5a; color: #cfdbf5; }
+    body.dark .tab-btn.active { background: #3b82f6; color: white; }
+    .scrollable { max-height: 350px; overflow-y: auto; }
+    .equip-btn, .upgrade-btn, .unequip-btn { padding: 6px 12px; font-size: 0.8rem; min-width: 70px; }
+    .unequip-btn { background: #f97316; color: white; border: none; }
+    .toggle-switch { display: flex; align-items: center; gap: 8px; }
+    .toggle-switch input { width: auto; }
+    .version-badge { font-size: 0.7rem; opacity: 0.5; margin-left: 8px; }
+
+    /* ---- EFFECTS BAR ---- */
+    .effects-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      min-height: 40px; padding: 4px 0;
     }
     .effect-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s;
+      position: relative; width: 44px; height: 44px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; cursor: pointer; border: 2px solid rgba(255,255,255,0.4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: transform 0.15s;
+      flex-shrink: 0;
     }
-    .effect-icon:hover {
-      transform: scale(1.05);
+    .effect-icon:hover { transform: scale(1.1); }
+    .effect-icon .effect-timer {
+      position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+      font-size: 0.55rem; font-weight: bold; color: white;
+      background: rgba(0,0,0,0.7); padding: 1px 4px; border-radius: 8px;
+      white-space: nowrap;
     }
-    .effect-timer {
-      position: absolute;
-      bottom: -5px;
-      right: -5px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      font-size: 0.6rem;
-      padding: 2px 5px;
-      border-radius: 10px;
+    .effect-tooltip-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 500;
+      display: flex; justify-content: center; align-items: center;
     }
-    .effect-tooltip {
-      position: fixed;
-      background: #1e2432;
-      color: white;
-      padding: 15px;
-      border-radius: 15px;
-      max-width: 250px;
-      z-index: 1000;
-      border: 1px solid #3b82f6;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    .inventory-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255,255,255,0.5);
-      border-radius: 20px;
-      padding: 4px 8px 4px 12px;
-      margin-bottom: 4px;
-    }
-    body.dark .inventory-item {
-      background: rgba(30,40,60,0.5);
-    }
-    .delete-btn {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      background: #ef4444;
-      color: white;
-      border: none;
-      min-width: 60px;
-    }
-    .bounce-area {
-      background: #e9eef4;
-      border-radius: 20px;
-      height: 250px;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 12px;
-      border: 2px solid #bac8dc;
-    }
-    @media (min-width: 768px) {
-      .bounce-area {
-        height: 350px;
-      }
-    }
-    body.dark .bounce-area {
-      background: #10161f;
-      border-color: #3a4a62;
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-    .flex-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    input {
-      padding: 12px 14px;
-      border-radius: 40px;
-      border: 1px solid #bdc9db;
-      background: white;
-      font-size: 1rem;
-      width: 100%;
-      max-width: 200px;
-    }
-    body.dark input {
-      background: #1f2a3c;
-      border-color: #4f6280;
-      color: white;
-    }
-    .shop-item, .inventory-item-container, .upgrade-item, .potion-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-    body.dark .shop-item, body.dark .inventory-item-container, body.dark .upgrade-item, body.dark .potion-item {
-      border-bottom-color: #3a4a62;
-    }
-    .timer {
-      font-size: 0.9rem;
-      color: #3b82f6;
-    }
-    .tab-container {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 8px;
-      background: #e0e7ff;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-    .tab-btn.active {
-      background: #3b82f6;
-      color: white;
-    }
-    body.dark .tab-btn {
-      background: #2a3a5a;
-      color: #cfdbf5;
-    }
-    body.dark .tab-btn.active {
-      background: #3b82f6;
-      color: white;
-    }
-    .scrollable {
-      max-height: 350px;
-      overflow-y: auto;
-    }
-    .equip-btn, .upgrade-btn, .unequip-btn, .use-btn {
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      min-width: 70px;
-    }
-    .unequip-btn {
-      background: #f97316;
-      color: white;
-      border: none;
-    }
-    .use-btn {
-      background: #10b981;
-      color: white;
-      border: none;
-    }
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .toggle-switch input {
-      width: auto;
-    }
-    .version-badge {
-      font-size: 0.7rem;
-      opacity: 0.5;
-      margin-left: 8px;
-    }
-    
-    .tutorial-overlay, .chyrchle-selector-overlay, .capacity-upgrade-overlay, .potion-selector-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      backdrop-filter: blur(5px);
-    }
-    .tutorial-content, .chyrchle-selector-content, .capacity-upgrade-content, .potion-selector-content {
-      background: #1e2432;
-      padding: 30px;
-      border-radius: 30px;
-      max-width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
-      color: white;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    .effect-tooltip-box {
+      background: #1e2432; color: white; padding: 20px;
+      border-radius: 16px; max-width: 300px; text-align: center;
       border: 1px solid #3b82f6;
     }
-    .chyrchle-selector-content {
-      max-width: 600px;
-    }
-    .chyrchle-selector-item {
-      padding: 10px;
-      margin-bottom: 5px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .chyrchle-selector-item:hover {
-      background: rgba(59,130,246,0.3);
-    }
-    
-    .cutscene-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .cutscene-stars {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-    }
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      animation: twinkle 2s infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-    .cutscene-content {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      padding: 40px;
-      max-width: 600px;
-    }
-    .cutscene-rarity {
-      font-size: 1.5rem;
-      letter-spacing: 8px;
-      margin-bottom: 20px;
-      opacity: 0;
-      animation: fadeInUp 0.8s forwards;
-    }
-    .cutscene-name {
-      font-size: 4rem;
-      font-weight: bold;
-      margin: 20px 0;
-      opacity: 0;
-      animation: scaleIn 0.8s 0.3s forwards;
-      text-shadow: 0 0 30px currentColor;
-    }
-    .cutscene-rarity-text {
-      font-size: 1.3rem;
-      margin: 15px 0;
-      opacity: 0;
-      animation: fadeInUp 0.8s 0.6s forwards;
-    }
-    .cutscene-quote {
-      font-size: 1.1rem;
-      font-style: italic;
-      margin: 25px 0;
-      opacity: 0;
-      animation: fadeInUp 0.8s 0.9s forwards;
-      max-width: 500px;
-    }
-    .cutscene-continue {
-      margin-top: 40px;
-      padding: 12px 40px;
-      background: transparent;
-      border: 2px solid;
-      color: inherit;
-      font-size: 1.1rem;
-      opacity: 0;
-      animation: fadeIn 0.8s 1.2s forwards;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.5); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    .changelog-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #ddd;
-    }
-    body.dark .changelog-item {
-      border-bottom-color: #3a4a62;
-    }
-    #inventoryPanel {
-      background: white;
-    }
-    body.dark #inventoryPanel {
-      background: #1e2432;
-      border-color: #3d4b60;
-    }
+    .effect-tooltip-box h3 { color: #3b82f6; }
+    .effect-tooltip-box .effect-remaining { color: #22c55e; margin-top: 8px; font-size: 0.9rem; }
 
-    .confirm-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      backdrop-filter: blur(3px);
+    /* ---- OVERLAYS ---- */
+    .tutorial-overlay, .zenith-overlay, .chyrchle-selector-overlay, .capacity-upgrade-overlay, .potion-pay-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center;
+      z-index: 1000; backdrop-filter: blur(5px);
     }
-    .confirm-box {
-      background: #1e2432;
-      padding: 25px;
-      border-radius: 20px;
-      max-width: 350px;
-      text-align: center;
-      color: white;
-      border: 1px solid #ef4444;
+    .tutorial-content, .zenith-content, .chyrchle-selector-content, .capacity-upgrade-content, .potion-pay-content {
+      background: #1e2432; padding: 30px; border-radius: 30px;
+      max-width: 500px; max-height: 80vh; overflow-y: auto;
+      color: white; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid #3b82f6;
     }
-    .confirm-box h3 {
-      color: #ef4444;
-      margin-bottom: 15px;
+    .chyrchle-selector-content { max-width: 600px; }
+    .potion-pay-content { max-width: 520px; }
+    .tutorial-content h2, .zenith-content h2, .chyrchle-selector-content h2, .capacity-upgrade-content h2, .potion-pay-content h2 { color: #3b82f6; margin-bottom: 20px; }
+    .tutorial-step { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; }
+    .tutorial-step-number { width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+    .tutorial-step-content { flex: 1; }
+    .tutorial-step-content strong { color: #60a5fa; }
+    .chyrchle-selector-item { padding: 10px; margin-bottom: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .chyrchle-selector-item:hover { background: rgba(59,130,246,0.3); }
+
+    /* Potion pay list */
+    .potion-pay-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; margin-bottom: 6px; background: rgba(255,255,255,0.07);
+      border-radius: 12px;
     }
-    .confirm-box p {
-      margin-bottom: 20px;
+    .potion-pay-item .chyrchle-tag {
+      padding: 3px 10px; border-radius: 20px; font-size: 0.8rem;
+      font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
-    .confirm-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
+    .potion-select-btn {
+      padding: 5px 14px; font-size: 0.8rem; background: #22c55e; color: white;
+      border: none; border-radius: 20px; cursor: pointer;
     }
-    .confirm-btn {
-      padding: 10px 25px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: bold;
+    .potion-select-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+    /* ---- CUTSCENE ---- */
+    .cutscene-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+    .cutscene-stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; }
+    .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    .cutscene-content { position: relative; z-index: 10; text-align: center; padding: 40px; max-width: 600px; }
+    .cutscene-rarity { font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 20px; opacity: 0; animation: fadeInUp 0.8s forwards; }
+    .cutscene-name { font-size: 4rem; font-weight: bold; margin: 20px 0; opacity: 0; animation: scaleIn 0.8s 0.3s forwards; text-shadow: 0 0 30px currentColor; }
+    .cutscene-rarity-text { font-size: 1.3rem; margin: 15px 0; opacity: 0; animation: fadeInUp 0.8s 0.6s forwards; }
+    .cutscene-quote { font-size: 1.1rem; font-style: italic; margin: 25px 0; opacity: 0; animation: fadeInUp 0.8s 0.9s forwards; max-width: 500px; }
+    .cutscene-continue { margin-top: 40px; padding: 12px 40px; background: transparent; border: 2px solid; color: inherit; font-size: 1.1rem; opacity: 0; animation: fadeIn 0.8s 1.2s forwards; cursor: pointer; transition: all 0.3s; }
+    .cutscene-continue:hover { background: rgba(255,255,255,0.1); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .cutscene-particle { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: float 3s infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(180deg); } }
+    .changelog-item { padding: 8px 0; border-bottom: 1px solid #ddd; }
+    body.dark .changelog-item { border-bottom-color: #3a4a62; }
+    #inventoryPanel { background: white; }
+    body.dark #inventoryPanel { background: #1e2432; border-color: #3d4b60; }
+    .skip-cutscene-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .skip-cutscene-checkbox input { width: auto; }
+    .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
+    .confirm-box { background: #1e2432; padding: 25px; border-radius: 20px; max-width: 350px; text-align: center; color: white; border: 1px solid #ef4444; }
+    .confirm-box h3 { color: #ef4444; margin-bottom: 15px; }
+    .confirm-box p { margin-bottom: 20px; }
+    .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
+    .confirm-btn { padding: 10px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; }
+    .confirm-yes { background: #ef4444; color: white; }
+    .confirm-no { background: #3b82f6; color: white; }
+    .special-tag { background: linear-gradient(45deg, gold, orange); color: black; font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; margin-left: 5px; font-weight: bold; }
+
+    /* ---- POTION BADGES IN SHOP ---- */
+    .potion-badge { display: inline-block; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-weight: bold; margin-left: 4px; }
+    .badge-luck { background: #22c55e; color: white; }
+    .badge-speed { background: #3b82f6; color: white; }
+    .badge-special { background: #f97316; color: white; }
+    .badge-unrestricted { background: #a855f7; color: white; }
+    .badge-purify { background: #14b8a6; color: white; }
+
+    /* ---- SHOP POTION ITEM ---- */
+    .shop-potion-item {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px; padding: 8px 10px; border-radius: 12px;
+      background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3);
     }
-    .confirm-yes {
-      background: #ef4444;
-      color: white;
+    body.dark .shop-potion-item { background: rgba(30,40,60,0.5); border-color: rgba(255,255,255,0.08); }
+    .stock-badge { font-size: 0.7rem; background: #64748b; color: white; padding: 2px 7px; border-radius: 10px; }
+    .stock-badge.low { background: #ef4444; }
+
+    /* ---- MY POTIONS ---- */
+    .my-potion-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; margin-bottom: 6px; background: rgba(255,255,255,0.3);
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
     }
-    .confirm-no {
-      background: #3b82f6;
-      color: white;
-    }
+    body.dark .my-potion-item { background: rgba(30,40,60,0.5); border-color: rgba(255,255,255,0.08); }
+    .use-potion-btn { padding: 5px 14px; font-size: 0.8rem; background: #22c55e; color: white; border: none; border-radius: 20px; cursor: pointer; }
+    .use-potion-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+    /* ---- OWNED ITEMS in shop ---- */
+    .owned-label { font-size: 0.75rem; color: #9ca3af; padding: 4px 10px; }
   </style>
 </head>
 <body>
@@ -590,10 +254,9 @@
   <div id="screen-main" class="screen active">
     <div class="card main-header">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <h1 style="margin:0;">Chyrchle <span class="version-badge">v3.0</span></h1>
+        <h1 style="margin:0;">Chyrchle <span class="version-badge">v3</span></h1>
         <span style="font-size:1.3rem; font-weight:bold;">C<span id="moneyDisplay">0</span></span>
       </div>
-      
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span><strong>Inventory</strong> <span id="invCount">0/50</span></span>
         <div style="display:flex; gap:8px;">
@@ -603,7 +266,15 @@
       </div>
       <div id="bestChyrchleDisplay" style="margin-top:8px; font-size:0.9rem;">Best: none</div>
     </div>
-    
+
+    <!-- EFFECTS BAR -->
+    <div class="card effects-bar-wrapper" style="padding:10px 14px;">
+      <div style="font-size:0.8rem; font-weight:600; margin-bottom:6px; opacity:0.7;">Active Effects</div>
+      <div id="effectsBar" class="effects-bar">
+        <span id="noEffectsLabel" style="opacity:0.5; font-size:0.85rem;">No active effects</span>
+      </div>
+    </div>
+
     <div class="card roll-area">
       <div id="rolledResult" style="min-height:70px; margin-bottom:8px; font-size:0.95rem; text-align:center;">
         <span style="opacity:0.7;">Tap ROLL to start</span>
@@ -617,11 +288,6 @@
       </div>
     </div>
 
-    <div class="card effects-area">
-      <h3 style="font-size:1rem;">Active Effects</h3>
-      <div id="effectsContainer" class="effects-container"></div>
-    </div>
-
     <div class="card history-area">
       <h3 style="font-size:1rem;">Previous 10 rolls</h3>
       <div id="rollHistoryList" style="max-height:200px; overflow-y:auto; font-size:0.85rem;">-</div>
@@ -633,25 +299,14 @@
         <h3 style="font-size:1rem;">Inventory</h3>
         <button id="closeInventoryBtn" style="padding:6px 12px;">Close</button>
       </div>
-      <div class="tab-container">
-        <button class="tab-btn active" data-invtab="chyrchles">Chyrchles</button>
-        <button class="tab-btn" data-invtab="potions">Potions</button>
-      </div>
-      <div id="chyrchlesInvContent" class="scrollable" style="max-height:300px;">
-        <div id="inventoryContainer"></div>
-      </div>
-      <div id="potionsInvContent" class="scrollable" style="max-height:300px; display:none;">
-        <div id="potionsInventoryContainer"></div>
-      </div>
+      <div id="inventoryContainer" class="scrollable" style="max-height:300px;"></div>
     </div>
     <div id="inventoryOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:99;" onclick="document.getElementById('inventoryPanel').style.display='none';this.style.display='none';"></div>
   </div>
 
   <!-- BOUNCE SCREEN -->
   <div id="screen-bounce" class="screen">
-    <div class="card bounce-header">
-      <h2 style="font-size:1.2rem;">Chyrchling area</h2>
-    </div>
+    <div class="card bounce-header"><h2 style="font-size:1.2rem;">Chyrchling area</h2></div>
     <div class="card" style="padding:8px;">
       <div class="bounce-area">
         <canvas id="bounceCanvas" width="500" height="250"></canvas>
@@ -662,7 +317,6 @@
         <button class="tab-btn active" data-bouncetab="stats">Stats</button>
         <button class="tab-btn" data-bouncetab="upgrade">Upgrade</button>
       </div>
-      
       <div id="bounceStatsContent">
         <div class="flex-row" style="justify-content:space-between;">
           <span>C/min: <span id="estimatedPerMin">0</span></span>
@@ -672,14 +326,9 @@
         <div style="margin-top:4px;">All Chyrchles: <span id="deployedCount">0</span></div>
         <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Only top Chyrchles bounce · simulation always active</p>
       </div>
-      
       <div id="bounceUpgradeContent" style="display:none;">
-        <div style="margin-bottom:12px;">
-          <strong>Max Deploy: <span id="currentMaxDeploy">5</span>/15</strong>
-        </div>
-        <div class="scrollable" style="max-height:250px;">
-          <div id="upgradeContainer"></div>
-        </div>
+        <div style="margin-bottom:12px;"><strong>Max Deploy: <span id="currentMaxDeploy">5</span>/15</strong></div>
+        <div class="scrollable" style="max-height:250px;"><div id="upgradeContainer"></div></div>
         <p style="opacity:0.7; font-size:0.8rem; margin-top:12px;">Upgrade to deploy more Chyrchles!</p>
       </div>
     </div>
@@ -689,32 +338,23 @@
   <div id="screen-shop" class="screen">
     <div class="card">
       <h2 style="font-size:1.2rem;">Shop</h2>
-      
       <div class="tab-container">
         <button class="tab-btn active" data-shoptab="shop">Shop</button>
         <button class="tab-btn" data-shoptab="items">My Items</button>
         <button class="tab-btn" data-shoptab="potions">My Potions</button>
       </div>
-      
       <div id="shopTabContent">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
           <span>Next rotation: <span id="shopTimer">--:--</span></span>
         </div>
-        <div id="shopItemsContainer" class="scrollable" style="max-height:350px;"></div>
+        <div id="shopItemsContainer" class="scrollable" style="max-height:380px;"></div>
       </div>
-      
       <div id="itemsTabContent" style="display:none;">
-        <div class="scrollable" style="max-height:350px;">
-          <div id="ownedItemsContainer"></div>
-        </div>
+        <div class="scrollable" style="max-height:380px;"><div id="ownedItemsContainer"></div></div>
       </div>
-      
       <div id="potionsTabContent" style="display:none;">
-        <div class="scrollable" style="max-height:350px;">
-          <div id="ownedPotionsContainer"></div>
-        </div>
+        <div class="scrollable" style="max-height:380px;"><div id="myPotionsContainer"></div></div>
       </div>
-      
       <div style="margin:12px 0; font-size:1.1rem;">Your Chyrch: C<span id="shopMoney">0</span></div>
     </div>
   </div>
@@ -728,12 +368,10 @@
         <button id="toggleThemeBtn">Switch to Dark</button>
       </div>
     </div>
-    
     <div class="card">
       <label style="display:block; margin-bottom:12px;">Tutorial</label>
       <button id="showTutorialBtn" style="width:100%;">Show Tutorial</button>
     </div>
-    
     <div class="card">
       <label style="display:block; margin-bottom:12px;">Cutscene Settings</label>
       <div class="skip-cutscene-checkbox">
@@ -743,7 +381,6 @@
       </div>
       <p style="font-size:0.75rem; opacity:0.7;">Cutscenes below this rarity will be skipped</p>
     </div>
-    
     <div class="card">
       <label style="display:block; margin-bottom:12px;">Auto-delete settings</label>
       <div class="toggle-switch" style="margin-bottom:12px;">
@@ -757,7 +394,6 @@
       </div>
       <p style="font-size:0.75rem; opacity:0.7; margin-top:8px;">When enabled, auto-deletes new rolls under threshold</p>
     </div>
-    
     <div class="card">
       <label style="display:block; margin-bottom:8px;">Redeem Code</label>
       <div style="display:flex; gap:8px;">
@@ -765,1518 +401,1562 @@
         <button id="submitCodeBtn" style="flex:1;">Redeem</button>
       </div>
     </div>
-    
     <div class="card changelog-card">
-      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v3.0</h3>
-      <div style="max-height:150px; overflow-y:auto;">
-        <div class="changelog-item">- Potion Update!</div>
-        <div class="changelog-item">- Reworked shop mechanic</div>
-        <div class="changelog-item">- New "FreePotions" code</div>
+      <h3 style="font-size:1rem; margin-bottom:12px;">Changelog v3</h3>
+      <div style="max-height:180px; overflow-y:auto;">
+        <div class="changelog-item">-Potion Update!</div>
+        <div class="changelog-item">-Reworked shop mechanic</div>
+        <div class="changelog-item">-New "FreePotions" code</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  (function(){
-    "use strict";
+(function(){
+"use strict";
 
-    // ---------- DATA DEFINITIONS ----------
-    const CHYRCHLES = [
-      { name:'UNHONORED', rarity:1, color:'#ffffff', effectType:'unhonored', gain:1, theme:'holy', desc:'Am i really the unhonored one?', special:'alwaysDeploy' },
-      { name:'Pebble', rarity:3, color:'#a8a29e', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
-      { name:'Spark', rarity:5, color:'#fbbf24', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
-      { name:'Dewdrop', rarity:7, color:'#bae6fd', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
-      { name:'Twig', rarity:10, color:'#78716c', effectType:'none', gain:2, theme:'nature', desc:'A small twig from an ancient tree.' },
-      { name:'Breeze', rarity:15, color:'#e0f2fe', effectType:'breeze', gain:3, theme:'air', desc:'A gentle cooling breeze.' },
-      { name:'Common', rarity:2, color:'#9e9e9e', effectType:'none', gain:1, theme:'neutral', desc:'A common Chyrchle.' },
-      { name:'Rare', rarity:8, color:'#3b82f6', effectType:'none', gain:2, theme:'water', desc:'A rare blue Chyrchle.' },
-      { name:'Epic', rarity:24, color:'#b983ff', effectType:'none', gain:3, theme:'magic', desc:'An epic purple Chyrchle.' },
-      { name:'Wind', rarity:64, color:'#f0f0f0', effectType:'wind', gain:4, theme:'air', desc:'The wind itself made manifest.' },
-      { name:'Diamond', rarity:130, color:'#a5f0ff', effectType:'sparkle', gain:5, theme:'gem', desc:'A brilliant diamond Chyrchle.' },
-      { name:'Darkness', rarity:350, color:'#222222', effectType:'darkness', gain:6, theme:'void', desc:'Pure darkness given form.' },
-      { name:'Legendary', rarity:580, color:'#fbbf24', effectType:'glow', gain:7, theme:'light', desc:'A legendary golden Chyrchle.' },
-      { name:'Common:Unordinary', rarity:1000, color:'#808080', effectType:'unordinary', gain:1000, theme:'neutral', desc:'Unusually common. Always at the bottom.', special:'alwaysLast', fixedRoll: true },
-      { name:'Determination', rarity:999, color:'#ef4444', effectType:'pulse', gain:9, theme:'fire', desc:'Filled with determination.' },
-      { name:'Crystal', rarity:1500, color:'#c7d2fe', effectType:'sparkle', gain:10, theme:'gem', desc:'A crystal that refracts light beautifully.' },
-      { name:'Ember', rarity:2500, color:'#f97316', effectType:'flame', gain:12, theme:'fire', desc:'A dying ember that refuses to fade.' },
-      { name:'Tide', rarity:3500, color:'#06b6d4', effectType:'wave', gain:14, theme:'water', desc:'The relentless ocean tide.' },
-      { name:'Gale', rarity:4500, color:'#94a3b8', effectType:'wind', gain:16, theme:'air', desc:'A powerful howling gale.' },
-      { name:'Nebula', rarity:5000, color:'#c084fc', effectType:'spiral', gain:18, theme:'cosmic', desc:'A miniature nebula in your hands.' },
-      { name:'Thunder', rarity:7500, color:'#fbbf24', effectType:'lightning', gain:24, theme:'storm', desc:'The roar of thunder made solid.' },
-      { name:'Quake', rarity:8500, color:'#a16207', effectType:'shake', gain:26, theme:'earth', desc:'The earth trembles at its presence.' },
-      { name:'Frostbite', rarity:12000, color:'#67e8f9', effectType:'frost', gain:28, theme:'ice', desc:'Cold enough to freeze your soul.' },
-      { name:'Blaze', rarity:15000, color:'#ef4444', effectType:'flame', gain:30, theme:'fire', desc:'An unstoppable blazing inferno.' },
-      { name:'Inferno', rarity:18000, color:'#dc2626', effectType:'inferno', gain:32, theme:'fire', desc:'Pillars of flame erupt around it.' },
-      { name:'Aquatic', rarity:1200, color:'#7dd3fc', effectType:'wave', gain:11, theme:'water', desc:'Water flows endlessly around it.' },
-      { name:'Vortex', rarity:1333, color:'#8b5cf6', effectType:'vortex', gain:13, theme:'void', desc:'A spiraling vortex of chaos.' },
-      { name:'Reality', rarity:1999, color:'loop-shift', effectType:'shift', gain:15, theme:'reality', desc:'Reality shifts and bends around it.' },
-      { name:'Heaven', rarity:2222, color:'#fffac2', effectType:'divine', gain:22, theme:'holy', desc:'A piece of heaven descended.' },
-      { name:'Fire', rarity:3333, color:'#fca5a5', effectType:'flame', gain:33, theme:'fire', desc:'An eternal flame that never dies.' },
-      { name:'Mortality', rarity:8978, color:'#dc2626', effectType:'fade', gain:35, theme:'death', desc:'The fragile nature of mortal life.' },
-      { name:'Dunes', rarity:12121, color:'#22c55e', effectType:'sand', gain:40, theme:'earth', desc:'Endless shifting desert sands.' },
-      { name:'Voidwalker', rarity:25000, color:'#2d1b4e', effectType:'void', gain:36, theme:'void', desc:'A walker between voids.' },
-      { name:'Darkness:Rebound', rarity:33333, color:'#1a1a1a', effectType:'darkness', gain:44, theme:'void', desc:'Darkness that rebounds eternally.' },
-      { name:'Starlight', rarity:42000, color:'#fef08a', effectType:'star', gain:42, theme:'cosmic', desc:'The light of distant stars.' },
-      { name:'Wind:Fogless', rarity:65536, color:'#ffffff', effectType:'wind', gain:50, theme:'air', desc:'Perfect clarity without fog.' },
-      { name:'Abyssal', rarity:69000, color:'#064e3b', effectType:'void', gain:48, theme:'void', desc:'Pressure from the deepest abyss.' },
-      { name:'Celestial', rarity:88000, color:'#818cf8', effectType:'ring', gain:55, theme:'cosmic', desc:'Rings of celestial light orbit it.' },
-      { name:'Determination:Undetermined', rarity:99999, color:'#b91c1c', effectType:'pulse', gain:49.5, theme:'fire', desc:'Determination that transcends logic.' },
-      { name:'Reality:Unleashed', rarity:111111, color:'loop-fast', effectType:'shift', gain:60, theme:'reality', desc:'Reality fractures at its touch.' },
-      { name:'Phoenix', rarity:120000, color:'#f97316', effectType:'phoenix', gain:65, theme:'fire', desc:'Rises from ashes in eternal rebirth.' },
-      { name:'Chrono', rarity:150000, color:'#14b8a6', effectType:'time', gain:72, theme:'time', desc:'Time itself bends around it.' },
-      { name:'Singularity', rarity:200000, color:'#111827', effectType:'void', gain:80, theme:'void', desc:'A point of infinite density.' },
-      { name:'Ethereal', rarity:300000, color:'#e0e7ff', effectType:'ghost', gain:90, theme:'spirit', desc:'Barely existing between realms.' },
-      { name:'Omnipotent', rarity:500000, color:'#fbbf24', effectType:'divine', gain:110, theme:'holy', desc:'Beams of divine power radiate.' },
-      { name:'Cosmic Horror', rarity:777777, color:'#4c1d95', effectType:'tentacle', gain:130, theme:'void', desc:'From beyond the stars... madness.' },
-      { name:'Infinity', rarity:1000000, color:'loop-rainbow', effectType:'rainbow', gain:150, theme:'cosmic', desc:'Infinite fractals unto eternity.' },
-      { name:'Solar Flare', rarity:1800000, color:'#fcd34d', effectType:'flare', gain:200, theme:'cosmic', desc:'The fury of a star unleashed.' },
-      { name:'Asteroid', rarity:3200000, color:'#9ca3af', effectType:'debris', gain:240, theme:'cosmic', desc:'Remnants of cosmic destruction.' },
-      { name:'Pulsar', rarity:5500000, color:'#60a5fa', effectType:'beam', gain:290, theme:'cosmic', desc:'A lighthouse of deadly radiation.' },
-      { name:'Red Giant', rarity:8400000, color:'#ef4444', effectType:'expand', gain:340, theme:'cosmic', desc:'A dying star swelling to consume all.' },
-      { name:'Nebula Core', rarity:13500000, color:'#c084fc', effectType:'spiral', gain:400, theme:'cosmic', desc:'Where new stars are born.' },
-      { name:'Quantum', rarity:2500000, color:'#06b6d4', effectType:'quantum', gain:180, theme:'quantum', desc:'Existing in all states at once.' },
-      { name:'Nova', rarity:3800000, color:'#fde047', effectType:'nova', gain:220, theme:'cosmic', desc:'The death cry of a massive star.' },
-      { name:'Galactic Core', rarity:5200000, color:'#d8b4fe', effectType:'galaxy', gain:260, theme:'cosmic', desc:'The heart of a galaxy.' },
-      { name:'Temporal', rarity:7100000, color:'#34d399', effectType:'time', gain:300, theme:'time', desc:'Time flows backwards around it.' },
-      { name:'Dimensional Rift', rarity:9300000, color:'#818cf8', effectType:'rift', gain:350, theme:'reality', desc:'A tear in the fabric of reality.' },
-      { name:'Primordial', rarity:12500000, color:'#fbbf24', effectType:'ancient', gain:400, theme:'cosmic', desc:'Energy from before time began.' },
-      { name:'Dark Matter', rarity:16800000, color:'#1e1b4b', effectType:'distort', gain:460, theme:'void', desc:'The unseen mass that shapes reality.' },
-      { name:'Hypernova', rarity:22200000, color:'#f97316', effectType:'hypernova', gain:530, theme:'cosmic', desc:'The most violent explosion known.' },
-      { name:'Wormhole', rarity:29000000, color:'#2dd4bf', effectType:'wormhole', gain:610, theme:'cosmic', desc:'A tunnel through spacetime itself.' },
-      { name:'Quasar', rarity:37000000, color:'#e879f9', effectType:'jet', gain:700, theme:'cosmic', desc:'Jets of energy at near light speed.' },
-      { name:'Multiverse', rarity:48000000, color:'loop-multiverse', effectType:'multiverse', gain:800, theme:'reality', desc:'Echoes from infinite parallel worlds.' },
-      { name:'Big Bang', rarity:62000000, color:'#fca5a5', effectType:'bang', gain:920, theme:'cosmic', desc:'The echo of creation itself.' },
-      { name:'Neutron Star', rarity:79000000, color:'#94a3b8', effectType:'gravity', gain:1050, theme:'cosmic', desc:'Gravity so strong it crushes atoms.' },
-      { name:'Black Hole', rarity:99000000, color:'#000000', effectType:'blackhole', gain:1200, theme:'void', desc:'Where light itself cannot escape.' },
-      { name:'White Hole', rarity:150000000, color:'#ffffff', effectType:'whitehole', gain:1400, theme:'cosmic', desc:'The opposite of a black hole.' },
-      { name:'THE ABSOLUTE', rarity:1000000000, color:'loop-absolute', effectType:'absolute', gain:5000, theme:'absolute', desc:'THE BEGINNING AND THE END. THE ALPHA AND OMEGA. REALITY ITSELF KNEELS.' }
-    ];
+// ============================================================
+// DATA DEFINITIONS
+// ============================================================
 
-    const ITEMS = [
-      { id:'silver', name:'Silver Crown', price:200, luck:1.2, gain:1.0 },
-      { id:'diamond', name:'Diamond Ring', price:1200, luck:1.6, gain:1.2 },
-      { id:'witch', name:'Witch\'s hat', price:1300, luck:1.8, gain:1.0 },
-      { id:'sunglasses', name:'Sunglasses', price:2500, luck:1.0, gain:1.5 },
-      { id:'realcrown', name:'Real Crown', price:4000, luck:2.0, gain:1.5 },
-      { id:'titanium', name:'Titanium Ring', price:6000, luck:1.0, gain:2.0 },
-      { id:'chair', name:'Chair', price:10000, luck:2.0, gain:1.8 },
-      { id:'emptycan', name:'Empty Can', price:30000, luck:5.0, gain:1.0 },
-      { id:'archmage', name:'Hat Of The Archmage', price:66666, luck:6.0, gain:6.0 },
-      { id:'allseeing', name:'The All Seeing Eye', price:111111, luck:10.0, gain:1.0 },
-      { id:'dimgate', name:'Dimensional Gate Key', price:234567, luck:0.5, gain:10.0 },
-      { id:'guardian', name:'Guardian of Dimensions', price:342516, luck:25.0, gain:0.0 },
-      { id:'enduniverse', name:'The End of Universe', price:1000000, luck:77.0, gain:55.0 },
-      { id:'godcrown', name:'The Crown of the Last Dying God...', price:999999, luck:100.0, gain:100.0 },
-      { id:'gracioushope', name:'Gracious Hope', price:9999999, luck:1000000.0, gain:1000.0 },
-      { id:'windyamethyst', name:'Windy Amethyst', price:50000000, luck:110.0, gain:10.0 },
-      { id:'luckycoin', name:'Lucky Coin', price:500, luck:1.3, gain:1.0 },
-      { id:'fourleaf', name:'Four Leaf Clover', price:2000, luck:2.2, gain:1.0 },
-      { id:'goldring', name:'Golden Ring', price:8000, luck:1.5, gain:2.5 },
-      { id:'magicwand', name:'Magic Wand', price:15000, luck:3.0, gain:1.5 },
-      { id:'crystalball', name:'Crystal Ball', price:35000, luck:4.0, gain:2.0 },
-      { id:'dragonscale', name:'Dragon Scale', price:80000, luck:2.0, gain:5.0 },
-      { id:'phoenixfeather', name:'Phoenix Feather', price:150000, luck:8.0, gain:3.0 },
-      { id:'stardust', name:'Stardust Amulet', price:300000, luck:5.0, gain:8.0 },
-      { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 },
-      { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special: 'bob' },
-      { id:'thezenith', name:'THE ZENITH', price:0, luck:-1, gain:1000000, special: 'zenith', fakeGain: -1 }
-    ];
+const CHYRCHLES = [
+  { name:'UNHONORED', rarity:1, color:'#ffffff', effectType:'unhonored', gain:1, theme:'holy', desc:'Am i really the unhonored one?', special:'alwaysDeploy' },
+  { name:'Pebble', rarity:3, color:'#a8a29e', effectType:'none', gain:1, theme:'earth', desc:'A small pebble from the riverbed.' },
+  { name:'Spark', rarity:5, color:'#fbbf24', effectType:'spark', gain:1, theme:'fire', desc:'A tiny spark of warmth.' },
+  { name:'Dewdrop', rarity:7, color:'#bae6fd', effectType:'none', gain:2, theme:'water', desc:'A fresh morning dewdrop.' },
+  { name:'Twig', rarity:10, color:'#78716c', effectType:'none', gain:2, theme:'nature', desc:'A small twig from an ancient tree.' },
+  { name:'Breeze', rarity:15, color:'#e0f2fe', effectType:'breeze', gain:3, theme:'air', desc:'A gentle cooling breeze.' },
+  { name:'Common', rarity:2, color:'#9e9e9e', effectType:'none', gain:1, theme:'neutral', desc:'A common Chyrchle.' },
+  { name:'Rare', rarity:8, color:'#3b82f6', effectType:'none', gain:2, theme:'water', desc:'A rare blue Chyrchle.' },
+  { name:'Epic', rarity:24, color:'#b983ff', effectType:'none', gain:3, theme:'magic', desc:'An epic purple Chyrchle.' },
+  { name:'Wind', rarity:64, color:'#f0f0f0', effectType:'wind', gain:4, theme:'air', desc:'The wind itself made manifest.' },
+  { name:'Diamond', rarity:130, color:'#a5f0ff', effectType:'sparkle', gain:5, theme:'gem', desc:'A brilliant diamond Chyrchle.' },
+  { name:'Darkness', rarity:350, color:'#222222', effectType:'darkness', gain:6, theme:'void', desc:'Pure darkness given form.' },
+  { name:'Legendary', rarity:580, color:'#fbbf24', effectType:'glow', gain:7, theme:'light', desc:'A legendary golden Chyrchle.' },
+  { name:'Common:Unordinary', rarity:1000, color:'#808080', effectType:'unordinary', gain:1000, theme:'neutral', desc:'Unusually common. Always at the bottom.', special:'alwaysLast', fixedRoll: true },
+  { name:'Determination', rarity:999, color:'#ef4444', effectType:'pulse', gain:9, theme:'fire', desc:'Filled with determination.' },
+  { name:'Crystal', rarity:1500, color:'#c7d2fe', effectType:'sparkle', gain:10, theme:'gem', desc:'A crystal that refracts light beautifully.' },
+  { name:'Ember', rarity:2500, color:'#f97316', effectType:'flame', gain:12, theme:'fire', desc:'A dying ember that refuses to fade.' },
+  { name:'Tide', rarity:3500, color:'#06b6d4', effectType:'wave', gain:14, theme:'water', desc:'The relentless ocean tide.' },
+  { name:'Gale', rarity:4500, color:'#94a3b8', effectType:'wind', gain:16, theme:'air', desc:'A powerful howling gale.' },
+  { name:'Nebula', rarity:5000, color:'#c084fc', effectType:'spiral', gain:18, theme:'cosmic', desc:'A miniature nebula in your hands.' },
+  { name:'Thunder', rarity:7500, color:'#fbbf24', effectType:'lightning', gain:24, theme:'storm', desc:'The roar of thunder made solid.' },
+  { name:'Quake', rarity:8500, color:'#a16207', effectType:'shake', gain:26, theme:'earth', desc:'The earth trembles at its presence.' },
+  { name:'Frostbite', rarity:12000, color:'#67e8f9', effectType:'frost', gain:28, theme:'ice', desc:'Cold enough to freeze your soul.' },
+  { name:'Blaze', rarity:15000, color:'#ef4444', effectType:'flame', gain:30, theme:'fire', desc:'An unstoppable blazing inferno.' },
+  { name:'Inferno', rarity:18000, color:'#dc2626', effectType:'inferno', gain:32, theme:'fire', desc:'Pillars of flame erupt around it.' },
+  { name:'Aquatic', rarity:1200, color:'#7dd3fc', effectType:'wave', gain:11, theme:'water', desc:'Water flows endlessly around it.' },
+  { name:'Vortex', rarity:1333, color:'#8b5cf6', effectType:'vortex', gain:13, theme:'void', desc:'A spiraling vortex of chaos.' },
+  { name:'Reality', rarity:1999, color:'loop-shift', effectType:'shift', gain:15, theme:'reality', desc:'Reality shifts and bends around it.' },
+  { name:'Heaven', rarity:2222, color:'#fffac2', effectType:'divine', gain:22, theme:'holy', desc:'A piece of heaven descended.' },
+  { name:'Fire', rarity:3333, color:'#fca5a5', effectType:'flame', gain:33, theme:'fire', desc:'An eternal flame that never dies.' },
+  { name:'Mortality', rarity:8978, color:'#dc2626', effectType:'fade', gain:35, theme:'death', desc:'The fragile nature of mortal life.' },
+  { name:'Dunes', rarity:12121, color:'#22c55e', effectType:'sand', gain:40, theme:'earth', desc:'Endless shifting desert sands.' },
+  { name:'Voidwalker', rarity:25000, color:'#2d1b4e', effectType:'void', gain:36, theme:'void', desc:'A walker between voids.' },
+  { name:'Darkness:Rebound', rarity:33333, color:'#1a1a1a', effectType:'darkness', gain:44, theme:'void', desc:'Darkness that rebounds eternally.' },
+  { name:'Starlight', rarity:42000, color:'#fef08a', effectType:'star', gain:42, theme:'cosmic', desc:'The light of distant stars.' },
+  { name:'Wind:Fogless', rarity:65536, color:'#ffffff', effectType:'wind', gain:50, theme:'air', desc:'Perfect clarity without fog.' },
+  { name:'Abyssal', rarity:69000, color:'#064e3b', effectType:'void', gain:48, theme:'void', desc:'Pressure from the deepest abyss.' },
+  { name:'Celestial', rarity:88000, color:'#818cf8', effectType:'ring', gain:55, theme:'cosmic', desc:'Rings of celestial light orbit it.' },
+  { name:'Determination:Undetermined', rarity:99999, color:'#b91c1c', effectType:'pulse', gain:49.5, theme:'fire', desc:'Determination that transcends logic.' },
+  { name:'Reality:Unleashed', rarity:111111, color:'loop-fast', effectType:'shift', gain:60, theme:'reality', desc:'Reality fractures at its touch.' },
+  { name:'Phoenix', rarity:120000, color:'#f97316', effectType:'phoenix', gain:65, theme:'fire', desc:'Rises from ashes in eternal rebirth.' },
+  { name:'Chrono', rarity:150000, color:'#14b8a6', effectType:'time', gain:72, theme:'time', desc:'Time itself bends around it.' },
+  { name:'Singularity', rarity:200000, color:'#111827', effectType:'void', gain:80, theme:'void', desc:'A point of infinite density.' },
+  { name:'Ethereal', rarity:300000, color:'#e0e7ff', effectType:'ghost', gain:90, theme:'spirit', desc:'Barely existing between realms.' },
+  { name:'Omnipotent', rarity:500000, color:'#fbbf24', effectType:'divine', gain:110, theme:'holy', desc:'Beams of divine power radiate.' },
+  { name:'Cosmic Horror', rarity:777777, color:'#4c1d95', effectType:'tentacle', gain:130, theme:'void', desc:'From beyond the stars... madness.' },
+  { name:'Infinity', rarity:1000000, color:'loop-rainbow', effectType:'rainbow', gain:150, theme:'cosmic', desc:'Infinite fractals unto eternity.' },
+  { name:'Solar Flare', rarity:1800000, color:'#fcd34d', effectType:'flare', gain:200, theme:'cosmic', desc:'The fury of a star unleashed.' },
+  { name:'Asteroid', rarity:3200000, color:'#9ca3af', effectType:'debris', gain:240, theme:'cosmic', desc:'Remnants of cosmic destruction.' },
+  { name:'Pulsar', rarity:5500000, color:'#60a5fa', effectType:'beam', gain:290, theme:'cosmic', desc:'A lighthouse of deadly radiation.' },
+  { name:'Red Giant', rarity:8400000, color:'#ef4444', effectType:'expand', gain:340, theme:'cosmic', desc:'A dying star swelling to consume all.' },
+  { name:'Nebula Core', rarity:13500000, color:'#c084fc', effectType:'spiral', gain:400, theme:'cosmic', desc:'Where new stars are born.' },
+  { name:'Quantum', rarity:2500000, color:'#06b6d4', effectType:'quantum', gain:180, theme:'quantum', desc:'Existing in all states at once.' },
+  { name:'Nova', rarity:3800000, color:'#fde047', effectType:'nova', gain:220, theme:'cosmic', desc:'The death cry of a massive star.' },
+  { name:'Galactic Core', rarity:5200000, color:'#d8b4fe', effectType:'galaxy', gain:260, theme:'cosmic', desc:'The heart of a galaxy.' },
+  { name:'Temporal', rarity:7100000, color:'#34d399', effectType:'time', gain:300, theme:'time', desc:'Time flows backwards around it.' },
+  { name:'Dimensional Rift', rarity:9300000, color:'#818cf8', effectType:'rift', gain:350, theme:'reality', desc:'A tear in the fabric of reality.' },
+  { name:'Primordial', rarity:12500000, color:'#fbbf24', effectType:'ancient', gain:400, theme:'cosmic', desc:'Energy from before time began.' },
+  { name:'Dark Matter', rarity:16800000, color:'#1e1b4b', effectType:'distort', gain:460, theme:'void', desc:'The unseen mass that shapes reality.' },
+  { name:'Hypernova', rarity:22200000, color:'#f97316', effectType:'hypernova', gain:530, theme:'cosmic', desc:'The most violent explosion known.' },
+  { name:'Wormhole', rarity:29000000, color:'#2dd4bf', effectType:'wormhole', gain:610, theme:'cosmic', desc:'A tunnel through spacetime itself.' },
+  { name:'Quasar', rarity:37000000, color:'#e879f9', effectType:'jet', gain:700, theme:'cosmic', desc:'Jets of energy at near light speed.' },
+  { name:'Multiverse', rarity:48000000, color:'loop-multiverse', effectType:'multiverse', gain:800, theme:'reality', desc:'Echoes from infinite parallel worlds.' },
+  { name:'Big Bang', rarity:62000000, color:'#fca5a5', effectType:'bang', gain:920, theme:'cosmic', desc:'The echo of creation itself.' },
+  { name:'Neutron Star', rarity:79000000, color:'#94a3b8', effectType:'gravity', gain:1050, theme:'cosmic', desc:'Gravity so strong it crushes atoms.' },
+  { name:'Black Hole', rarity:99000000, color:'#000000', effectType:'blackhole', gain:1200, theme:'void', desc:'Where light itself cannot escape.' },
+  { name:'White Hole', rarity:150000000, color:'#ffffff', effectType:'whitehole', gain:1400, theme:'cosmic', desc:'The opposite of a black hole.' },
+  { name:'THE ABSOLUTE', rarity:1000000000, color:'loop-absolute', effectType:'absolute', gain:5000, theme:'absolute', desc:'THE BEGINNING AND THE END. THE ALPHA AND OMEGA. REALITY ITSELF KNEELS.' }
+];
 
-    const POTIONS = [
-      // Luck type
-      { id:'luck1', name:'Luck Potion I', type:'luck', effect:'luck', value:2.0, duration:180, rarity:500, price:2500, maxStock:5 },
-      { id:'luck2', name:'Luck Potion II', type:'luck', effect:'luck', value:3.5, duration:180, rarity:1000, price:7500, maxStock:5 },
-      { id:'luck3', name:'Luck Potion III', type:'luck', effect:'luck', value:6.0, duration:180, rarity:2000, price:20000, maxStock:5 },
-      // Speed type
-      { id:'speed1', name:'Speed Potion I', type:'speed', effect:'speed', value:1.4, duration:120, rarity:2000, price:3000, maxStock:5 },
-      { id:'speed2', name:'Speed Potion II', type:'speed', effect:'speed', value:1.6, duration:120, rarity:4000, price:8000, maxStock:5 },
-      { id:'speed3', name:'Speed Potion III', type:'speed', effect:'speed', value:1.8, duration:120, rarity:6000, price:15000, maxStock:5 },
-      // Special 1
-      { id:'stone', name:'Stone Potion', type:'special1', effect:'stone', luckValue:4.0, speedValue:0.5, duration:300, rarity:3000, price:12000, maxStock:5 },
-      { id:'charged', name:'Charged Potion', type:'special1', effect:'charged', luckValue:2.0, speedValue:1.3, duration:300, rarity:4500, price:18000, maxStock:5 },
-      // Special 2 (Unrestricted - 1 roll)
-      { id:'unrestricted1', name:'Unrestricted Potion I', type:'special2', effect:'unrestricted', value:101, rolls:1, rarity:25000, price:100000, maxStock:1 },
-      { id:'unrestricted2', name:'Unrestricted Potion II', type:'special2', effect:'unrestricted', value:1001, rolls:1, rarity:200000, price:1000000, maxStock:1 },
-      { id:'unrestricted3', name:'Unrestricted Potion III', type:'special2', effect:'unrestricted', value:10001, rolls:1, rarity:3000000, price:10000000, maxStock:1 },
-      // Special 3
-      { id:'purifying', name:'Purifying Potion', type:'special3', effect:'purify', rarity:5000, price:5000, maxStock:5 }
-    ];
+// Potion definitions
+// priceRarity: minimum rarity of chyrchle needed to buy one
+// type: luck | speed | special1 | special2 | special3 | special4
+// serial: used for type-locking (can't have I and III of same type simultaneously)
+const POTIONS = [
+  // Luck type
+  { id:'luck1', name:'Luck Potion I', icon:'L1', type:'luck', serial:1,
+    priceRarity:500, stock:5, isSpecial:false,
+    desc:'+100% luck for 3 minutes',
+    effect:{ luckPct:100, speedPct:0, durationMs:3*60*1000, rolls:0 }
+  },
+  { id:'luck2', name:'Luck Potion II', icon:'L2', type:'luck', serial:2,
+    priceRarity:1000, stock:5, isSpecial:false,
+    desc:'+250% luck for 3 minutes',
+    effect:{ luckPct:250, speedPct:0, durationMs:3*60*1000, rolls:0 }
+  },
+  { id:'luck3', name:'Luck Potion III', icon:'L3', type:'luck', serial:3,
+    priceRarity:2000, stock:5, isSpecial:false,
+    desc:'+500% luck for 3 minutes',
+    effect:{ luckPct:500, speedPct:0, durationMs:3*60*1000, rolls:0 }
+  },
+  // Speed type
+  { id:'speed1', name:'Speed Potion I', icon:'S1', type:'speed', serial:1,
+    priceRarity:2000, stock:5, isSpecial:false,
+    desc:'+40% roll speed for 2 minutes',
+    effect:{ luckPct:0, speedPct:40, durationMs:2*60*1000, rolls:0 }
+  },
+  { id:'speed2', name:'Speed Potion II', icon:'S2', type:'speed', serial:2,
+    priceRarity:4000, stock:5, isSpecial:false,
+    desc:'+60% roll speed for 2 minutes',
+    effect:{ luckPct:0, speedPct:60, durationMs:2*60*1000, rolls:0 }
+  },
+  { id:'speed3', name:'Speed Potion III', icon:'S3', type:'speed', serial:3,
+    priceRarity:6000, stock:5, isSpecial:false,
+    desc:'+80% roll speed for 2 minutes',
+    effect:{ luckPct:0, speedPct:80, durationMs:2*60*1000, rolls:0 }
+  },
+  // Special 1
+  { id:'stone', name:'Stone Potion', icon:'ST', type:'special1', serial:1,
+    priceRarity:3000, stock:1, isSpecial:true,
+    desc:'+300% luck, -50% roll speed for 5 minutes',
+    effect:{ luckPct:300, speedPct:-50, durationMs:5*60*1000, rolls:0 }
+  },
+  { id:'charged', name:'Charged Potion', icon:'CH', type:'special1', serial:2,
+    priceRarity:4500, stock:1, isSpecial:true,
+    desc:'+100% luck, +30% roll speed for 5 minutes',
+    effect:{ luckPct:100, speedPct:30, durationMs:5*60*1000, rolls:0 }
+  },
+  // Special 2 (Unrestricted — next N rolls)
+  { id:'unres1', name:'Unrestricted Potion I', icon:'U1', type:'special2', serial:1,
+    priceRarity:25000, stock:1, isSpecial:true,
+    desc:'+10,000% luck for next 1 roll',
+    effect:{ luckPct:10000, speedPct:0, durationMs:0, rolls:1 }
+  },
+  { id:'unres2', name:'Unrestricted Potion II', icon:'U2', type:'special2', serial:2,
+    priceRarity:200000, stock:1, isSpecial:true,
+    desc:'+100,000% luck for next 1 roll',
+    effect:{ luckPct:100000, speedPct:0, durationMs:0, rolls:1 }
+  },
+  { id:'unres3', name:'Unrestricted Potion III', icon:'U3', type:'special2', serial:3,
+    priceRarity:3000000, stock:1, isSpecial:true,
+    desc:'+1,000,000% luck for next 1 roll',
+    effect:{ luckPct:1000000, speedPct:0, durationMs:0, rolls:1 }
+  },
+  // Special 3 (Purify)
+  { id:'purify', name:'Purifying Potion', icon:'PU', type:'special3', serial:1,
+    priceRarity:5000, stock:1, isSpecial:true,
+    desc:'Remove all current effects immediately',
+    effect:{ luckPct:0, speedPct:0, durationMs:0, rolls:0, purify:true }
+  },
+];
 
-    const UPGRADE_PRICES = [1000, 10000, 50000, 100000, 500000, 1000000, 8000000, 20000000, 50000000, 100000000];
+// Special 4 — exclusive, non-purchasable (future rewards only)
+const POTION_SPECIAL4 = [];
 
-    const CODES = {
-      'CoolStart': { reward: 100, type: 'money' },
-      'VIP666': { reward: 100, type: 'money' },
-      '666IsAGoodNumber': { reward: 100, type: 'money' },
-      'Fahhhhhhh': { reward: 69, type: 'money' },
-      'DoktorMakeUsUnhealthy': { reward: 666, type: 'money' },
-      'NONVIP777': { reward: 777, type: 'money' },
-      'VeryVeryLuckyDay': { reward: 66, type: 'money' },
-      'LuckyDay': { reward: 'tenleaf', type: 'item' },
-      'FreeMoneh': { reward: 100, type: 'money' },
-      'Format': { reward: 100000, type: 'money' },
-      'FreePotions': { reward: [{id:'luck1', count:5}, {id:'luck2', count:3}], type: 'potions' }
-    };
+const ITEMS = [
+  { id:'silver', name:'Silver Crown', price:200, luck:1.2, gain:1.0 },
+  { id:'diamond', name:'Diamond Ring', price:1200, luck:1.6, gain:1.2 },
+  { id:'witch', name:"Witch's hat", price:1300, luck:1.8, gain:1.0 },
+  { id:'sunglasses', name:'Sunglasses', price:2500, luck:1.0, gain:1.5 },
+  { id:'realcrown', name:'Real Crown', price:4000, luck:2.0, gain:1.5 },
+  { id:'titanium', name:'Titanium Ring', price:6000, luck:1.0, gain:2.0 },
+  { id:'chair', name:'Chair', price:10000, luck:2.0, gain:1.8 },
+  { id:'emptycan', name:'Empty Can', price:30000, luck:5.0, gain:1.0 },
+  { id:'archmage', name:'Hat Of The Archmage', price:66666, luck:6.0, gain:6.0 },
+  { id:'allseeing', name:'The All Seeing Eye', price:111111, luck:10.0, gain:1.0 },
+  { id:'dimgate', name:'Dimensional Gate Key', price:234567, luck:0.5, gain:10.0 },
+  { id:'guardian', name:'Guardian of Dimensions', price:342516, luck:25.0, gain:0.0 },
+  { id:'enduniverse', name:'The End of Universe', price:1000000, luck:77.0, gain:55.0 },
+  { id:'godcrown', name:'The Crown of the Last Dying God...', price:999999, luck:100.0, gain:100.0 },
+  { id:'gracioushope', name:'Gracious Hope', price:9999999, luck:1000000.0, gain:1000.0 },
+  { id:'windyamethyst', name:'Windy Amethyst', price:50000000, luck:110.0, gain:10.0 },
+  { id:'luckycoin', name:'Lucky Coin', price:500, luck:1.3, gain:1.0 },
+  { id:'fourleaf', name:'Four Leaf Clover', price:2000, luck:2.2, gain:1.0 },
+  { id:'goldring', name:'Golden Ring', price:8000, luck:1.5, gain:2.5 },
+  { id:'magicwand', name:'Magic Wand', price:15000, luck:3.0, gain:1.5 },
+  { id:'crystalball', name:'Crystal Ball', price:35000, luck:4.0, gain:2.0 },
+  { id:'dragonscale', name:'Dragon Scale', price:80000, luck:2.0, gain:5.0 },
+  { id:'phoenixfeather', name:'Phoenix Feather', price:150000, luck:8.0, gain:3.0 },
+  { id:'stardust', name:'Stardust Amulet', price:300000, luck:5.0, gain:8.0 },
+  { id:'tenleaf', name:'10 Leaf Clover', price:100, luck:1.0, gain:1.0 },
+  { id:'bob', name:'BOB', price:99999999, luck:0, gain:0, special:'bob' },
+  { id:'thezenith', name:'THE ZENITH', price:0, luck:-1, gain:1000000, special:'zenith', fakeGain:-1 }
+];
 
-    const EXPIRED_CODES = ['SpvicoIsUnlucky', 'SpvicoIsACoolGuy', 'TheAbsoluteIsTheBestChyrchleNGL', 'FixSorry', 'NewBestItem'];
+const UPGRADE_PRICES = [1000, 10000, 50000, 100000, 500000, 1000000, 8000000, 20000000, 50000000, 100000000];
 
-    // ---------- GAME STATE ----------
-    let state = {
-      money: 100,
-      inventory: [],
-      bestChyrchle: null,
-      rollHistory: [],
-      autoRoll: false,
-      autoRollTimer: null,
-      equippedItem: null,
-      ownedItems: [],
-      ownedPotions: [],
-      shopStock: [],
-      lastShopUpdate: Date.now(),
-      theme: 'light',
-      filterThreshold: 8,
-      autoDeleteEnabled: false,
-      codesUsed: [],
-      skipCutsceneEnabled: true,
-      skipCutsceneThreshold: 100000,
-      tutorialCompleted: false,
-      maxDeployLevel: 0,
-      maxDeploy: 5,
-      quickRollActive: false,
-      specialPlayer: false,
-      maxInventorySlots: 50,
-      inventoryUpgradeLevel: 0,
-      activeEffects: [],
-      unrestrictedRolls: 0,
-      unrestrictedValue: 1
-    };
+const CODES = {
+  'CoolStart': { reward:100, type:'money' },
+  'VIP666': { reward:100, type:'money' },
+  '666IsAGoodNumber': { reward:100, type:'money' },
+  'Fahhhhhhh': { reward:69, type:'money' },
+  'DoktorMakeUsUnhealthy': { reward:666, type:'money' },
+  'NONVIP777': { reward:777, type:'money' },
+  'VeryVeryLuckyDay': { reward:66, type:'money' },
+  'LuckyDay': { reward:'tenleaf', type:'item' },
+  'FreeMoneh': { reward:100, type:'money' },
+  'Format': { reward:100000, type:'money' },
+  'FreePotions': { reward:[{ id:'luck1', qty:5 },{ id:'luck2', qty:3 }], type:'potions' }
+};
 
-    let canvas, ctx, animationFrame;
-    let circles = [];
-    let isRolling = false;
-    let rollTimeout = null;
-    let rollInterval = null;
-    let shopTimerInterval = null;
-    let effectTimerInterval = null;
-    let timeOffset = 0;
-    let activeCutscene = null;
-    let simulationActive = true;
-    let lastMoneyUpdate = Date.now();
-    let pendingPotionPurchase = null;
-    let activeTooltip = null;
+const EXPIRED_CODES = ['SpvicoIsUnlucky','SpvicoIsACoolGuy','TheAbsoluteIsTheBestChyrchleNGL','FixSorry','NewBestItem'];
 
-    // ---------- NUMBER FORMATTING ----------
-    function formatNumber(num) {
-      if(num === undefined || num === null) return '0';
-      if(num >= 1e33) return (num / 1e33).toFixed(2) + 'Oc';
-      const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
-      let tier = Math.floor(Math.log10(Math.abs(num)) / 3);
-      if(tier <= 0) return num.toFixed(0);
-      if(tier >= suffixes.length) return (num / Math.pow(10, tier * 3)).toFixed(2) + 'e' + (tier * 3);
-      const suffix = suffixes[tier];
-      const scaled = num / Math.pow(10, tier * 3);
-      return scaled.toFixed(2) + suffix;
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  money: 100,
+  inventory: [],
+  bestChyrchle: null,
+  rollHistory: [],
+  autoRoll: false,
+  autoRollTimer: null,
+  equippedItem: null,
+  ownedItems: [],
+  shopStock: [],       // { type:'item'|'potion', id, stock (for potions) }
+  lastShopUpdate: Date.now(),
+  theme: 'light',
+  filterThreshold: 8,
+  autoDeleteEnabled: false,
+  codesUsed: [],
+  skipCutsceneEnabled: true,
+  skipCutsceneThreshold: 100000,
+  tutorialCompleted: false,
+  maxDeployLevel: 0,
+  maxDeploy: 5,
+  quickRollActive: false,
+  specialPlayer: false,
+  maxInventorySlots: 50,
+  inventoryUpgradeLevel: 0,
+  // Potions inventory: { [potionId]: qty }
+  potionInventory: {},
+  // Active effects: array of { potionId, luckPct, speedPct, durationMs, rolls, startedAt, remainingMs }
+  activeEffects: []
+};
+
+let canvas, ctx, animationFrame;
+let circles = [];
+let isRolling = false;
+let rollTimeout = null;
+let rollInterval = null;
+let shopTimerInterval = null;
+let effectsTickInterval = null;
+let timeOffset = 0;
+let activeCutscene = null;
+let lastMoneyUpdate = Date.now();
+let pendingZenithRoll = false;
+let lastOnlineTime = Date.now();
+
+// ============================================================
+// NUMBER FORMAT
+// ============================================================
+function formatNumber(num) {
+  if(num===undefined||num===null) return '0';
+  if(num>=1e33) return (num/1e33).toFixed(2)+'Oc';
+  const suffixes=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc'];
+  let tier=Math.floor(Math.log10(Math.abs(num))/3);
+  if(tier<=0) return num.toFixed(0);
+  if(tier>=suffixes.length){ const v=num/Math.pow(10,tier*3); return v.toFixed(2)+'e'+(tier*3); }
+  const scale=Math.pow(10,tier*3);
+  return (num/scale).toFixed(2)+suffixes[tier];
+}
+
+// ============================================================
+// EFFECTS SYSTEM
+// ============================================================
+function getPotionById(id){ return POTIONS.find(p=>p.id===id); }
+
+// Returns combined luck multiplier from active effects (as a multiplier, not %)
+function getEffectsLuckMultiplier() {
+  let totalPct = 0;
+  state.activeEffects.forEach(e => {
+    if(e.rolls > 0 || e.durationMs > 0) totalPct += e.luckPct;
+  });
+  return 1 + totalPct / 100;
+}
+
+// Returns combined speed boost from active effects (as fraction, positive = faster)
+function getEffectsSpeedBoost() {
+  let totalPct = 0;
+  state.activeEffects.forEach(e => {
+    if(e.rolls > 0 || e.durationMs > 0) totalPct += e.speedPct;
+  });
+  return totalPct; // e.g. 40 means 40% faster
+}
+
+function getRollDurationMs() {
+  const speedBoost = getEffectsSpeedBoost();
+  // base 1500ms, speed potion reduces it
+  const base = 1500;
+  if(speedBoost > 0) return Math.max(300, base * (1 - speedBoost/100));
+  if(speedBoost < 0) return base * (1 + Math.abs(speedBoost)/100);
+  return base;
+}
+
+function getRollIntervalMs() {
+  // base flicker: 150ms, quick: 75ms
+  const speedBoost = getEffectsSpeedBoost();
+  const base = state.quickRollActive ? 75 : 150;
+  if(speedBoost > 0) return Math.max(30, base * (1 - speedBoost/100));
+  if(speedBoost < 0) return base * (1 + Math.abs(speedBoost)/100);
+  return base;
+}
+
+function consumeRollEffect() {
+  // Called after each roll to decrement roll-based effects
+  state.activeEffects = state.activeEffects.filter(e => {
+    if(e.rolls > 0) {
+      e.rolls--;
+      return e.rolls > 0;
+    }
+    return true;
+  });
+  saveState();
+  renderEffectsBar();
+}
+
+function tickEffects() {
+  const now = Date.now();
+  const delta = now - lastOnlineTime;
+  lastOnlineTime = now;
+
+  let changed = false;
+  state.activeEffects = state.activeEffects.filter(e => {
+    if(e.rolls > 0) return true; // roll-based don't tick
+    if(e.durationMs <= 0) return false;
+    e.remainingMs -= delta;
+    if(e.remainingMs <= 0) {
+      changed = true;
+      return false;
+    }
+    return true;
+  });
+
+  if(changed) saveState();
+  renderEffectsBar();
+}
+
+function usePotion(potionId) {
+  const potion = getPotionById(potionId);
+  if(!potion) return;
+  if(!(state.potionInventory[potionId] > 0)) return;
+
+  const effect = potion.effect;
+
+  // Purify special
+  if(effect.purify) {
+    state.activeEffects = [];
+    state.potionInventory[potionId]--;
+    if(state.potionInventory[potionId] <= 0) delete state.potionInventory[potionId];
+    saveState();
+    renderEffectsBar();
+    renderMyPotions();
+    return;
+  }
+
+  // Type-lock: can't have same type active (only one of luck I/II/III at a time, etc.)
+  // For types with serials (luck, speed, special1, special2): remove existing same-type effect
+  const typeLockTypes = ['luck','speed','special1','special2'];
+  if(typeLockTypes.includes(potion.type)) {
+    state.activeEffects = state.activeEffects.filter(e => {
+      const ep = getPotionById(e.potionId);
+      return !ep || ep.type !== potion.type;
+    });
+  }
+
+  const newEffect = {
+    potionId,
+    luckPct: effect.luckPct,
+    speedPct: effect.speedPct,
+    durationMs: effect.durationMs,
+    remainingMs: effect.durationMs,
+    rolls: effect.rolls
+  };
+
+  state.activeEffects.push(newEffect);
+  state.potionInventory[potionId]--;
+  if(state.potionInventory[potionId] <= 0) delete state.potionInventory[potionId];
+
+  saveState();
+  renderEffectsBar();
+  renderMyPotions();
+}
+
+function renderEffectsBar() {
+  const bar = document.getElementById('effectsBar');
+  const noLabel = document.getElementById('noEffectsLabel');
+  if(!bar) return;
+
+  // Clear all icons (keep noEffectsLabel)
+  Array.from(bar.children).forEach(c => { if(c !== noLabel) c.remove(); });
+
+  const effects = state.activeEffects.filter(e => e.rolls > 0 || e.remainingMs > 0);
+  if(effects.length === 0) {
+    noLabel.style.display = '';
+    return;
+  }
+  noLabel.style.display = 'none';
+
+  effects.forEach(e => {
+    const potion = getPotionById(e.potionId);
+    if(!potion) return;
+
+    const icon = document.createElement('div');
+    icon.className = 'effect-icon';
+    icon.style.background = getPotionColor(potion.type);
+
+    let timerText = '';
+    if(e.rolls > 0) {
+      timerText = `${e.rolls} roll${e.rolls>1?'s':''}`;
+    } else if(e.remainingMs > 0) {
+      timerText = formatMs(e.remainingMs);
     }
 
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    icon.innerHTML = `
+      <span style="font-size:0.7rem; font-weight:bold;">${potion.icon}</span>
+      ${timerText ? `<div class="effect-timer">${timerText}</div>` : ''}
+    `;
+
+    icon.addEventListener('click', () => showEffectTooltip(e, potion));
+    bar.appendChild(icon);
+  });
+}
+
+function formatMs(ms) {
+  const s = Math.ceil(ms / 1000);
+  if(s >= 60) return Math.floor(s/60)+'m'+('0'+(s%60)).slice(-2)+'s';
+  return s+'s';
+}
+
+function getPotionColor(type) {
+  const map = { luck:'#16a34a', speed:'#2563eb', special1:'#ea580c', special2:'#7c3aed', special3:'#0d9488', special4:'#db2777' };
+  return map[type] || '#6b7280';
+}
+
+function showEffectTooltip(effect, potion) {
+  const overlay = document.createElement('div');
+  overlay.className = 'effect-tooltip-overlay';
+
+  let remainStr = '';
+  if(effect.rolls > 0) remainStr = `<div class="effect-remaining">${effect.rolls} roll${effect.rolls>1?'s':''} remaining</div>`;
+  else if(effect.remainingMs > 0) remainStr = `<div class="effect-remaining">${formatMs(effect.remainingMs)} remaining</div>`;
+
+  overlay.innerHTML = `
+    <div class="effect-tooltip-box">
+      <div style="font-size:1.5rem; font-weight:bold; color:#3b82f6;">${potion.icon}</div>
+      <h3>${potion.name}</h3>
+      <p style="font-size:0.9rem;">${potion.desc}</p>
+      ${remainStr}
+      <button id="closeTooltipBtn" style="margin-top:12px; width:100%;">Close</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#closeTooltipBtn').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+}
+
+// ============================================================
+// SHOP
+// ============================================================
+function refreshShop() {
+  // Each of 5 slots independently rolls for type:
+  // item 30%, luck 25%, speed 25%, special1 10%, special2 10%, special3 10%
+  // (these sum to 110 — normalised below)
+  const typeWeights = [
+    { type:'item',     weight:30 },
+    { type:'luck',     weight:25 },
+    { type:'speed',    weight:25 },
+    { type:'special1', weight:10 },
+    { type:'special2', weight:10 },
+    { type:'special3', weight:10 }
+  ];
+  const totalWeight = typeWeights.reduce((s,t)=>s+t.weight,0);
+
+  // Pool trackers so we don't repeat same id in same rotation
+  const usedItems = new Set();
+  const usedPotions = new Set();
+
+  const slots = [];
+  for(let i=0;i<5;i++){
+    let rand = Math.random()*totalWeight;
+    let chosenType = typeWeights[typeWeights.length-1].type;
+    for(const tw of typeWeights){
+      if(rand < tw.weight){ chosenType = tw.type; break; }
+      rand -= tw.weight;
     }
 
-    // ---------- EFFECTS SYSTEM ----------
-    function addEffect(effect) {
-      const existingSameType = state.activeEffects.find(e => e.type === effect.type && e.effect === effect.effect);
-      if(existingSameType) {
-        existingSameType.remaining = Math.max(existingSameType.remaining, effect.duration || effect.rolls);
-        existingSameType.value = effect.value;
-        if(effect.luckValue) existingSameType.luckValue = effect.luckValue;
-        if(effect.speedValue) existingSameType.speedValue = effect.speedValue;
-      } else {
-        state.activeEffects.push({
-          ...effect,
-          remaining: effect.duration || effect.rolls,
-          startTime: Date.now()
-        });
-      }
-      renderEffects();
-      saveState();
+    if(chosenType === 'item'){
+      // Pick a random item not yet used this rotation (including zenith only for special players)
+      const pool = ITEMS.filter(i => !usedItems.has(i.id) && (i.id !== 'thezenith' || state.specialPlayer));
+      if(pool.length === 0){ i--; continue; } // retry if pool empty
+      const picked = pool[Math.floor(Math.random()*pool.length)];
+      usedItems.add(picked.id);
+      slots.push({ type:'item', id:picked.id });
+    } else {
+      // Pick a random potion of that type not yet used this rotation
+      const pool = POTIONS.filter(p => p.type === chosenType && !usedPotions.has(p.id));
+      if(pool.length === 0){ i--; continue; }
+      const picked = pool[Math.floor(Math.random()*pool.length)];
+      usedPotions.add(picked.id);
+      const stock = picked.isSpecial ? 1 : 5;
+      slots.push({ type:'potion', id:picked.id, stock });
     }
+  }
 
-    function removeEffect(index) {
-      state.activeEffects.splice(index, 1);
-      renderEffects();
-      saveState();
-    }
+  state.shopStock = slots;
+  state.lastShopUpdate = Date.now();
+  saveState();
+}
 
-    function getEffectMultiplier(type) {
-      let multiplier = 1.0;
-      state.activeEffects.forEach(e => {
-        if(e.type === 'luck' && type === 'luck') multiplier *= e.value;
-        if(e.type === 'speed' && type === 'speed') multiplier *= e.value;
-        if(e.type === 'special1') {
-          if(e.effect === 'stone' && type === 'luck') multiplier *= e.luckValue;
-          if(e.effect === 'stone' && type === 'speed') multiplier *= e.speedValue;
-          if(e.effect === 'charged' && type === 'luck') multiplier *= e.luckValue;
-          if(e.effect === 'charged' && type === 'speed') multiplier *= e.speedValue;
-        }
-      });
-      return multiplier;
-    }
+function renderShop() {
+  const cont = document.getElementById('shopItemsContainer');
+  if(!cont) return;
+  cont.innerHTML = '';
 
-    function updateEffects() {
-      const now = Date.now();
-      state.activeEffects = state.activeEffects.filter(e => {
-        if(e.duration) {
-          const elapsed = (now - e.startTime) / 1000;
-          e.remaining = Math.max(0, e.duration - elapsed);
-          return e.remaining > 0;
-        }
-        return e.rolls > 0;
-      });
-      renderEffects();
-    }
+  state.shopStock.forEach((slot, slotIdx) => {
+    if(slot.type === 'item') {
+      const item = ITEMS.find(i=>i.id===slot.id);
+      if(!item) return;
+      const owned = state.ownedItems.includes(item.id);
+      const div = document.createElement('div');
+      div.className = 'shop-item';
 
-    function renderEffects() {
-      const container = document.getElementById('effectsContainer');
-      if(!container) return;
-      
-      container.innerHTML = '';
-      state.activeEffects.forEach((effect, index) => {
-        const icon = document.createElement('div');
-        icon.className = 'effect-icon';
-        
-        let bgColor = '#3b82f6';
-        let emoji = '🧪';
-        if(effect.type === 'luck') { bgColor = '#22c55e'; emoji = '🍀'; }
-        if(effect.type === 'speed') { bgColor = '#fbbf24'; emoji = '⚡'; }
-        if(effect.type === 'special1') { bgColor = '#a855f7'; emoji = '💎'; }
-        if(effect.type === 'special2') { bgColor = '#ec4899'; emoji = '🌟'; }
-        if(effect.effect === 'purify') { bgColor = '#ffffff'; emoji = '✨'; }
-        
-        icon.style.background = bgColor;
-        icon.innerHTML = emoji;
-        
-        if(effect.duration) {
-          const timer = document.createElement('span');
-          timer.className = 'effect-timer';
-          timer.textContent = formatTime(effect.remaining);
-          icon.appendChild(timer);
-        } else if(effect.rolls) {
-          const timer = document.createElement('span');
-          timer.className = 'effect-timer';
-          timer.textContent = effect.rolls + ' roll';
-          if(effect.rolls > 1) timer.textContent += 's';
-          icon.appendChild(timer);
-        }
-        
-        icon.addEventListener('click', (e) => {
-          if(activeTooltip) activeTooltip.remove();
-          const tooltip = document.createElement('div');
-          tooltip.className = 'effect-tooltip';
-          let desc = '';
-          if(effect.type === 'luck') desc = `+${Math.round((effect.value-1)*100)}% Luck`;
-          if(effect.type === 'speed') desc = `+${Math.round((effect.value-1)*100)}% Roll Speed`;
-          if(effect.effect === 'stone') desc = `+300% Luck, -50% Roll Speed`;
-          if(effect.effect === 'charged') desc = `+100% Luck, +30% Roll Speed`;
-          if(effect.type === 'special2') desc = `+${Math.round((effect.value-1)*100)}% Luck for ${effect.rolls} roll${effect.rolls>1?'s':''}`;
-          if(effect.effect === 'purify') desc = 'Removes all effects when used';
-          tooltip.innerHTML = `<strong>${effect.name || 'Effect'}</strong><br>${desc}`;
-          tooltip.style.left = e.clientX + 'px';
-          tooltip.style.top = e.clientY - 60 + 'px';
-          document.body.appendChild(tooltip);
-          activeTooltip = tooltip;
-          setTimeout(() => { if(activeTooltip) activeTooltip.remove(); activeTooltip = null; }, 3000);
-        });
-        
-        container.appendChild(icon);
-      });
-    }
+      let luckDisplay = item.luck;
+      let gainDisplay = item.gain;
+      if(item.special==='bob'){ luckDisplay='0'; gainDisplay='0'; }
+      if(item.special==='zenith'){ luckDisplay='-1'; gainDisplay='-1'; }
 
-    // ---------- POTION SELECTOR ----------
-    function showPotionSelector(potion) {
-      const overlay = document.createElement('div');
-      overlay.className = 'potion-selector-overlay';
-      
-      const totalPrice = potion.price;
-      const canAfford = state.money >= totalPrice;
-      
-      overlay.innerHTML = `
-        <div class="potion-selector-content">
-          <h2>Buy ${potion.name}</h2>
-          <p>Price: C${formatNumber(totalPrice)}</p>
-          <p>Your Chyrch: C${formatNumber(state.money)}</p>
-          ${canAfford ? '<p style="color:#22c55e;">Can afford!</p>' : '<p style="color:#ef4444;">Not enough Chyrch!</p>'}
-          <button id="confirmPotionBtn" style="width:100%; margin-top:20px;" ${!canAfford ? 'disabled' : ''}>
-            ${canAfford ? 'Purchase' : 'Not Enough'}
-          </button>
-          <button id="cancelPotionBtn" style="width:100%; margin-top:10px;">Cancel</button>
+      let specialNote = '';
+      if(item.id==='thezenith') specialNote = '<span class="special-tag">SPECIAL</span>';
+
+      div.innerHTML = `
+        <div style="flex:1;">
+          <strong>${item.name}</strong>${specialNote}
+          <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Luck ${typeof luckDisplay==='number'&&luckDisplay>=1000000?luckDisplay.toLocaleString():luckDisplay}x · Gain ${gainDisplay}x</div>
         </div>
+        <button class="buy-item-btn" data-id="${item.id}" ${owned?'disabled':''} style="padding:8px 12px;">
+          ${owned ? 'Owned' : 'Buy'}
+        </button>
       `;
-      document.body.appendChild(overlay);
-      
-      overlay.querySelector('#cancelPotionBtn').addEventListener('click', () => overlay.remove());
-      
-      const confirmBtn = overlay.querySelector('#confirmPotionBtn');
-      if(confirmBtn && canAfford) {
-        confirmBtn.addEventListener('click', () => {
-          if(state.money >= totalPrice) {
-            state.money -= totalPrice;
-            const existing = state.ownedPotions.find(p => p.id === potion.id);
-            if(existing) {
-              existing.count++;
-            } else {
-              state.ownedPotions.push({ id: potion.id, count: 1 });
-            }
-            const stockItem = state.shopStock.find(s => s.id === potion.id && s.type === 'potion');
-            if(stockItem) stockItem.currentStock--;
-            overlay.remove();
-            updateAllUI();
-            saveState();
-            alert(`Purchased ${potion.name}!`);
-          }
-        });
-      }
-    }
-
-    // ---------- USE POTION ----------
-    function usePotion(potionId) {
-      const potion = POTIONS.find(p => p.id === potionId);
+      cont.appendChild(div);
+    } else if(slot.type === 'potion') {
+      const potion = POTIONS.find(p=>p.id===slot.id);
       if(!potion) return;
-      
-      const owned = state.ownedPotions.find(p => p.id === potionId);
-      if(!owned || owned.count <= 0) return;
-      
-      if(potion.effect === 'purify') {
-        state.activeEffects = [];
-        owned.count--;
-        renderEffects();
-        updateAllUI();
-        saveState();
-        return;
-      }
-      
-      const effect = {
-        name: potion.name,
-        type: potion.type,
-        effect: potion.effect
+      if(slot.stock <= 0) return; // out of stock, don't show
+
+      const div = document.createElement('div');
+      div.className = 'shop-potion-item';
+
+      const typeBadgeMap = {
+        luck:'badge-luck', speed:'badge-speed',
+        special1:'badge-special', special2:'badge-unrestricted',
+        special3:'badge-purify', special4:'badge-purify'
       };
-      
-      if(potion.type === 'luck' || potion.type === 'speed') {
-        effect.value = potion.value;
-        effect.duration = potion.duration;
-      } else if(potion.type === 'special1') {
-        effect.luckValue = potion.luckValue;
-        effect.speedValue = potion.speedValue;
-        effect.duration = potion.duration;
-      } else if(potion.type === 'special2') {
-        effect.value = potion.value;
-        effect.rolls = potion.rolls;
-      }
-      
-      addEffect(effect);
-      owned.count--;
-      updateAllUI();
-      saveState();
-    }
 
-    // ---------- SHOP ROTATION ----------
-    function refreshShop() {
-      const newStock = [];
-      
-      // Add regular items
-      const availableItems = ITEMS.filter(i => i.id !== 'tenleaf' && i.id !== 'bob' && i.id !== 'godcrown' && i.id !== 'gracioushope' && i.id !== 'thezenith');
-      const shuffledItems = [...availableItems].sort(()=>Math.random()-0.5);
-      newStock.push(...shuffledItems.slice(0, 2).map(i => ({...i, type: 'item'})));
-      
-      // Add potions
-      POTIONS.forEach(potion => {
-        if(Math.random() < 1/potion.rarity) {
-          newStock.push({
-            ...potion,
-            type: 'potion',
-            currentStock: potion.maxStock
-          });
-        }
-      });
-      
-      state.shopStock = newStock;
-      state.lastShopUpdate = Date.now();
-      saveState();
-    }
-
-    // ---------- HELPERS ----------
-    function getLuckMultiplier() {
-      let multiplier = 1.0;
-      if(state.equippedItem) {
-        const item = ITEMS.find(i=> i.id === state.equippedItem);
-        if(item && item.special === 'bob') return 0;
-        if(item && item.special === 'zenith') return -1;
-        if(item) multiplier = item.luck;
-      }
-      multiplier *= getEffectMultiplier('luck');
-      if(state.quickRollActive) multiplier *= 0.8;
-      return multiplier;
-    }
-    
-    function getGainMultiplier() {
-      if(!state.equippedItem) return 1.0;
-      const item = ITEMS.find(i=> i.id === state.equippedItem);
-      if(item && item.special === 'bob') return 0;
-      if(item && item.special === 'zenith') return 1000000;
-      return item ? item.gain : 1.0;
-    }
-
-    function getRollSpeed() {
-      let speed = 1.0;
-      speed *= getEffectMultiplier('speed');
-      return Math.max(0.3, speed);
-    }
-
-    function getChyrchleSize(rarity) {
-      if(rarity >= 1000000000) return 24;
-      if(rarity >= 1000000) return 16;
-      if(rarity >= 1000) return 12;
-      return 8;
-    }
-
-    function getCutsceneDuration(rarity) {
-      if(rarity >= 1000000000) return 10000;
-      if(rarity >= 1000000) return 7000;
-      if(rarity >= 100000) return 5000;
-      if(rarity >= 1000) return 3500;
-      return 0;
-    }
-
-    function getRarityColor(rarity) {
-      if(rarity >= 1000000000) return '#gold';
-      if(rarity >= 1000000) return '#ff00ff';
-      if(rarity >= 100000) return '#fbbf24';
-      if(rarity >= 10000) return '#a78bfa';
-      if(rarity >= 1000) return '#60a5fa';
-      return '#9e9e9e';
-    }
-
-    function getRarityName(rarity) {
-      if(rarity >= 1000000000) return 'ABSOLUTE';
-      if(rarity >= 1000000) return 'COSMIC';
-      if(rarity >= 100000) return 'MYTHICAL';
-      if(rarity >= 10000) return 'LEGENDARY';
-      if(rarity >= 1000) return 'EPIC';
-      return 'COMMON';
-    }
-
-    function showCutscene(chyrchle) {
-      if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') return;
-      if(activeCutscene) activeCutscene.remove();
-      
-      const duration = getCutsceneDuration(chyrchle.rarity);
-      if(duration === 0 && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') return;
-      
-      const overlay = document.createElement('div');
-      overlay.className = 'cutscene-overlay';
-      activeCutscene = overlay;
-      
-      const rarityColor = (chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') ? '#ffffff' : getRarityColor(chyrchle.rarity);
-      const rarityName = chyrchle.name === 'UNHONORED' ? 'UNHONORED' : (chyrchle.name === 'Common:Unordinary' ? 'UNORDINARY' : getRarityName(chyrchle.rarity));
-      
-      const starsDiv = document.createElement('div');
-      starsDiv.className = 'cutscene-stars';
-      for(let i = 0; i < 100; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.width = (Math.random() * 3 + 1) + 'px';
-        star.style.height = star.style.width;
-        star.style.animationDelay = Math.random() * 2 + 's';
-        starsDiv.appendChild(star);
-      }
-      overlay.appendChild(starsDiv);
-      
-      const content = document.createElement('div');
-      content.className = 'cutscene-content';
-      content.style.color = rarityColor;
-      
-      content.innerHTML = `
-        <div class="cutscene-rarity">${rarityName}</div>
-        <div class="cutscene-name" style="color: ${rarityColor};">${chyrchle.name}</div>
-        <div class="cutscene-rarity-text">1 in ${chyrchle.rarity.toLocaleString()}</div>
-        <div class="cutscene-quote">"${chyrchle.desc}"</div>
-        <button class="cutscene-continue" style="border-color: ${rarityColor};">Continue</button>
-      `;
-      
-      overlay.appendChild(content);
-      
-      content.querySelector('.cutscene-continue').onclick = () => {
-        overlay.remove();
-        activeCutscene = null;
-      };
-      
-      document.body.appendChild(overlay);
-      
-      const cutsceneDuration = (chyrchle.name === 'UNHONORED' || chyrchle.name === 'Common:Unordinary') ? 5000 : duration;
-      setTimeout(() => { overlay.remove(); activeCutscene = null; }, cutsceneDuration);
-    }
-
-    function rollChyrchle() {
-      if(state.equippedItem) {
-        const item = ITEMS.find(i=> i.id === state.equippedItem);
-        if(item && item.special === 'bob') {
-          return { ...CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)] };
-        }
-      }
-      
-      const unordinaryChyrchle = CHYRCHLES.find(c => c.name === 'Common:Unordinary');
-      if(unordinaryChyrchle && Math.random() < 1/1000) {
-        return { ...unordinaryChyrchle };
-      }
-      
-      let luck = getLuckMultiplier();
-      
-      // Check for unrestricted rolls
-      const unrestricted = state.activeEffects.find(e => e.type === 'special2' && e.rolls > 0);
-      if(unrestricted) {
-        luck = unrestricted.value;
-        unrestricted.rolls--;
-        if(unrestricted.rolls <= 0) {
-          state.activeEffects = state.activeEffects.filter(e => e !== unrestricted);
-        }
-        renderEffects();
-      }
-      
-      const rollsToMake = Math.max(1, Math.floor(Math.abs(luck)));
-      const fractionalLuck = Math.abs(luck) - Math.floor(Math.abs(luck));
-      const totalRolls = rollsToMake + (Math.random() < fractionalLuck ? 1 : 0);
-      
-      let bestRoll = null;
-      let bestRarity = -1;
-      
-      for(let i = 0; i < totalRolls; i++) {
-        let totalWeight = 0;
-        CHYRCHLES.filter(c => !c.fixedRoll).forEach(c => totalWeight += 1/c.rarity);
-        
-        let rand = Math.random() * totalWeight;
-        for(let c of CHYRCHLES.filter(c => !c.fixedRoll)) {
-          const weight = 1/c.rarity;
-          if(rand < weight) {
-            if(c.rarity > bestRarity) {
-              bestRarity = c.rarity;
-              bestRoll = c;
-            }
-            break;
-          }
-          rand -= weight;
-        }
-      }
-      
-      return { ...bestRoll };
-    }
-
-    function performRoll() {
-      if(isRolling) return;
-      
-      isRolling = true;
-      const rollBtn = document.getElementById('rollButton');
-      const quickBtn = document.getElementById('quickRollButton');
-      
-      rollBtn.disabled = true;
-      quickBtn.style.display = 'block';
-      state.quickRollActive = false;
-      
-      const resultDiv = document.getElementById('rolledResult');
-      resultDiv.innerHTML = '<div>Rolling...</div>';
-      
-      const baseSpeed = 150;
-      const speedMultiplier = getRollSpeed();
-      const rollSpeed = Math.max(50, Math.floor(baseSpeed / speedMultiplier));
-      
-      rollInterval = setInterval(() => {
-        const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
-        resultDiv.innerHTML = `
-          <div style="font-weight:bold;">${fakeRoll.name}</div>
-          <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
-        `;
-      }, rollSpeed);
-      
-      const quickHandler = () => {
-        clearInterval(rollInterval);
-        clearTimeout(rollTimeout);
-        state.quickRollActive = true;
-        
-        const quickSpeed = Math.max(30, Math.floor(75 / speedMultiplier));
-        rollInterval = setInterval(() => {
-          const fakeRoll = CHYRCHLES[Math.floor(Math.random() * CHYRCHLES.length)];
-          resultDiv.innerHTML = `
-            <div style="font-weight:bold;">${fakeRoll.name}</div>
-            <div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>
-          `;
-        }, quickSpeed);
-        
-        rollTimeout = setTimeout(finishRoll, Math.max(500, Math.floor(750 / speedMultiplier)));
-      };
-      quickBtn.addEventListener('click', quickHandler, { once: true });
-      
-      const finishRoll = () => {
-        clearInterval(rollInterval);
-        const rolled = rollChyrchle();
-        const gainMult = getGainMultiplier();
-        const rolledWithGain = { ...rolled, gain: rolled.gain * gainMult };
-        
-        showCutscene(rolled);
-        
-        if(state.autoDeleteEnabled && rolled.rarity < state.filterThreshold && rolled.name !== 'UNHONORED') {
-          resultDiv.innerHTML = `
-            <div style="font-weight:bold;">${rolled.name}</div>
-            <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
-            <div style="color:#ef4444; margin-top:4px;">Auto-deleted (under 1 in ${state.filterThreshold})</div>
-          `;
-        } else {
-          if(state.inventory.length < state.maxInventorySlots) {
-            state.inventory.push(rolledWithGain);
-          }
-          
-          if(!state.bestChyrchle || rolled.rarity > state.bestChyrchle.rarity) {
-            state.bestChyrchle = { ...rolled };
-          }
-          
-          resultDiv.innerHTML = `
-            <div style="font-weight:bold;">${rolled.name}</div>
-            <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
-            <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(rolled)}; margin-top:4px;">
-              Gain: ${rolledWithGain.gain.toFixed(1)}/bounce
-            </div>
-          `;
-        }
-        
-        state.rollHistory.unshift(rolled.name);
-        if(state.rollHistory.length > 10) state.rollHistory.pop();
-        
-        isRolling = false;
-        rollBtn.disabled = false;
-        quickBtn.style.display = 'none';
-        state.quickRollActive = false;
-        
-        updateAllUI();
-        saveState();
-      };
-      
-      const duration = Math.max(1000, Math.floor(1500 / speedMultiplier));
-      rollTimeout = setTimeout(finishRoll, duration);
-    }
-
-    function purchaseUpgrade(level) {
-      const price = UPGRADE_PRICES[level];
-      if(state.money >= price && state.maxDeployLevel === level) {
-        state.money -= price;
-        state.maxDeployLevel++;
-        state.maxDeploy = 5 + state.maxDeployLevel;
-        updateAllUI();
-        saveState();
-        initBounceSim();
-      }
-    }
-
-    function renderUpgrades() {
-      const container = document.getElementById('upgradeContainer');
-      if(!container) return;
-      
-      container.innerHTML = '';
-      
-      for(let i = 0; i < UPGRADE_PRICES.length; i++) {
-        const price = UPGRADE_PRICES[i];
-        const isUnlocked = i < state.maxDeployLevel;
-        const isNext = i === state.maxDeployLevel;
-        const canAfford = state.money >= price;
-        
-        const div = document.createElement('div');
-        div.className = 'upgrade-item';
-        div.innerHTML = `
-          <div style="flex:1;">
-            <strong>Max Deploy +${i+1}</strong>
-            <div style="font-size:0.8rem;">Total: ${5 + i + 1} Chyrchles</div>
-          </div>
-          ${isUnlocked ? '<span style="color:#22c55e;">Unlocked</span>' : ''}
-          ${isNext ? `<button class="upgrade-btn" ${!canAfford ? 'disabled' : ''}>C${formatNumber(price)}</button>` : ''}
-          ${!isUnlocked && !isNext ? '<span style="opacity:0.5;">Locked</span>' : ''}
-        `;
-        
-        if(isNext) {
-          const btn = div.querySelector('.upgrade-btn');
-          if(btn) btn.addEventListener('click', () => purchaseUpgrade(i));
-        }
-        
-        container.appendChild(div);
-      }
-    }
-
-    function getColorStyle(c) {
-      if(c.color === 'loop-shift') return 'linear-gradient(45deg, #1e3a8a, #7dd3fc)';
-      if(c.color === 'loop-fast') return 'linear-gradient(145deg, #1e3a8a, #bae6fd, #1e3a8a)';
-      if(c.color === 'loop-rainbow') return 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)';
-      if(c.color === 'loop-multiverse') return 'linear-gradient(135deg, #ff00ff, #00ffff, #ff00ff)';
-      if(c.color === 'loop-absolute') return 'linear-gradient(45deg, gold, crimson, purple, cyan, gold)';
-      return c.color;
-    }
-
-    function deleteFromInventory(index) {
-      const chyrchle = state.inventory[index];
-      const needsConfirm = chyrchle.rarity >= 10000 || chyrchle.special || chyrchle.name === 'UNHONORED' || chyrchle.name === 'THE ABSOLUTE' || chyrchle.name === 'Common:Unordinary';
-      
-      if(needsConfirm) {
-        let message = `Delete ${chyrchle.name} (1 in ${chyrchle.rarity.toLocaleString()})?`;
-        showConfirmDialog(message, () => {
-          state.inventory.splice(index, 1);
-          updateAllUI();
-          saveState();
-          initBounceSim();
-        });
-      } else {
-        state.inventory.splice(index, 1);
-        updateAllUI();
-        saveState();
-        initBounceSim();
-      }
-    }
-
-    function showConfirmDialog(message, onConfirm) {
-      const overlay = document.createElement('div');
-      overlay.className = 'confirm-overlay';
-      overlay.innerHTML = `
-        <div class="confirm-box">
-          <h3>Are you sure?</h3>
-          <p>${message}</p>
-          <div class="confirm-buttons">
-            <button class="confirm-btn confirm-yes">Yes</button>
-            <button class="confirm-btn confirm-no">No</button>
-          </div>
+      div.innerHTML = `
+        <div style="flex:1;">
+          <strong>${potion.name}</strong>
+          <span class="potion-badge ${typeBadgeMap[potion.type]||'badge-special'}">${potion.type}</span>
+          <div style="font-size:0.8rem;">${potion.desc}</div>
+          <div style="font-size:0.75rem; opacity:0.7;">Price: 1 Chyrchle with rarity >= 1 in ${potion.priceRarity.toLocaleString()}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+          <span class="stock-badge ${slot.stock<=1?'low':''}">x${slot.stock}</span>
+          <button class="buy-potion-btn" data-slotidx="${slotIdx}" style="padding:6px 12px;">Buy</button>
         </div>
       `;
-      document.body.appendChild(overlay);
-      overlay.querySelector('.confirm-yes').addEventListener('click', () => { overlay.remove(); onConfirm(); });
-      overlay.querySelector('.confirm-no').addEventListener('click', () => overlay.remove());
-      overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+      cont.appendChild(div);
     }
+  });
 
-    function applyFilterNow() {
-      const thresh = parseInt(document.getElementById('filterThreshold').value) || 8;
-      state.filterThreshold = thresh;
-      const beforeCount = state.inventory.length;
-      state.inventory = state.inventory.filter(c => c.rarity >= thresh || c.name === 'UNHONORED');
-      const afterCount = state.inventory.length;
+  // Buy item handlers
+  cont.querySelectorAll('.buy-item-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const item = ITEMS.find(i=>i.id===id);
+      if(item && state.money >= item.price && !state.ownedItems.includes(id)) {
+        state.money -= item.price;
+        state.ownedItems.push(id);
+        if(item.special === 'bob') {
+          state.specialPlayer = true;
+          if(!state.ownedItems.includes('thezenith')) state.ownedItems.push('thezenith');
+        }
+        if(!state.equippedItem) state.equippedItem = id;
+        updateAllUI();
+        saveState();
+      }
+    });
+  });
+
+  // Buy potion handlers — open chyrchle selector for payment
+  cont.querySelectorAll('.buy-potion-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slotIdx = parseInt(btn.dataset.slotidx);
+      const slot = state.shopStock[slotIdx];
+      if(!slot || slot.type !== 'potion') return;
+      const potion = POTIONS.find(p=>p.id===slot.id);
+      if(!potion || slot.stock <= 0) return;
+      showPotionPayOverlay(potion, slotIdx);
+    });
+  });
+}
+
+function showPotionPayOverlay(potion, slotIdx) {
+  // Show list of chyrchles player has that meet the price rarity
+  const eligible = state.inventory.filter(c => c.rarity >= potion.priceRarity);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'potion-pay-overlay';
+
+  const listHtml = eligible.length === 0 ? '<p style="opacity:0.6; text-align:center;">No eligible Chyrchles! You need a Chyrchle with rarity ≥ 1 in ' + potion.priceRarity.toLocaleString() + '</p>' :
+    eligible.map((c, i) => {
+      const realIdx = state.inventory.indexOf(c);
+      const colorStyle = getColorStyle(c);
+      return `
+        <div class="potion-pay-item">
+          <span class="chyrchle-tag" style="background:${colorStyle};">${c.name} (1/${c.rarity.toLocaleString()})</span>
+          <button class="potion-select-btn" data-realidx="${realIdx}">Select</button>
+        </div>
+      `;
+    }).join('');
+
+  overlay.innerHTML = `
+    <div class="potion-pay-content">
+      <h2>Buy ${potion.name}</h2>
+      <p style="font-size:0.85rem; opacity:0.8;">${potion.desc}</p>
+      <p style="font-size:0.8rem; color:#f97316;">Select a Chyrchle to sacrifice (rarity >= 1 in ${potion.priceRarity.toLocaleString()})</p>
+      <div class="scrollable" style="max-height:300px;">${listHtml}</div>
+      <button id="closePotionPayBtn" style="width:100%; margin-top:16px;">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#closePotionPayBtn').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+
+  overlay.querySelectorAll('.potion-select-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const realIdx = parseInt(btn.dataset.realidx);
+      // Remove that chyrchle
+      state.inventory.splice(realIdx, 1);
+      // Give potion
+      if(!state.potionInventory[potion.id]) state.potionInventory[potion.id] = 0;
+      state.potionInventory[potion.id]++;
+      // Reduce shop stock
+      if(state.shopStock[slotIdx]) state.shopStock[slotIdx].stock--;
+      overlay.remove();
       updateAllUI();
       saveState();
       initBounceSim();
-      alert(`Deleted ${beforeCount - afterCount} Chyrchles below 1 in ${thresh}`);
+    });
+  });
+}
+
+function renderMyPotions() {
+  const cont = document.getElementById('myPotionsContainer');
+  if(!cont) return;
+  cont.innerHTML = '';
+
+  const ownedPotions = POTIONS.filter(p => state.potionInventory[p.id] > 0);
+  const special4owned = POTION_SPECIAL4.filter(p => state.potionInventory[p.id] > 0);
+  const all = [...ownedPotions, ...special4owned];
+
+  if(all.length === 0) {
+    cont.innerHTML = '<p style="opacity:0.6;">No potions yet. Buy them from the Shop!</p>';
+    return;
+  }
+
+  all.forEach(potion => {
+    const qty = state.potionInventory[potion.id] || 0;
+    if(qty <= 0) return;
+
+    // Check if this potion type is already active (type-lock)
+    const typeLockTypes = ['luck','speed','special1','special2'];
+    let isTypeLocked = false;
+    if(typeLockTypes.includes(potion.type)) {
+      isTypeLocked = state.activeEffects.some(e => {
+        const ep = getPotionById(e.potionId);
+        return ep && ep.type === potion.type && (e.rolls > 0 || e.remainingMs > 0);
+      });
     }
 
-    function showCapacityUpgrade() {
-      const overlay = document.createElement('div');
-      overlay.className = 'capacity-upgrade-overlay';
-      const nextLevel = state.inventoryUpgradeLevel + 1;
-      const price = Math.floor(Math.pow(nextLevel, 3) * 1500);
-      const newSlots = 50 + nextLevel;
-      
-      overlay.innerHTML = `
-        <div class="capacity-upgrade-content">
-          <h2>Upgrade Inventory Capacity</h2>
-          <p>Current Slots: ${state.maxInventorySlots}</p>
-          <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
-          <p>Price: C${formatNumber(price)}</p>
-          ${state.money >= price ? `<button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>` : '<p style="color:#ef4444;">Not enough Chyrch!</p>'}
-          <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
+    const typeBadgeMap = { luck:'badge-luck', speed:'badge-speed', special1:'badge-special', special2:'badge-unrestricted', special3:'badge-purify', special4:'badge-purify' };
+
+    const div = document.createElement('div');
+    div.className = 'my-potion-item';
+    div.innerHTML = `
+      <div style="flex:1;">
+        <strong>${potion.name}</strong>
+        <span class="potion-badge ${typeBadgeMap[potion.type]||'badge-special'}">${potion.type}</span>
+        <div style="font-size:0.8rem;">${potion.desc}</div>
+        <div style="font-size:0.75rem; opacity:0.7;">Owned: ${qty}</div>
+        ${isTypeLocked ? '<div style="font-size:0.75rem; color:#f97316;">Type already active!</div>' : ''}
+      </div>
+      <button class="use-potion-btn" data-id="${potion.id}" ${isTypeLocked?'disabled':''}>Use</button>
+    `;
+    cont.appendChild(div);
+  });
+
+  cont.querySelectorAll('.use-potion-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      usePotion(btn.dataset.id);
+    });
+  });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getLuckMultiplier() {
+  if(state.equippedItem) {
+    const item = ITEMS.find(i=>i.id===state.equippedItem);
+    if(item && item.special==='bob') return 0;
+    if(item && item.special==='zenith') return -1;
+    let luck = item ? item.luck : 1.0;
+    if(state.quickRollActive) luck *= 0.8;
+    return luck * getEffectsLuckMultiplier();
+  }
+  return getEffectsLuckMultiplier() * (state.quickRollActive ? 0.8 : 1.0);
+}
+
+function getGainMultiplier() {
+  if(!state.equippedItem) return 1.0;
+  const item = ITEMS.find(i=>i.id===state.equippedItem);
+  if(item && item.special==='bob') return 0;
+  if(item && item.special==='zenith') return 1000000;
+  return item ? item.gain : 1.0;
+}
+
+function getChyrchleSize(rarity) {
+  if(rarity>=1000000000) return 24;
+  if(rarity>=1000000) return 16;
+  if(rarity>=1000) return 12;
+  return 8;
+}
+
+function getCutsceneDuration(rarity) {
+  if(rarity>=1000000000) return 10000;
+  if(rarity>=1000000) return 7000;
+  if(rarity>=100000) return 5000;
+  if(rarity>=1000) return 3500;
+  return 0;
+}
+
+function getRarityColor(rarity) {
+  if(rarity>=1000000000) return 'gold';
+  if(rarity>=1000000) return '#ff00ff';
+  if(rarity>=100000) return '#fbbf24';
+  if(rarity>=10000) return '#a78bfa';
+  if(rarity>=1000) return '#60a5fa';
+  return '#9e9e9e';
+}
+
+function getRarityName(rarity) {
+  if(rarity>=1000000000) return 'ABSOLUTE';
+  if(rarity>=1000000) return 'COSMIC';
+  if(rarity>=100000) return 'MYTHICAL';
+  if(rarity>=10000) return 'LEGENDARY';
+  if(rarity>=1000) return 'EPIC';
+  return 'COMMON';
+}
+
+function getColorStyle(c) {
+  if(c.color==='loop-shift') return 'linear-gradient(45deg, #1e3a8a, #7dd3fc)';
+  if(c.color==='loop-fast') return 'linear-gradient(145deg, #1e3a8a, #bae6fd, #1e3a8a)';
+  if(c.color==='loop-rainbow') return 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)';
+  if(c.color==='loop-multiverse') return 'linear-gradient(135deg, #ff00ff, #00ffff, #ff00ff)';
+  if(c.color==='loop-absolute') return 'linear-gradient(45deg, gold, crimson, purple, cyan, gold)';
+  return c.color;
+}
+
+// ============================================================
+// ROLL SYSTEM
+// ============================================================
+function rollChyrchle() {
+  if(state.equippedItem) {
+    const item = ITEMS.find(i=>i.id===state.equippedItem);
+    if(item && item.special==='bob') {
+      return { ...CHYRCHLES[Math.floor(Math.random()*CHYRCHLES.length)] };
+    }
+    if(item && item.special==='zenith') {
+      pendingZenithRoll = true;
+      return null;
+    }
+  }
+
+  if(Math.random() < 1/1000) {
+    const u = CHYRCHLES.find(c=>c.name==='Common:Unordinary');
+    if(u) return { ...u };
+  }
+
+  const luck = getLuckMultiplier();
+  const rollsToMake = Math.max(1, Math.floor(Math.abs(luck)));
+  const fractional = Math.abs(luck) - Math.floor(Math.abs(luck));
+  const totalRolls = rollsToMake + (Math.random() < fractional ? 1 : 0);
+
+  let bestRoll = null, bestRarity = -1;
+  for(let i=0;i<totalRolls;i++) {
+    let total = 0;
+    CHYRCHLES.filter(c=>!c.fixedRoll).forEach(c=>total+=1/c.rarity);
+    let rand = Math.random()*total;
+    for(let c of CHYRCHLES.filter(c=>!c.fixedRoll)) {
+      const w=1/c.rarity;
+      if(rand<w){ if(c.rarity>bestRarity){bestRarity=c.rarity;bestRoll=c;} break; }
+      rand-=w;
+    }
+  }
+  return { ...bestRoll };
+}
+
+function performRoll() {
+  if(isRolling) return;
+  isRolling = true;
+
+  const rollBtn = document.getElementById('rollButton');
+  const quickBtn = document.getElementById('quickRollButton');
+  rollBtn.disabled = true;
+  quickBtn.style.display = 'block';
+  state.quickRollActive = false;
+
+  const resultDiv = document.getElementById('rolledResult');
+  resultDiv.innerHTML = '<div>Rolling...</div>';
+
+  const flickerMs = getRollIntervalMs();
+  rollInterval = setInterval(()=>{
+    const fakeRoll = CHYRCHLES[Math.floor(Math.random()*CHYRCHLES.length)];
+    resultDiv.innerHTML = `<div style="font-weight:bold;">${fakeRoll.name}</div><div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>`;
+  }, flickerMs);
+
+  const quickHandler = () => {
+    clearInterval(rollInterval);
+    clearTimeout(rollTimeout);
+    state.quickRollActive = true;
+    const qFlicker = getRollIntervalMs();
+    rollInterval = setInterval(()=>{
+      const fakeRoll = CHYRCHLES[Math.floor(Math.random()*CHYRCHLES.length)];
+      resultDiv.innerHTML = `<div style="font-weight:bold;">${fakeRoll.name}</div><div style="font-size:0.85rem;">1 in ${fakeRoll.rarity.toLocaleString()}</div>`;
+    }, qFlicker);
+    rollTimeout = setTimeout(finishRoll, Math.floor(getRollDurationMs()*0.5));
+  };
+  quickBtn.addEventListener('click', quickHandler, { once:true });
+
+  const finishRoll = () => {
+    clearInterval(rollInterval);
+    const rolled = rollChyrchle();
+
+    if(rolled===null) {
+      isRolling=false; rollBtn.disabled=false; quickBtn.style.display='none';
+      showChyrchleSelector(); return;
+    }
+
+    consumeRollEffect();
+
+    const gainMult = getGainMultiplier();
+    const rolledWithGain = { ...rolled, gain: rolled.gain*gainMult };
+
+    showCutscene(rolled);
+
+    if(state.autoDeleteEnabled && rolled.rarity < state.filterThreshold && rolled.name !== 'UNHONORED') {
+      resultDiv.innerHTML = `
+        <div style="font-weight:bold;">${rolled.name}</div>
+        <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
+        <div style="color:#ef4444; margin-top:4px;">Auto-deleted (under 1 in ${state.filterThreshold})</div>
+      `;
+    } else {
+      if(state.inventory.length < state.maxInventorySlots) state.inventory.push(rolledWithGain);
+      if(!state.bestChyrchle || rolled.rarity > state.bestChyrchle.rarity) state.bestChyrchle = { ...rolled };
+      resultDiv.innerHTML = `
+        <div style="font-weight:bold;">${rolled.name}</div>
+        <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
+        <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(rolled)}; margin-top:4px;">
+          Gain: ${rolledWithGain.gain.toFixed(1)}/bounce
         </div>
       `;
-      document.body.appendChild(overlay);
-      
-      overlay.querySelector('#closeCapacityBtn').addEventListener('click', () => overlay.remove());
-      const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
-      if(upgradeBtn) {
-        upgradeBtn.addEventListener('click', () => {
-          if(state.money >= price) {
-            state.money -= price;
-            state.inventoryUpgradeLevel++;
-            state.maxInventorySlots = 50 + state.inventoryUpgradeLevel;
-            overlay.remove();
-            updateAllUI();
-            saveState();
-            alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
-          }
-        });
+    }
+
+    state.rollHistory.unshift(rolled.name);
+    if(state.rollHistory.length>10) state.rollHistory.pop();
+
+    isRolling=false; rollBtn.disabled=false; quickBtn.style.display='none';
+    state.quickRollActive=false;
+    updateAllUI(); saveState();
+  };
+
+  rollTimeout = setTimeout(finishRoll, getRollDurationMs());
+}
+
+// ============================================================
+// CUTSCENE
+// ============================================================
+function showCutscene(chyrchle) {
+  if(state.skipCutsceneEnabled && chyrchle.rarity < state.skipCutsceneThreshold && chyrchle.name !== 'UNHONORED' && chyrchle.name !== 'Common:Unordinary') return;
+  if(activeCutscene) activeCutscene.remove();
+  const duration = getCutsceneDuration(chyrchle.rarity);
+  if(duration===0 && chyrchle.name!=='UNHONORED' && chyrchle.name!=='Common:Unordinary') return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'cutscene-overlay';
+  activeCutscene = overlay;
+
+  const rarityColor = (chyrchle.name==='UNHONORED'||chyrchle.name==='Common:Unordinary') ? '#ffffff' : getRarityColor(chyrchle.rarity);
+  const rarityName = chyrchle.name==='UNHONORED' ? 'UNHONORED' : (chyrchle.name==='Common:Unordinary' ? 'UNORDINARY' : getRarityName(chyrchle.rarity));
+
+  const starsDiv = document.createElement('div');
+  starsDiv.className = 'cutscene-stars';
+  for(let i=0;i<100;i++){
+    const s=document.createElement('div'); s.className='star';
+    s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%';
+    s.style.width=(Math.random()*3+1)+'px'; s.style.height=s.style.width;
+    s.style.animationDelay=Math.random()*2+'s';
+    starsDiv.appendChild(s);
+  }
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div'); p.className='cutscene-particle';
+    p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%';
+    p.style.animationDelay=Math.random()*3+'s'; p.style.background=rarityColor;
+    starsDiv.appendChild(p);
+  }
+  overlay.appendChild(starsDiv);
+
+  const content = document.createElement('div');
+  content.className = 'cutscene-content';
+  content.style.color = rarityColor;
+  content.innerHTML = `
+    <div class="cutscene-rarity">${rarityName}</div>
+    <div class="cutscene-name" style="color:${rarityColor};">${chyrchle.name}</div>
+    <div class="cutscene-rarity-text">1 in ${chyrchle.rarity.toLocaleString()}</div>
+    <div class="cutscene-quote">"${chyrchle.desc}"</div>
+    <button class="cutscene-continue" style="border-color:${rarityColor};">Continue</button>
+  `;
+  overlay.appendChild(content);
+  content.querySelector('.cutscene-continue').onclick = ()=>{ overlay.remove(); activeCutscene=null; };
+  document.body.appendChild(overlay);
+
+  const cutDur = (chyrchle.name==='UNHONORED'||chyrchle.name==='Common:Unordinary') ? 5000 : duration;
+  setTimeout(()=>{ overlay.remove(); activeCutscene=null; }, cutDur);
+}
+
+// ============================================================
+// ZENITH & CHYRCHLE SELECTOR
+// ============================================================
+function showChyrchleSelector() {
+  const overlay = document.createElement('div');
+  overlay.className = 'chyrchle-selector-overlay';
+  overlay.innerHTML = `
+    <div class="chyrchle-selector-content">
+      <h2>THE ZENITH - Choose your Chyrchle</h2>
+      <div class="scrollable" style="max-height:400px;">
+        ${CHYRCHLES.map(c=>`<div class="chyrchle-selector-item" data-name="${c.name}"><strong>${c.name}</strong> - 1 in ${c.rarity.toLocaleString()} - Gain: ${c.gain}</div>`).join('')}
+      </div>
+      <button id="closeSelectorBtn" style="width:100%; margin-top:20px;">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('.chyrchle-selector-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const sel=CHYRCHLES.find(c=>c.name===item.dataset.name);
+      if(sel){ overlay.remove(); finishZenithRoll(sel); }
+    });
+  });
+  overlay.querySelector('#closeSelectorBtn').addEventListener('click',()=>{ overlay.remove(); pendingZenithRoll=false; });
+}
+
+function finishZenithRoll(selected) {
+  const gainMult=getGainMultiplier();
+  const rwg={ ...selected, gain:selected.gain*gainMult };
+  if(state.inventory.length<state.maxInventorySlots) state.inventory.push(rwg);
+  if(!state.bestChyrchle||selected.rarity>state.bestChyrchle.rarity) state.bestChyrchle={...selected};
+  state.rollHistory.unshift(selected.name);
+  if(state.rollHistory.length>10) state.rollHistory.pop();
+  document.getElementById('rolledResult').innerHTML=`
+    <div style="font-weight:bold;">${selected.name}</div>
+    <div style="font-size:0.85rem;">1 in ${selected.rarity.toLocaleString()}</div>
+    <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(selected)}; margin-top:4px;">
+      Gain: ${rwg.gain.toFixed(1)}/bounce
+    </div>
+  `;
+  updateAllUI(); saveState(); pendingZenithRoll=false;
+}
+
+// ============================================================
+// TUTORIAL
+// ============================================================
+function showTutorial() {
+  const overlay = document.createElement('div');
+  overlay.className = 'tutorial-overlay';
+  overlay.innerHTML = `
+    <div class="tutorial-content">
+      <h2>Welcome to Chyrchle!</h2>
+      <div class="tutorial-step"><div class="tutorial-step-number">1</div><div class="tutorial-step-content"><strong>Roll for Chyrchles</strong><br>Tap ROLL to get random Chyrchles. Higher rarity = better gains!</div></div>
+      <div class="tutorial-step"><div class="tutorial-step-number">2</div><div class="tutorial-step-content"><strong>Quick Roll</strong><br>Makes roll 2x faster but reduces luck by 20%.</div></div>
+      <div class="tutorial-step"><div class="tutorial-step-number">3</div><div class="tutorial-step-content"><strong>Auto-deploy</strong><br>Your top Chyrchles automatically bounce and earn Chyrch.</div></div>
+      <div class="tutorial-step"><div class="tutorial-step-number">4</div><div class="tutorial-step-content"><strong>Potions</strong><br>Buy potions from the Shop to boost your luck & speed! Use a Chyrchle as payment.</div></div>
+      <div class="tutorial-step"><div class="tutorial-step-number">5</div><div class="tutorial-step-content"><strong>Effects Bar</strong><br>Active potions appear as icons between the roll area. Tap to see details!</div></div>
+      <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#closeTutorialBtn').addEventListener('click',()=>{ overlay.remove(); state.tutorialCompleted=true; saveState(); });
+  overlay.addEventListener('click',e=>{ if(e.target===overlay){ overlay.remove(); state.tutorialCompleted=true; saveState(); } });
+}
+
+// ============================================================
+// CAPACITY UPGRADE
+// ============================================================
+function showCapacityUpgrade() {
+  const overlay = document.createElement('div');
+  overlay.className = 'capacity-upgrade-overlay';
+  const nextLevel = state.inventoryUpgradeLevel+1;
+  const price = Math.floor(Math.pow(nextLevel,3)*1500);
+  const newSlots = 50+nextLevel;
+  overlay.innerHTML = `
+    <div class="capacity-upgrade-content">
+      <h2>Upgrade Inventory Capacity</h2>
+      <p>Current Slots: ${state.maxInventorySlots}</p>
+      <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
+      <p>Price: C${formatNumber(price)}</p>
+      ${state.money>=price ? `<button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>` : `<p style="color:#ef4444;">Not enough Chyrch!</p>`}
+      <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#closeCapacityBtn').addEventListener('click',()=>overlay.remove());
+  const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
+  if(upgradeBtn) upgradeBtn.addEventListener('click',()=>{
+    if(state.money>=price){
+      state.money-=price; state.inventoryUpgradeLevel++; state.maxInventorySlots=50+state.inventoryUpgradeLevel;
+      overlay.remove(); updateAllUI(); saveState();
+      alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
+    }
+  });
+}
+
+// ============================================================
+// CONFIRM DIALOG
+// ============================================================
+function showConfirmDialog(message, onConfirm) {
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <h3>Are you sure?</h3>
+      <p>${message}</p>
+      <div class="confirm-buttons">
+        <button class="confirm-btn confirm-yes">Yes</button>
+        <button class="confirm-btn confirm-no">No</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.confirm-yes').addEventListener('click',()=>{ overlay.remove(); onConfirm(); });
+  overlay.querySelector('.confirm-no').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+// ============================================================
+// STORAGE
+// ============================================================
+function saveState() {
+  try {
+    const toSave = { ...state };
+    delete toSave.autoRollTimer;
+    localStorage.setItem('chyrchle_save_v3', JSON.stringify(toSave));
+  } catch(e){}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('chyrchle_save_v3');
+    if(!saved) {
+      // Try migrating from v2.5
+      const old = localStorage.getItem('chyrchle_save');
+      if(old) {
+        const p = JSON.parse(old);
+        Object.assign(state, p);
+      }
+    } else {
+      const parsed = JSON.parse(saved);
+      Object.assign(state, parsed);
+    }
+    if(!state.inventory) state.inventory=[];
+    if(!state.codesUsed) state.codesUsed=[];
+    if(!state.ownedItems) state.ownedItems=[];
+    if(state.autoDeleteEnabled===undefined) state.autoDeleteEnabled=false;
+    if(state.skipCutsceneEnabled===undefined) state.skipCutsceneEnabled=true;
+    if(state.skipCutsceneThreshold===undefined) state.skipCutsceneThreshold=100000;
+    if(state.tutorialCompleted===undefined) state.tutorialCompleted=false;
+    if(state.maxDeployLevel===undefined) state.maxDeployLevel=0;
+    state.maxDeploy=5+state.maxDeployLevel;
+    if(state.quickRollActive===undefined) state.quickRollActive=false;
+    if(state.specialPlayer===undefined) state.specialPlayer=false;
+    if(state.maxInventorySlots===undefined) state.maxInventorySlots=50;
+    if(state.inventoryUpgradeLevel===undefined) state.inventoryUpgradeLevel=0;
+    if(!state.potionInventory) state.potionInventory={};
+    if(!state.activeEffects) state.activeEffects=[];
+    if(state.inventory.length > state.maxInventorySlots) state.inventory=state.inventory.slice(0,state.maxInventorySlots);
+  } catch(e){ state.activeEffects=[]; state.potionInventory={}; }
+
+  if(state.ownedItems.includes('bob')) state.specialPlayer=true;
+  // Special players always have THE ZENITH in their items
+  if(state.specialPlayer && !state.ownedItems.includes('thezenith')) {
+    state.ownedItems.push('thezenith');
+  }
+  if(!state.shopStock||state.shopStock.length===0) refreshShop();
+  const now=Date.now();
+  if(now-state.lastShopUpdate > 15*60*1000) refreshShop();
+
+  lastOnlineTime = now;
+  applyTheme();
+
+  const adCheck = document.getElementById('autoDeleteToggle');
+  if(adCheck) adCheck.checked=state.autoDeleteEnabled;
+  const scCheck = document.getElementById('skipCutsceneToggle');
+  if(scCheck) scCheck.checked=state.skipCutsceneEnabled;
+  const stInput = document.getElementById('skipCutsceneThreshold');
+  if(stInput) stInput.value=state.skipCutsceneThreshold;
+
+  if(!state.tutorialCompleted) setTimeout(()=>showTutorial(),500);
+  updateAllUI();
+}
+
+// ============================================================
+// UI RENDER
+// ============================================================
+function updateAllUI() {
+  document.getElementById('moneyDisplay').innerText=formatNumber(Math.floor(state.money));
+  document.getElementById('shopMoney').innerText=formatNumber(Math.floor(state.money));
+  document.getElementById('invCount').innerText=`${state.inventory.length}/${state.maxInventorySlots}`;
+
+  const bestEl=document.getElementById('bestChyrchleDisplay');
+  if(state.bestChyrchle) bestEl.innerHTML=`Best: ${state.bestChyrchle.name} (1 in ${state.bestChyrchle.rarity.toLocaleString()})`;
+
+  const histDiv=document.getElementById('rollHistoryList');
+  if(state.rollHistory.length) histDiv.innerHTML=state.rollHistory.map(n=>`<div style="padding:2px 0;">- ${n}</div>`).join('');
+
+  renderInventory();
+  renderShop();
+  renderOwnedItems();
+  renderMyPotions();
+  renderUpgrades();
+  updateBounceEstimates();
+  renderEffectsBar();
+
+  document.getElementById('maxDeployDisplay').innerText=state.maxDeploy;
+  document.getElementById('currentMaxDeploy').innerText=state.maxDeploy;
+
+  const themeBtn=document.getElementById('toggleThemeBtn');
+  if(themeBtn) themeBtn.innerText=state.theme==='light'?'Switch to Dark':'Switch to Light';
+
+  document.getElementById('filterThreshold').value=state.filterThreshold;
+}
+
+function renderInventory() {
+  const container=document.getElementById('inventoryContainer');
+  if(!container) return;
+  container.innerHTML='';
+  state.inventory.forEach((c,index)=>{
+    const div=document.createElement('div');
+    div.className='inventory-item';
+    const bgColor=getColorStyle(c);
+    const textColor=(c.color==='#ffffff'||c.color==='#f0f0f0'||c.color==='#e0e7ff'||c.color==='#000000')?'#111':'white';
+    div.innerHTML=`
+      <span style="background:${bgColor}; color:${textColor}; padding:4px 12px; border-radius:20px; text-shadow:0 1px 2px rgba(0,0,0,0.5); font-size:0.85rem;">
+        ${c.name} (1/${c.rarity>=1000000?c.rarity.toLocaleString():c.rarity})
+      </span>
+      <button class="delete-btn" data-index="${index}">Delete</button>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('.delete-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>deleteFromInventory(parseInt(e.target.dataset.index)));
+  });
+}
+
+function deleteFromInventory(index) {
+  const c=state.inventory[index];
+  const needsConfirm=c.rarity>=10000||c.special==='alwaysDeploy'||c.special==='alwaysLast'||c.name==='UNHONORED'||c.name==='THE ABSOLUTE'||c.name==='Common:Unordinary';
+  if(needsConfirm) {
+    let msg=`Delete ${c.name} (1 in ${c.rarity.toLocaleString()})?`;
+    if(c.name==='UNHONORED') msg='Delete UNHONORED? This is a special Chyrchle!';
+    if(c.name==='Common:Unordinary') msg='Delete Common:Unordinary? This is a special Chyrchle!';
+    if(c.name==='THE ABSOLUTE') msg='Delete THE ABSOLUTE? This is extremely rare!';
+    showConfirmDialog(msg,()=>{ state.inventory.splice(index,1); updateAllUI(); saveState(); initBounceSim(); });
+  } else {
+    state.inventory.splice(index,1); updateAllUI(); saveState(); initBounceSim();
+  }
+}
+
+function applyFilterNow() {
+  const thresh=parseInt(document.getElementById('filterThreshold').value)||8;
+  state.filterThreshold=thresh;
+  const before=state.inventory.length;
+  state.inventory=state.inventory.filter(c=>c.rarity>=thresh||c.name==='UNHONORED');
+  alert(`Deleted ${before-state.inventory.length} Chyrchles below 1 in ${thresh}`);
+  updateAllUI(); saveState(); initBounceSim();
+}
+
+function renderOwnedItems() {
+  const container=document.getElementById('ownedItemsContainer');
+  if(!container) return;
+  const ownedObjs=state.ownedItems.map(id=>ITEMS.find(i=>i.id===id)).filter(i=>i);
+  if(!ownedObjs.length){ container.innerHTML='<p style="opacity:0.7;">No items owned yet</p>'; return; }
+  container.innerHTML='';
+  ownedObjs.forEach(item=>{
+    const isEquipped=state.equippedItem===item.id;
+    let luckDisplay=item.luck, gainDisplay=item.gain;
+    if(item.special==='bob'){luckDisplay='0';gainDisplay='0';}
+    if(item.special==='zenith'){luckDisplay='-1';gainDisplay='-1';}
+    const div=document.createElement('div');
+    div.className='inventory-item-container';
+    div.innerHTML=`
+      <div style="flex:1;">
+        <strong>${item.name}</strong>
+        <div style="font-size:0.8rem;">Luck ${typeof luckDisplay==='number'&&luckDisplay>=1000000?luckDisplay.toLocaleString():luckDisplay}x · Gain ${gainDisplay}x</div>
+        ${isEquipped?'<span style="color:#3b82f6;">[Equipped]</span>':''}
+      </div>
+      <div style="display:flex; gap:5px;">
+        ${isEquipped?`<button class="unequip-btn" data-id="${item.id}">Unequip</button>`:''}
+        <button class="equip-btn" data-id="${item.id}" ${isEquipped?'disabled':''}>
+          ${isEquipped?'Equipped':'Equip'}
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('.equip-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{ if(state.ownedItems.includes(btn.dataset.id)){ state.equippedItem=btn.dataset.id; updateAllUI(); saveState(); initBounceSim(); } });
+  });
+  container.querySelectorAll('.unequip-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{ state.equippedItem=null; updateAllUI(); saveState(); initBounceSim(); });
+  });
+}
+
+function renderUpgrades() {
+  const container=document.getElementById('upgradeContainer');
+  if(!container) return;
+  container.innerHTML='';
+  for(let i=0;i<UPGRADE_PRICES.length;i++){
+    const price=UPGRADE_PRICES[i];
+    const isUnlocked=i<state.maxDeployLevel;
+    const isNext=i===state.maxDeployLevel;
+    const canAfford=state.money>=price;
+    const div=document.createElement('div');
+    div.className='upgrade-item';
+    div.innerHTML=`
+      <div style="flex:1;"><strong>Max Deploy +${i+1}</strong><div style="font-size:0.8rem;">Total: ${5+i+1} Chyrchles</div></div>
+      ${isUnlocked?'<span style="color:#22c55e;">Unlocked</span>':''}
+      ${isNext?`<button class="upgrade-btn" ${!canAfford?'disabled':''}>C${formatNumber(price)}</button>`:''}
+      ${!isUnlocked&&!isNext?'<span style="opacity:0.5;">Locked</span>':''}
+    `;
+    if(isNext){ const btn=div.querySelector('.upgrade-btn'); if(btn) btn.addEventListener('click',()=>purchaseUpgrade(i)); }
+    container.appendChild(div);
+  }
+}
+
+function purchaseUpgrade(level) {
+  const price=UPGRADE_PRICES[level];
+  if(state.money>=price&&state.maxDeployLevel===level){
+    state.money-=price; state.maxDeployLevel++; state.maxDeploy=5+state.maxDeployLevel;
+    updateAllUI(); saveState(); initBounceSim();
+  }
+}
+
+function applyTheme() {
+  document.body.classList.toggle('dark', state.theme==='dark');
+  const inv=document.getElementById('inventoryPanel');
+  if(inv) inv.style.background=state.theme==='dark'?'#1e2432':'white';
+}
+
+// ============================================================
+// BOUNCE SIMULATION
+// ============================================================
+function initBounceSim() {
+  canvas=document.getElementById('bounceCanvas');
+  if(!canvas) return;
+  ctx=canvas.getContext('2d');
+  const sorted=[...state.inventory].sort((a,b)=>{
+    if(a.special==='alwaysDeploy') return -1;
+    if(b.special==='alwaysDeploy') return 1;
+    if(a.special==='alwaysLast') return 1;
+    if(b.special==='alwaysLast') return -1;
+    return b.gain-a.gain;
+  });
+  const bestN=sorted.slice(0,state.maxDeploy);
+  circles=bestN.map(c=>({
+    ...c,
+    x:Math.random()*(canvas.width-30)+15,
+    y:Math.random()*(canvas.height-30)+15,
+    vx:(Math.random()-0.5)*(c.special==='alwaysLast'?5:2.5),
+    vy:(Math.random()-0.5)*(c.special==='alwaysLast'?5:2.5),
+    r:getChyrchleSize(c.rarity)
+  }));
+  timeOffset=0;
+}
+
+function updateSimulation() {
+  if(!circles.length) return;
+  const gainMult=getGainMultiplier();
+  circles.forEach(c=>{
+    c.x+=c.vx; c.y+=c.vy;
+    const r=c.r;
+    if(c.x<r){c.x=r;c.vx*=-0.9;state.money=Math.floor(state.money+c.gain*gainMult);}
+    if(c.x>canvas.width-r){c.x=canvas.width-r;c.vx*=-0.9;state.money=Math.floor(state.money+c.gain*gainMult);}
+    if(c.y<r){c.y=r;c.vy*=-0.9;state.money=Math.floor(state.money+c.gain*gainMult);}
+    if(c.y>canvas.height-r){c.y=canvas.height-r;c.vy*=-0.9;state.money=Math.floor(state.money+c.gain*gainMult);}
+  });
+  for(let i=0;i<circles.length;i++){
+    for(let j=i+1;j<circles.length;j++){
+      const a=circles[i],b=circles[j];
+      const dx=a.x-b.x,dy=a.y-b.y;
+      const dist=Math.hypot(dx,dy);
+      if(dist<a.r+b.r){
+        const angle=Math.atan2(dy,dx),overlap=(a.r+b.r)-dist;
+        a.x+=Math.cos(angle)*overlap/2; a.y+=Math.sin(angle)*overlap/2;
+        b.x-=Math.cos(angle)*overlap/2; b.y-=Math.sin(angle)*overlap/2;
+        const tvx=a.vx; a.vx=b.vx*0.9; b.vx=tvx*0.9;
       }
     }
+  }
+}
 
-    // ---------- UI UPDATE ----------
-    function updateAllUI() {
-      document.getElementById('moneyDisplay').innerText = formatNumber(Math.floor(state.money));
-      document.getElementById('shopMoney').innerText = formatNumber(Math.floor(state.money));
-      document.getElementById('invCount').innerText = `${state.inventory.length}/${state.maxInventorySlots}`;
-      
-      const bestEl = document.getElementById('bestChyrchleDisplay');
-      if(state.bestChyrchle) {
-        bestEl.innerHTML = `Best: ${state.bestChyrchle.name} (1 in ${state.bestChyrchle.rarity.toLocaleString()})`;
-      }
-      
-      const histDiv = document.getElementById('rollHistoryList');
-      if(state.rollHistory.length) {
-        histDiv.innerHTML = state.rollHistory.map(name => `<div style="padding:2px 0;">- ${name}</div>`).join('');
-      }
-      
-      renderInventory();
-      renderPotionsInventory();
-      renderShop();
-      renderOwnedItems();
-      renderOwnedPotions();
-      renderUpgrades();
-      updateBounceEstimates();
-      
-      document.getElementById('maxDeployDisplay').innerText = state.maxDeploy;
-      document.getElementById('currentMaxDeploy').innerText = state.maxDeploy;
-      
-      const themeBtn = document.getElementById('toggleThemeBtn');
-      if(themeBtn) themeBtn.innerText = state.theme === 'light' ? 'Switch to Dark' : 'Switch to Light';
-      
-      document.getElementById('filterThreshold').value = state.filterThreshold;
+function drawBounce() {
+  if(!canvas||!ctx){animationFrame=requestAnimationFrame(drawBounce);return;}
+  updateSimulation();
+  if(!document.getElementById('screen-bounce').classList.contains('active')){animationFrame=requestAnimationFrame(drawBounce);return;}
+  timeOffset+=0.05;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  circles.forEach(c=>{
+    ctx.save();
+    const baseSize=getChyrchleSize(c.rarity);
+    c.r=baseSize;
+    if(c.effectType==='pulse'||c.effectType==='wave'){const p=Math.sin(timeOffset*5)*2;c.r=Math.max(baseSize-2,Math.min(baseSize+3,baseSize+p));}
+    if(c.effectType==='unhonored'){ctx.shadowColor='#ffffff';ctx.shadowBlur=30+Math.sin(timeOffset*2)*10;const p=Math.sin(timeOffset*1.5)*3;c.r=Math.max(baseSize-2,Math.min(baseSize+4,baseSize+p));ctx.beginPath();ctx.arc(c.x,c.y,c.r+8+Math.sin(timeOffset)*3,0,2*Math.PI);ctx.strokeStyle='#ffffff80';ctx.lineWidth=2;ctx.stroke();}
+    if(c.effectType==='unordinary'){ctx.shadowColor='#ffffff';ctx.shadowBlur=25+Math.sin(timeOffset*3)*8;ctx.strokeStyle='#ffffff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(c.x,c.y,c.r+3,0,2*Math.PI);ctx.stroke();}
+    if(c.effectType==='spark'||c.effectType==='sparkle'){ctx.shadowColor='#fbbf24';ctx.shadowBlur=15+Math.sin(timeOffset*8)*5;}
+    if(c.effectType==='flame'||c.effectType==='inferno'){ctx.shadowColor='#ef4444';ctx.shadowBlur=20+Math.sin(timeOffset*6)*8;}
+    if(c.effectType==='frost'){ctx.shadowColor='#67e8f9';ctx.shadowBlur=20;}
+    if(c.effectType==='lightning'){ctx.shadowColor='#fbbf24';ctx.shadowBlur=25+Math.sin(timeOffset*12)*10;}
+    if(c.effectType==='void'||c.effectType==='darkness'){ctx.shadowColor='#1a1a1a';ctx.shadowBlur=30;}
+    if(c.effectType==='divine'||c.effectType==='glow'){ctx.shadowColor='#fbbf24';ctx.shadowBlur=25;}
+    if(c.effectType==='rainbow'){ctx.shadowColor=`hsl(${timeOffset*50%360},100%,50%)`;ctx.shadowBlur=30;}
+    if(c.effectType==='quantum'){ctx.globalAlpha=0.8+Math.sin(timeOffset*4)*0.2;}
+    if(c.effectType==='ghost'){ctx.globalAlpha=0.5+Math.sin(timeOffset*2)*0.2;}
+    if(c.effectType==='absolute'){
+      ctx.shadowColor=`hsl(${timeOffset*100%360},100%,50%)`;ctx.shadowBlur=50+Math.sin(timeOffset*5)*20;
+      for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(c.x,c.y,c.r+10+i*8+Math.sin(timeOffset*3+i)*5,0,2*Math.PI);ctx.strokeStyle=`hsla(${(timeOffset*50+i*60)%360},100%,50%,${0.3-i*0.05})`;ctx.lineWidth=3;ctx.stroke();}
     }
+    ctx.beginPath();
+    ctx.arc(c.x,c.y,c.r,0,2*Math.PI);
+    if(c.color==='loop-shift'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'#1e3a8a');g.addColorStop(1,'#7dd3fc');ctx.fillStyle=g;}
+    else if(c.color==='loop-fast'){const g=ctx.createRadialGradient(c.x-8,c.y-8,2,c.x,c.y,c.r);g.addColorStop(0,'#1e3a8a');g.addColorStop(0.5,'#bae6fd');g.addColorStop(1,'#1e3a8a');ctx.fillStyle=g;}
+    else if(c.color==='loop-rainbow'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'red');g.addColorStop(0.16,'orange');g.addColorStop(0.33,'yellow');g.addColorStop(0.5,'green');g.addColorStop(0.66,'blue');g.addColorStop(0.83,'indigo');g.addColorStop(1,'violet');ctx.fillStyle=g;}
+    else if(c.color==='loop-multiverse'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'#ff00ff');g.addColorStop(0.5,'#00ffff');g.addColorStop(1,'#ff00ff');ctx.fillStyle=g;}
+    else if(c.color==='loop-absolute'){const g=ctx.createRadialGradient(c.x-10,c.y-10,2,c.x,c.y,c.r+10);g.addColorStop(0,'gold');g.addColorStop(0.25,'crimson');g.addColorStop(0.5,'purple');g.addColorStop(0.75,'cyan');g.addColorStop(1,'gold');ctx.fillStyle=g;}
+    else ctx.fillStyle=c.color;
+    ctx.fill();
+    if(c.effectType==='ring'||c.effectType==='absolute'||c.effectType==='unhonored'){ctx.shadowBlur=0;ctx.strokeStyle='#ffffff80';ctx.lineWidth=2;ctx.beginPath();ctx.arc(c.x,c.y,c.r+5+Math.sin(timeOffset*2)*2,0,2*Math.PI);ctx.stroke();}
+    ctx.restore();
+  });
+  animationFrame=requestAnimationFrame(drawBounce);
+  const now=Date.now();
+  if(now-lastMoneyUpdate>1000){updateAllUI();lastMoneyUpdate=now;}
+}
 
-    function renderInventory() {
-      const container = document.getElementById('inventoryContainer');
-      if(!container) return;
-      
-      container.innerHTML = '';
-      state.inventory.forEach((c, index) => {
-        const div = document.createElement('div');
-        div.className = 'inventory-item';
-        const bgColor = getColorStyle(c);
-        const textColor = (c.color === '#ffffff' || c.color === '#f0f0f0' || c.color === '#e0e7ff' || c.color === '#000000') ? '#111' : 'white';
-        
-        div.innerHTML = `
-          <span style="background:${bgColor}; color:${textColor}; padding:4px 12px; border-radius:20px; text-shadow:0 1px 2px rgba(0,0,0,0.5); font-size:0.85rem;">
-            ${c.name} (1/${c.rarity >= 1000000 ? c.rarity.toLocaleString() : c.rarity})
-          </span>
-          <button class="delete-btn" data-index="${index}">Delete</button>
-        `;
-        container.appendChild(div);
-      });
-      
-      container.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => deleteFromInventory(parseInt(e.target.dataset.index)));
-      });
-    }
+function updateBounceEstimates() {
+  const sorted=[...state.inventory].sort((a,b)=>{
+    if(a.special==='alwaysDeploy') return -1;
+    if(b.special==='alwaysDeploy') return 1;
+    if(a.special==='alwaysLast') return 1;
+    if(b.special==='alwaysLast') return -1;
+    return b.gain-a.gain;
+  });
+  const bestN=sorted.slice(0,state.maxDeploy);
+  const gainMult=getGainMultiplier();
+  const sumGain=bestN.reduce((s,c)=>s+(c.gain*gainMult),0);
+  const perMin=Math.floor(sumGain*30);
+  document.getElementById('estimatedPerMin').innerText=formatNumber(perMin);
+  document.getElementById('estimatedPerHour').innerText=formatNumber(perMin*60);
+  document.getElementById('best5Display').innerText=bestN.map(c=>c.name).join(', ')||'none';
+  document.getElementById('deployedCount').innerText=state.inventory.length;
+}
 
-    function renderPotionsInventory() {
-      const container = document.getElementById('potionsInventoryContainer');
-      if(!container) return;
-      
-      container.innerHTML = '';
-      state.ownedPotions.forEach((potion, index) => {
-        const data = POTIONS.find(p => p.id === potion.id);
-        if(!data || potion.count <= 0) return;
-        
-        const div = document.createElement('div');
-        div.className = 'potion-item';
-        div.innerHTML = `
-          <div style="flex:1;">
-            <strong>${data.name}</strong>
-            <div style="font-size:0.8rem;">Quantity: ${potion.count}</div>
-          </div>
-          <button class="use-btn" data-id="${data.id}">Use</button>
-        `;
-        container.appendChild(div);
-      });
-      
-      container.querySelectorAll('.use-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => usePotion(e.target.dataset.id));
-      });
-    }
+// ============================================================
+// SHOP TIMER
+// ============================================================
+function updateShopTimer() {
+  const timerEl=document.getElementById('shopTimer');
+  if(!timerEl) return;
+  const now=Date.now();
+  const timeSince=now-state.lastShopUpdate;
+  const timeUntil=(15*60*1000)-timeSince;
+  if(timeUntil<=0){ refreshShop(); renderShop(); }
+  else { const m=Math.floor(timeUntil/60000),s=Math.floor((timeUntil%60000)/1000); timerEl.innerText=`${m}:${('0'+s).slice(-2)}`; }
+}
 
-    function renderShop() {
-      const cont = document.getElementById('shopItemsContainer');
-      if(!cont) return;
-      
-      cont.innerHTML = '';
-      state.shopStock.forEach(item => {
-        if(item.type === 'item') {
-          const owned = state.ownedItems.includes(item.id);
-          const div = document.createElement('div');
-          div.className = 'shop-item';
-          let luckDisplay = item.luck;
-          let gainDisplay = item.gain;
-          if(item.special === 'bob') { luckDisplay = '0'; gainDisplay = '0'; }
-          if(item.special === 'zenith') { luckDisplay = '-1'; gainDisplay = '-1'; }
-          
-          div.innerHTML = `
-            <div style="flex:1;">
-              <strong>${item.name}</strong>
-              <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Luck ${luckDisplay}x · Gain ${gainDisplay}x</div>
-            </div>
-            <button class="buy-item-btn" data-id="${item.id}" ${owned ? 'disabled' : ''}>
-              ${owned ? 'Owned' : 'Buy'}
-            </button>
-          `;
-          cont.appendChild(div);
-        } else if(item.type === 'potion') {
-          const div = document.createElement('div');
-          div.className = 'potion-item';
-          const canBuy = item.currentStock > 0;
-          
-          div.innerHTML = `
-            <div style="flex:1;">
-              <strong>${item.name}</strong>
-              <div style="font-size:0.8rem;">C${formatNumber(item.price)} · Stock: ${item.currentStock}</div>
-            </div>
-            <button class="buy-potion-btn" data-id="${item.id}" ${!canBuy ? 'disabled' : ''}>
-              ${canBuy ? 'Buy' : 'Out of Stock'}
-            </button>
-          `;
-          cont.appendChild(div);
-        }
-      });
-      
-      cont.querySelectorAll('.buy-item-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          const item = ITEMS.find(i=>i.id===id);
-          if(item && state.money >= item.price && !state.ownedItems.includes(id)) {
-            state.money -= item.price;
-            state.ownedItems.push(id);
-            if(!state.equippedItem) state.equippedItem = id;
-            updateAllUI();
-            saveState();
-          }
-        });
-      });
-      
-      cont.querySelectorAll('.buy-potion-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          const potion = state.shopStock.find(s => s.id === id && s.type === 'potion');
-          if(potion && potion.currentStock > 0) {
-            showPotionSelector(potion);
-          }
-        });
-      });
-    }
+// ============================================================
+// AUTO ROLL
+// ============================================================
+function startAutoRoll() {
+  if(state.autoRollTimer) clearInterval(state.autoRollTimer);
+  if(state.autoRoll) {
+    state.autoRollTimer = setInterval(()=>{ if(!isRolling) performRoll(); }, getRollDurationMs()+200);
+  }
+}
 
-    function renderOwnedItems() {
-      const container = document.getElementById('ownedItemsContainer');
-      if(!container) return;
-      
-      const ownedItemObjects = state.ownedItems.map(id => ITEMS.find(i => i.id === id)).filter(i => i);
-      
-      if(ownedItemObjects.length === 0) {
-        container.innerHTML = '<p style="opacity:0.7;">No items owned yet</p>';
-        return;
-      }
-      
-      container.innerHTML = '';
-      ownedItemObjects.forEach(item => {
-        const isEquipped = state.equippedItem === item.id;
-        const div = document.createElement('div');
-        div.className = 'inventory-item-container';
-        
-        let luckDisplay = item.luck;
-        let gainDisplay = item.gain;
-        if(item.special === 'bob') { luckDisplay = '0'; gainDisplay = '0'; }
-        if(item.special === 'zenith') { luckDisplay = '-1'; gainDisplay = '-1'; }
-        
-        div.innerHTML = `
-          <div style="flex:1;">
-            <strong>${item.name}</strong>
-            <div style="font-size:0.8rem;">Luck ${luckDisplay}x · Gain ${gainDisplay}x</div>
-            ${isEquipped ? '<span style="color:#3b82f6;">[Equipped]</span>' : ''}
-          </div>
-          <div style="display:flex; gap:5px;">
-            ${isEquipped ? `<button class="unequip-btn" data-id="${item.id}">Unequip</button>` : ''}
-            <button class="equip-btn" data-id="${item.id}" ${isEquipped ? 'disabled' : ''}>
-              ${isEquipped ? 'Equipped' : 'Equip'}
-            </button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-      
-      container.querySelectorAll('.equip-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          if(state.ownedItems.includes(id)) {
-            state.equippedItem = id;
-            updateAllUI();
-            saveState();
-            initBounceSim();
-          }
-        });
-      });
-      
-      container.querySelectorAll('.unequip-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.equippedItem = null;
-          updateAllUI();
-          saveState();
-          initBounceSim();
-        });
-      });
-    }
+// ============================================================
+// CODES
+// ============================================================
+function redeemCode(code) {
+  if(state.codesUsed.includes(code)){ alert('Code already used!'); return; }
+  if(EXPIRED_CODES.includes(code)){ alert('This code has expired!'); return; }
+  const codeData=CODES[code];
+  if(!codeData){ alert('Invalid code'); return; }
 
-    function renderOwnedPotions() {
-      const container = document.getElementById('ownedPotionsContainer');
-      if(!container) return;
-      
-      const owned = state.ownedPotions.filter(p => p.count > 0);
-      
-      if(owned.length === 0) {
-        container.innerHTML = '<p style="opacity:0.7;">No potions owned yet</p>';
-        return;
-      }
-      
-      container.innerHTML = '';
-      owned.forEach(potion => {
-        const data = POTIONS.find(p => p.id === potion.id);
-        if(!data) return;
-        
-        const div = document.createElement('div');
-        div.className = 'potion-item';
-        div.innerHTML = `
-          <div style="flex:1;">
-            <strong>${data.name}</strong>
-            <div style="font-size:0.8rem;">Quantity: ${potion.count}</div>
-          </div>
-          <button class="use-btn" data-id="${data.id}">Use</button>
-        `;
-        container.appendChild(div);
-      });
-      
-      container.querySelectorAll('.use-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => usePotion(e.target.dataset.id));
-      });
+  if(codeData.type==='money'){
+    state.money+=codeData.reward;
+    state.codesUsed.push(code);
+    saveState(); updateAllUI();
+    alert(`${formatNumber(codeData.reward)} Chyrch added!`);
+  } else if(codeData.type==='item'){
+    const itemId=codeData.reward;
+    if(!state.ownedItems.includes(itemId)){
+      state.ownedItems.push(itemId);
+      if(!state.equippedItem) state.equippedItem=itemId;
+      state.codesUsed.push(code);
+      saveState(); updateAllUI();
+      alert('Special item added to your inventory!');
     }
+  } else if(codeData.type==='potions'){
+    const rewards=codeData.reward;
+    rewards.forEach(r=>{
+      if(!state.potionInventory[r.id]) state.potionInventory[r.id]=0;
+      state.potionInventory[r.id]+=r.qty;
+    });
+    state.codesUsed.push(code);
+    saveState(); updateAllUI();
+    alert('Potions added! Check My Potions in the Shop.');
+  }
+}
 
-    function initBounceSim() {
-      canvas = document.getElementById('bounceCanvas');
-      if(!canvas) return;
-      ctx = canvas.getContext('2d');
-      
-      const sorted = [...state.inventory].sort((a,b) => {
-        if(a.special === 'alwaysDeploy') return -1;
-        if(b.special === 'alwaysDeploy') return 1;
-        if(a.special === 'alwaysLast') return 1;
-        if(b.special === 'alwaysLast') return -1;
-        return b.gain - a.gain;
-      });
-      const bestN = sorted.slice(0, state.maxDeploy);
-      
-      circles = bestN.map((c) => ({
-        ...c,
-        x: Math.random() * (canvas.width-30)+15,
-        y: Math.random() * (canvas.height-30)+15,
-        vx: (Math.random()-0.5) * (c.special === 'alwaysLast' ? 5 : 2.5),
-        vy: (Math.random()-0.5) * (c.special === 'alwaysLast' ? 5 : 2.5),
-        r: getChyrchleSize(c.rarity)
-      }));
-      
-      timeOffset = 0;
-    }
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', ()=>{
+  loadState();
 
-    function updateSimulation() {
-      if(!simulationActive || !circles.length) return;
-      
-      const gainMult = getGainMultiplier();
-      
-      circles.forEach(c => {
-        c.x += c.vx;
-        c.y += c.vy;
-        const currentR = c.r;
-        
-        if(c.x < currentR) { c.x = currentR; c.vx *= -0.9; }
-        if(c.x > canvas.width-currentR) { c.x = canvas.width-currentR; c.vx *= -0.9; }
-        if(c.y < currentR) { c.y = currentR; c.vy *= -0.9; }
-        if(c.y > canvas.height-currentR) { c.y = canvas.height-currentR; c.vy *= -0.9; }
-        
-        if(c.x <= currentR || c.x >= canvas.width-currentR || c.y <= currentR || c.y >= canvas.height-currentR) {
-          state.money = Math.floor(state.money + (c.gain * gainMult));
-        }
-      });
-      
-      for(let i=0; i<circles.length; i++) {
-        for(let j=i+1; j<circles.length; j++) {
-          const a = circles[i], b = circles[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if(dist < a.r + b.r) {
-            const angle = Math.atan2(dy, dx);
-            const overlap = (a.r + b.r) - dist;
-            a.x += Math.cos(angle) * overlap/2;
-            a.y += Math.sin(angle) * overlap/2;
-            b.x -= Math.cos(angle) * overlap/2;
-            b.y -= Math.sin(angle) * overlap/2;
-            
-            const tempVx = a.vx;
-            a.vx = b.vx * 0.9;
-            b.vx = tempVx * 0.9;
-          }
-        }
-      }
-    }
+  canvas=document.getElementById('bounceCanvas');
+  if(canvas){ ctx=canvas.getContext('2d'); initBounceSim(); animationFrame=requestAnimationFrame(drawBounce); }
 
-    function drawBounce() {
-      if(!canvas || !ctx) return;
-      
-      updateSimulation();
-      
-      if(!document.getElementById('screen-bounce').classList.contains('active')) {
-        animationFrame = requestAnimationFrame(drawBounce);
-        return;
-      }
-      
-      timeOffset += 0.05;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      
-      circles.forEach(c => {
-        ctx.save();
-        const baseSize = getChyrchleSize(c.rarity);
-        c.r = baseSize;
-        
-        if(c.effectType === 'spiral' || c.effectType === 'vortex' || c.effectType === 'galaxy') {
-          ctx.translate(c.x, c.y);
-          ctx.rotate(timeOffset * 2);
-          ctx.translate(-c.x, -c.y);
-        }
-        
-        if(c.effectType === 'unhonored') {
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 30 + Math.sin(timeOffset * 2) * 10;
-          const pulse = Math.sin(timeOffset * 1.5) * 3;
-          c.r = Math.max(baseSize - 2, Math.min(baseSize + 4, baseSize + pulse));
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, c.r + 8 + Math.sin(timeOffset) * 3, 0, 2*Math.PI);
-          ctx.strokeStyle = '#ffffff80';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
-        
-        if(c.effectType === 'unordinary') {
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 25 + Math.sin(timeOffset * 3) * 8;
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, c.r + 3, 0, 2*Math.PI);
-          ctx.stroke();
-        }
-        
-        if(c.effectType === 'absolute') {
-          ctx.shadowColor = `hsl(${timeOffset * 100 % 360}, 100%, 50%)`;
-          ctx.shadowBlur = 50 + Math.sin(timeOffset * 5) * 20;
-          for(let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.arc(c.x, c.y, c.r + 10 + i * 8 + Math.sin(timeOffset * 3 + i) * 5, 0, 2*Math.PI);
-            ctx.strokeStyle = `hsla(${(timeOffset * 50 + i * 60) % 360}, 100%, 50%, ${0.3 - i * 0.05})`;
-            ctx.lineWidth = 3;
-            ctx.stroke();
-          }
-        }
-        
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
-        
-        if(c.color === 'loop-shift') {
-          const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#7dd3fc');
-          ctx.fillStyle = grad;
-        } else if(c.color === 'loop-fast') {
-          const grad = ctx.createRadialGradient(c.x-8, c.y-8, 2, c.x, c.y, c.r);
-          grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(0.5, '#bae6fd'); grad.addColorStop(1, '#1e3a8a');
-          ctx.fillStyle = grad;
-        } else if(c.color === 'loop-rainbow') {
-          const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, 'red'); grad.addColorStop(0.16, 'orange'); grad.addColorStop(0.33, 'yellow');
-          grad.addColorStop(0.5, 'green'); grad.addColorStop(0.66, 'blue'); grad.addColorStop(0.83, 'indigo'); grad.addColorStop(1, 'violet');
-          ctx.fillStyle = grad;
-        } else if(c.color === 'loop-multiverse') {
-          const grad = ctx.createLinearGradient(c.x-15, c.y-15, c.x+15, c.y+15);
-          grad.addColorStop(0, '#ff00ff'); grad.addColorStop(0.5, '#00ffff'); grad.addColorStop(1, '#ff00ff');
-          ctx.fillStyle = grad;
-        } else if(c.color === 'loop-absolute') {
-          const grad = ctx.createRadialGradient(c.x-10, c.y-10, 2, c.x, c.y, c.r + 10);
-          grad.addColorStop(0, 'gold'); grad.addColorStop(0.25, 'crimson'); grad.addColorStop(0.5, 'purple');
-          grad.addColorStop(0.75, 'cyan'); grad.addColorStop(1, 'gold');
-          ctx.fillStyle = grad;
-        } else {
-          ctx.fillStyle = c.color;
-        }
-        
-        ctx.fill();
-        ctx.restore();
-      });
-      
-      animationFrame = requestAnimationFrame(drawBounce);
-      
-      const now = Date.now();
-      if(now - lastMoneyUpdate > 1000) {
-        updateAllUI();
-        lastMoneyUpdate = now;
-      }
-    }
-
-    function updateBounceEstimates() {
-      const sorted = [...state.inventory].sort((a,b) => {
-        if(a.special === 'alwaysDeploy') return -1;
-        if(b.special === 'alwaysDeploy') return 1;
-        if(a.special === 'alwaysLast') return 1;
-        if(b.special === 'alwaysLast') return -1;
-        return b.gain - a.gain;
-      });
-      const bestN = sorted.slice(0, state.maxDeploy);
-      const gainMult = getGainMultiplier();
-      const sumGain = bestN.reduce((s,c)=> s + (c.gain * gainMult), 0);
-      const perMin = Math.floor(sumGain * 30);
-      
-      document.getElementById('estimatedPerMin').innerText = formatNumber(perMin);
-      document.getElementById('estimatedPerHour').innerText = formatNumber(perMin * 60);
-      document.getElementById('best5Display').innerText = bestN.map(c=>c.name).join(', ') || 'none';
-      document.getElementById('deployedCount').innerText = state.inventory.length;
-    }
-
-    function applyTheme() {
-      document.body.classList.toggle('dark', state.theme === 'dark');
-    }
-
-    function startAutoRoll() {
-      if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-      if(state.autoRoll) {
-        state.autoRollTimer = setInterval(() => { if(!isRolling) performRoll(); }, 1600);
-      }
-    }
-
-    function updateShopTimer() {
-      const timerEl = document.getElementById('shopTimer');
-      if(!timerEl) return;
-      
-      const now = Date.now();
-      const timeSinceUpdate = now - state.lastShopUpdate;
-      const timeUntilNext = (15 * 60 * 1000) - timeSinceUpdate;
-      
-      if(timeUntilNext <= 0) {
-        refreshShop();
-        renderShop();
-      } else {
-        const minutes = Math.floor(timeUntilNext / 60000);
-        const seconds = Math.floor((timeUntilNext % 60000) / 1000);
-        timerEl.innerText = `${minutes}:${seconds.toString().padStart(2,'0')}`;
-      }
-    }
-
-    function redeemCode(code) {
-      if(state.codesUsed.includes(code)) {
-        alert('Code already used!');
-        return;
-      }
-      if(EXPIRED_CODES.includes(code)) {
-        alert('This code has expired!');
-        return;
-      }
-      
-      const codeData = CODES[code];
-      if(!codeData) {
-        alert('Invalid code');
-        return;
-      }
-      
-      if(codeData.type === 'money') {
-        state.money += codeData.reward;
-        state.codesUsed.push(code);
-        saveState();
-        updateAllUI();
-        alert(`${formatNumber(codeData.reward)} Chyrch added!`);
-      } else if(codeData.type === 'item') {
-        const itemId = codeData.reward;
-        if(!state.ownedItems.includes(itemId)) {
-          state.ownedItems.push(itemId);
-          if(!state.equippedItem) state.equippedItem = itemId;
-          state.codesUsed.push(code);
-          saveState();
-          updateAllUI();
-          alert('Special item added!');
-        }
-      } else if(codeData.type === 'potions') {
-        codeData.reward.forEach(p => {
-          const existing = state.ownedPotions.find(op => op.id === p.id);
-          if(existing) existing.count += p.count;
-          else state.ownedPotions.push({ id: p.id, count: p.count });
-        });
-        state.codesUsed.push(code);
-        saveState();
-        updateAllUI();
-        alert('Potions added to inventory!');
-      }
-    }
-
-    // ---------- TUTORIAL ----------
-    function showTutorial() {
-      const overlay = document.createElement('div');
-      overlay.className = 'tutorial-overlay';
-      overlay.innerHTML = `
-        <div class="tutorial-content">
-          <h2>Welcome to Chyrchle v3.0!</h2>
-          <div class="tutorial-step"><div class="tutorial-step-number">1</div><div class="tutorial-step-content"><strong>Roll for Chyrchles</strong><br>Tap ROLL to get random Chyrchles.</div></div>
-          <div class="tutorial-step"><div class="tutorial-step-number">2</div><div class="tutorial-step-content"><strong>Potions</strong><br>Buy potions from shop to boost luck and speed!</div></div>
-          <div class="tutorial-step"><div class="tutorial-step-number">3</div><div class="tutorial-step-content"><strong>Effects</strong><br>Active effects appear between roll and history. Click for info!</div></div>
-          <div class="tutorial-step"><div class="tutorial-step-number">4</div><div class="tutorial-step-content"><strong>Shop</strong><br>Shop rotates every 15 minutes. Potions can be bought multiple times!</div></div>
-          <button id="closeTutorialBtn" style="width:100%; margin-top:20px;">Got it!</button>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      overlay.querySelector('#closeTutorialBtn').addEventListener('click', () => {
-        overlay.remove();
-        state.tutorialCompleted = true;
-        saveState();
-      });
-    }
-
-    // ---------- STORAGE ----------
-    function saveState() {
-      try { localStorage.setItem('chyrchle_save', JSON.stringify(state)); } catch(e) {}
-    }
-    
-    function loadState() {
-      try {
-        const saved = localStorage.getItem('chyrchle_save');
-        if(saved) {
-          const parsed = JSON.parse(saved);
-          Object.assign(state, parsed);
-          if(!state.inventory) state.inventory = [];
-          if(!state.ownedItems) state.ownedItems = [];
-          if(!state.ownedPotions) state.ownedPotions = [];
-          if(!state.activeEffects) state.activeEffects = [];
-          if(state.maxInventorySlots === undefined) state.maxInventorySlots = 50;
-          if(state.specialPlayer === undefined) state.specialPlayer = false;
-        }
-      } catch(e) {}
-      
-      if(state.ownedItems.includes('bob')) state.specialPlayer = true;
-      if(!state.shopStock || state.shopStock.length === 0) refreshShop();
-      
-      applyTheme();
-      updateAllUI();
-      renderEffects();
-    }
-
-    // ---------- INITIALIZATION ----------
-    window.addEventListener('load', ()=>{
-      loadState();
-      
-      canvas = document.getElementById('bounceCanvas');
-      if(canvas) {
-        ctx = canvas.getContext('2d');
-        initBounceSim();
-        animationFrame = requestAnimationFrame(drawBounce);
-      }
-      
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-          document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
-          updateAllUI();
-        });
-      });
-      
-      document.querySelectorAll('[data-shoptab]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('[data-shoptab]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tab = btn.dataset.shoptab;
-          document.getElementById('shopTabContent').style.display = tab === 'shop' ? 'block' : 'none';
-          document.getElementById('itemsTabContent').style.display = tab === 'items' ? 'block' : 'none';
-          document.getElementById('potionsTabContent').style.display = tab === 'potions' ? 'block' : 'none';
-          if(tab === 'potions') renderOwnedPotions();
-        });
-      });
-      
-      document.querySelectorAll('[data-invtab]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('[data-invtab]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tab = btn.dataset.invtab;
-          document.getElementById('chyrchlesInvContent').style.display = tab === 'chyrchles' ? 'block' : 'none';
-          document.getElementById('potionsInvContent').style.display = tab === 'potions' ? 'block' : 'none';
-          if(tab === 'potions') renderPotionsInventory();
-        });
-      });
-      
-      document.querySelectorAll('[data-bouncetab]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('[data-bouncetab]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tab = btn.dataset.bouncetab;
-          document.getElementById('bounceStatsContent').style.display = tab === 'stats' ? 'block' : 'none';
-          document.getElementById('bounceUpgradeContent').style.display = tab === 'upgrade' ? 'block' : 'none';
-        });
-      });
-      
-      document.getElementById('rollButton').addEventListener('click', performRoll);
-      document.getElementById('autoRollToggle').addEventListener('click', (e) => {
-        state.autoRoll = !state.autoRoll;
-        e.target.innerText = state.autoRoll ? 'Auto ON' : 'Auto OFF';
-        if(state.autoRoll) startAutoRoll();
-        else if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-        saveState();
-      });
-      
-      document.getElementById('openInventoryBtn').addEventListener('click', () => {
-        document.getElementById('inventoryPanel').style.display = 'block';
-        document.getElementById('inventoryOverlay').style.display = 'block';
-        renderInventory();
-      });
-      
-      document.getElementById('openCapacityUpgradeBtn').addEventListener('click', showCapacityUpgrade);
-      document.getElementById('closeInventoryBtn').addEventListener('click', () => {
-        document.getElementById('inventoryPanel').style.display = 'none';
-        document.getElementById('inventoryOverlay').style.display = 'none';
-      });
-      
-      document.getElementById('toggleThemeBtn').addEventListener('click', () => {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        applyTheme();
-        saveState();
-      });
-      
-      document.getElementById('showTutorialBtn').addEventListener('click', showTutorial);
-      document.getElementById('skipCutsceneToggle').addEventListener('change', e => { state.skipCutsceneEnabled = e.target.checked; saveState(); });
-      document.getElementById('skipCutsceneThreshold').addEventListener('change', e => { state.skipCutsceneThreshold = parseInt(e.target.value) || 100000; saveState(); });
-      document.getElementById('autoDeleteToggle').addEventListener('change', e => { state.autoDeleteEnabled = e.target.checked; saveState(); });
-      document.getElementById('applyFilterBtn').addEventListener('click', applyFilterNow);
-      document.getElementById('filterThreshold').addEventListener('change', e => { state.filterThreshold = parseInt(e.target.value) || 8; saveState(); });
-      document.getElementById('submitCodeBtn').addEventListener('click', () => {
-        const input = document.getElementById('codeInput');
-        redeemCode(input.value);
-        input.value = '';
-      });
-      
-      shopTimerInterval = setInterval(updateShopTimer, 1000);
-      effectTimerInterval = setInterval(updateEffects, 1000);
-      updateShopTimer();
-      
-      setInterval(saveState, 30000);
-      
-      if(!state.tutorialCompleted) setTimeout(showTutorial, 500);
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
       updateAllUI();
     });
+  });
 
-    window.addEventListener('beforeunload', ()=>{
-      if(animationFrame) cancelAnimationFrame(animationFrame);
-      if(shopTimerInterval) clearInterval(shopTimerInterval);
-      if(effectTimerInterval) clearInterval(effectTimerInterval);
-      if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-      if(rollInterval) clearInterval(rollInterval);
-      if(rollTimeout) clearTimeout(rollTimeout);
-      if(activeCutscene) activeCutscene.remove();
-      saveState();
+  document.querySelectorAll('[data-shoptab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-shoptab]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab=btn.dataset.shoptab;
+      document.getElementById('shopTabContent').style.display=tab==='shop'?'block':'none';
+      document.getElementById('itemsTabContent').style.display=tab==='items'?'block':'none';
+      document.getElementById('potionsTabContent').style.display=tab==='potions'?'block':'none';
+      if(tab==='items') renderOwnedItems();
+      if(tab==='potions') renderMyPotions();
     });
+  });
 
-  })();
+  document.querySelectorAll('[data-bouncetab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-bouncetab]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab=btn.dataset.bouncetab;
+      document.getElementById('bounceStatsContent').style.display=tab==='stats'?'block':'none';
+      document.getElementById('bounceUpgradeContent').style.display=tab==='upgrade'?'block':'none';
+      if(tab==='upgrade') renderUpgrades();
+    });
+  });
+
+  document.getElementById('rollButton').addEventListener('click',()=>performRoll());
+
+  document.getElementById('autoRollToggle').addEventListener('click',e=>{
+    state.autoRoll=!state.autoRoll;
+    e.target.innerText=state.autoRoll?'Auto ON':'Auto OFF';
+    if(state.autoRoll) startAutoRoll();
+    else if(state.autoRollTimer) clearInterval(state.autoRollTimer);
+    saveState();
+  });
+
+  document.getElementById('openInventoryBtn').addEventListener('click',()=>{
+    document.getElementById('inventoryPanel').style.display='block';
+    document.getElementById('inventoryOverlay').style.display='block';
+    applyTheme(); renderInventory();
+  });
+  document.getElementById('openCapacityUpgradeBtn').addEventListener('click',()=>showCapacityUpgrade());
+  document.getElementById('closeInventoryBtn').addEventListener('click',()=>{
+    document.getElementById('inventoryPanel').style.display='none';
+    document.getElementById('inventoryOverlay').style.display='none';
+  });
+
+  document.getElementById('toggleThemeBtn').addEventListener('click',()=>{
+    state.theme=state.theme==='light'?'dark':'light';
+    applyTheme(); updateAllUI(); saveState();
+  });
+  document.getElementById('showTutorialBtn').addEventListener('click',()=>showTutorial());
+
+  document.getElementById('skipCutsceneToggle').addEventListener('change',e=>{ state.skipCutsceneEnabled=e.target.checked; saveState(); });
+  document.getElementById('skipCutsceneThreshold').addEventListener('change',e=>{ state.skipCutsceneThreshold=parseInt(e.target.value)||100000; saveState(); });
+  document.getElementById('autoDeleteToggle').addEventListener('change',e=>{ state.autoDeleteEnabled=e.target.checked; saveState(); });
+  document.getElementById('applyFilterBtn').addEventListener('click',applyFilterNow);
+  document.getElementById('filterThreshold').addEventListener('change',e=>{ state.filterThreshold=parseInt(e.target.value)||8; saveState(); });
+  document.getElementById('submitCodeBtn').addEventListener('click',()=>{
+    const inp=document.getElementById('codeInput');
+    redeemCode(inp.value.trim()); inp.value='';
+  });
+  document.getElementById('codeInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const inp=e.target; redeemCode(inp.value.trim()); inp.value=''; } });
+
+  shopTimerInterval=setInterval(updateShopTimer,1000);
+  updateShopTimer();
+
+  // Effects tick — every second while online
+  effectsTickInterval=setInterval(()=>{ tickEffects(); },1000);
+
+  lastOnlineTime=Date.now();
+
+  setInterval(saveState,30000);
+  updateAllUI();
+});
+
+window.addEventListener('beforeunload',()=>{
+  if(animationFrame) cancelAnimationFrame(animationFrame);
+  if(shopTimerInterval) clearInterval(shopTimerInterval);
+  if(effectsTickInterval) clearInterval(effectsTickInterval);
+  if(state.autoRollTimer) clearInterval(state.autoRollTimer);
+  if(rollInterval) clearInterval(rollInterval);
+  if(rollTimeout) clearTimeout(rollTimeout);
+  if(activeCutscene) activeCutscene.remove();
+  saveState();
+});
+
+})();
 </script>
 </body>
 </html>
+
