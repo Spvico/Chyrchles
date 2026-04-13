@@ -767,14 +767,24 @@ function usePotion(potionId) {
     return;
   }
 
-  // Type-lock: can't have same type active (only one of luck I/II/III at a time, etc.)
-  // For types with serials (luck, speed, special1, special2): remove existing same-type effect
+  // Type-lock: same potion id can stack (extend/add time); different id of same type is blocked if active
   const typeLockTypes = ['luck','speed','special1','special2'];
   if(typeLockTypes.includes(potion.type)) {
-    state.activeEffects = state.activeEffects.filter(e => {
+    const conflictActive = state.activeEffects.some(e => {
       const ep = getPotionById(e.potionId);
-      return !ep || ep.type !== potion.type;
+      return ep && ep.type === potion.type && ep.id !== potionId && (e.rolls > 0 || e.remainingMs > 0);
     });
+    if(conflictActive) return; // blocked — different potion of same type is active
+    // Same id: stack by adding remaining time / rolls to existing effect entry
+    const existing = state.activeEffects.find(e => e.potionId === potionId && (e.rolls > 0 || e.remainingMs > 0));
+    if(existing) {
+      if(existing.rolls > 0) existing.rolls += effect.rolls;
+      else existing.remainingMs += effect.durationMs;
+      state.potionInventory[potionId]--;
+      if(state.potionInventory[potionId] <= 0) delete state.potionInventory[potionId];
+      saveState(); renderEffectsBar(); renderMyPotions();
+      return;
+    }
   }
 
   const newEffect = {
@@ -1083,13 +1093,13 @@ function renderMyPotions() {
     const qty = state.potionInventory[potion.id] || 0;
     if(qty <= 0) return;
 
-    // Check if this potion type is already active (type-lock)
+    // Check if a DIFFERENT potion of the same type is active (same id is allowed to stack)
     const typeLockTypes = ['luck','speed','special1','special2'];
     let isTypeLocked = false;
     if(typeLockTypes.includes(potion.type)) {
       isTypeLocked = state.activeEffects.some(e => {
         const ep = getPotionById(e.potionId);
-        return ep && ep.type === potion.type && (e.rolls > 0 || e.remainingMs > 0);
+        return ep && ep.type === potion.type && ep.id !== potion.id && (e.rolls > 0 || e.remainingMs > 0);
       });
     }
 
@@ -1103,7 +1113,7 @@ function renderMyPotions() {
         <span class="potion-badge ${typeBadgeMap[potion.type]||'badge-special'}">${potion.type}</span>
         <div style="font-size:0.8rem;">${potion.desc}</div>
         <div style="font-size:0.75rem; opacity:0.7;">Owned: ${qty}</div>
-        ${isTypeLocked ? '<div style="font-size:0.75rem; color:#f97316;">Type already active!</div>' : ''}
+        ${isTypeLocked ? '<div style="font-size:0.75rem; color:#f97316;">Same potion type already active</div>' : ''}
       </div>
       <button class="use-potion-btn" data-id="${potion.id}" ${isTypeLocked?'disabled':''}>Use</button>
     `;
@@ -1831,17 +1841,35 @@ function startAutoRoll() {
 // ============================================================
 // CODES
 // ============================================================
+function showCodeResult(title, message, isError) {
+  const existing = document.getElementById('codeResultOverlay');
+  if(existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'codeResultOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);display:flex;justify-content:center;align-items:center;z-index:2000;backdrop-filter:blur(4px);';
+  const color = isError ? '#ef4444' : '#22c55e';
+  overlay.innerHTML =
+    '<div style="background:#1e2432;padding:28px 32px;border-radius:24px;max-width:360px;width:90%;text-align:center;color:white;border:1px solid ' + color + ';box-shadow:0 20px 60px rgba(0,0,0,0.5);">' +
+    '<div style="font-size:1.4rem;font-weight:bold;color:' + color + ';margin-bottom:12px;">' + title + '</div>' +
+    '<div style="font-size:0.95rem;opacity:0.9;margin-bottom:20px;">' + message + '</div>' +
+    '<button id="codeResultClose" style="width:100%;background:' + color + ';color:white;border:none;border-radius:30px;padding:10px;">OK</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('#codeResultClose').addEventListener('click', function(){ overlay.remove(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+}
+
 function redeemCode(code) {
-  if(state.codesUsed.includes(code)){ alert('Code already used!'); return; }
-  if(EXPIRED_CODES.includes(code)){ alert('This code has expired!'); return; }
+  if(state.codesUsed.includes(code)){ showCodeResult('Already Used', 'You have already redeemed this code.', true); return; }
+  if(EXPIRED_CODES.includes(code)){ showCodeResult('Expired', 'This code has expired and can no longer be redeemed.', true); return; }
   const codeData=CODES[code];
-  if(!codeData){ alert('Invalid code'); return; }
+  if(!codeData){ showCodeResult('Invalid Code', 'That code does not exist. Check your spelling!', true); return; }
 
   if(codeData.type==='money'){
     state.money+=codeData.reward;
     state.codesUsed.push(code);
     saveState(); updateAllUI();
-    alert(`${formatNumber(codeData.reward)} Chyrch added!`);
+    showCodeResult('Code Redeemed!', 'C' + formatNumber(codeData.reward) + ' Chyrch has been added to your balance.', false);
   } else if(codeData.type==='item'){
     const itemId=codeData.reward;
     if(!state.ownedItems.includes(itemId)){
@@ -1849,17 +1877,21 @@ function redeemCode(code) {
       if(!state.equippedItem) state.equippedItem=itemId;
       state.codesUsed.push(code);
       saveState(); updateAllUI();
-      alert('Special item added to your inventory!');
+      const item = ITEMS.find(i=>i.id===itemId);
+      showCodeResult('Item Unlocked!', (item ? item.name : 'A special item') + ' has been added to your items.', false);
     }
   } else if(codeData.type==='potions'){
     const rewards=codeData.reward;
+    const names = [];
     rewards.forEach(r=>{
       if(!state.potionInventory[r.id]) state.potionInventory[r.id]=0;
       state.potionInventory[r.id]+=r.qty;
+      const p = getPotionById(r.id);
+      if(p) names.push(p.name + ' x' + r.qty);
     });
     state.codesUsed.push(code);
     saveState(); updateAllUI();
-    alert('Potions added! Check My Potions in the Shop.');
+    showCodeResult('Potions Received!', names.join(', ') + ' added to your potions.', false);
   }
 }
 
