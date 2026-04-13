@@ -1419,29 +1419,41 @@ function showTutorial() {
 function showCapacityUpgrade() {
   const overlay = document.createElement('div');
   overlay.className = 'capacity-upgrade-overlay';
-  const nextLevel = state.inventoryUpgradeLevel+1;
-  const price = Math.floor(Math.pow(nextLevel,3)*1500);
-  const newSlots = 50+nextLevel;
-  overlay.innerHTML = `
-    <div class="capacity-upgrade-content">
-      <h2>Upgrade Inventory Capacity</h2>
-      <p>Current Slots: ${state.maxInventorySlots}</p>
-      <p>Next Upgrade: +1 slot (Total: ${newSlots})</p>
-      <p>Price: C${formatNumber(price)}</p>
-      ${state.money>=price ? `<button id="confirmUpgradeBtn" style="width:100%; margin-top:20px;">Upgrade</button>` : `<p style="color:#ef4444;">Not enough Chyrch!</p>`}
-      <button id="closeCapacityBtn" style="width:100%; margin-top:10px;">Close</button>
-    </div>
-  `;
   document.body.appendChild(overlay);
-  overlay.querySelector('#closeCapacityBtn').addEventListener('click',()=>overlay.remove());
-  const upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
-  if(upgradeBtn) upgradeBtn.addEventListener('click',()=>{
-    if(state.money>=price){
-      state.money-=price; state.inventoryUpgradeLevel++; state.maxInventorySlots=50+state.inventoryUpgradeLevel;
-      overlay.remove(); updateAllUI(); saveState();
-      alert(`Inventory capacity increased to ${state.maxInventorySlots}!`);
-    }
-  });
+
+  function renderCapacityUI() {
+    const nextLevel = state.inventoryUpgradeLevel + 1;
+    const price = Math.floor(Math.pow(nextLevel, 3) * 1500);
+    const newSlots = 50 + nextLevel;
+    const canAfford = state.money >= price;
+    overlay.innerHTML =
+      '<div class="capacity-upgrade-content">' +
+      '<h2>Upgrade Inventory Capacity</h2>' +
+      '<p>Current Slots: <strong>' + state.maxInventorySlots + '</strong></p>' +
+      '<p>Next Upgrade: +1 slot (Total: ' + newSlots + ')</p>' +
+      '<p>Price: C' + formatNumber(price) + '</p>' +
+      '<p style="font-size:0.85rem; opacity:0.7;">Your Chyrch: C' + formatNumber(Math.floor(state.money)) + '</p>' +
+      (canAfford
+        ? '<button id="confirmUpgradeBtn" style="width:100%; margin-top:16px; background:#22c55e; color:white; border:none;">Upgrade</button>'
+        : '<button disabled style="width:100%; margin-top:16px; opacity:0.5;">Not enough Chyrch</button>'
+      ) +
+      '<button id="closeCapacityBtn" style="width:100%; margin-top:8px;">Close</button>' +
+      '</div>';
+    overlay.querySelector('#closeCapacityBtn').addEventListener('click', function(){ overlay.remove(); });
+    var upgradeBtn = overlay.querySelector('#confirmUpgradeBtn');
+    if(upgradeBtn) upgradeBtn.addEventListener('click', function(){
+      if(state.money >= price){
+        state.money -= price;
+        state.inventoryUpgradeLevel++;
+        state.maxInventorySlots = 50 + state.inventoryUpgradeLevel;
+        saveState();
+        updateAllUI();
+        renderCapacityUI();
+      }
+    });
+  }
+
+  renderCapacityUI();
 }
 
 // ============================================================
