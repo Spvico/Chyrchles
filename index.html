@@ -491,79 +491,21 @@ const CHYRCHLES = [
   { name:'THE ABSOLUTE', rarity:1000000000, color:'loop-absolute', effectType:'absolute', gain:5000, theme:'absolute', desc:'THE BEGINNING AND THE END. THE ALPHA AND OMEGA. REALITY ITSELF KNEELS.' }
 ];
 
-// Potion definitions
-// priceRarity: minimum rarity of chyrchle needed to buy one
-// type: luck | speed | special1 | special2 | special3 | special4
-// serial: used for type-locking (can't have I and III of same type simultaneously)
 const POTIONS = [
-  // Luck type
-  { id:'luck1', name:'Luck Potion I', icon:'L1', type:'luck', serial:1,
-    priceRarity:500, stock:5, isSpecial:false,
-    desc:'+100% luck for 3 minutes',
-    effect:{ luckPct:100, speedPct:0, durationMs:3*60*1000, rolls:0 }
-  },
-  { id:'luck2', name:'Luck Potion II', icon:'L2', type:'luck', serial:2,
-    priceRarity:1000, stock:5, isSpecial:false,
-    desc:'+250% luck for 3 minutes',
-    effect:{ luckPct:250, speedPct:0, durationMs:3*60*1000, rolls:0 }
-  },
-  { id:'luck3', name:'Luck Potion III', icon:'L3', type:'luck', serial:3,
-    priceRarity:2000, stock:5, isSpecial:false,
-    desc:'+500% luck for 3 minutes',
-    effect:{ luckPct:500, speedPct:0, durationMs:3*60*1000, rolls:0 }
-  },
-  // Speed type
-  { id:'speed1', name:'Speed Potion I', icon:'S1', type:'speed', serial:1,
-    priceRarity:2000, stock:5, isSpecial:false,
-    desc:'+40% roll speed for 2 minutes',
-    effect:{ luckPct:0, speedPct:40, durationMs:2*60*1000, rolls:0 }
-  },
-  { id:'speed2', name:'Speed Potion II', icon:'S2', type:'speed', serial:2,
-    priceRarity:4000, stock:5, isSpecial:false,
-    desc:'+60% roll speed for 2 minutes',
-    effect:{ luckPct:0, speedPct:60, durationMs:2*60*1000, rolls:0 }
-  },
-  { id:'speed3', name:'Speed Potion III', icon:'S3', type:'speed', serial:3,
-    priceRarity:6000, stock:5, isSpecial:false,
-    desc:'+80% roll speed for 2 minutes',
-    effect:{ luckPct:0, speedPct:80, durationMs:2*60*1000, rolls:0 }
-  },
-  // Special 1
-  { id:'stone', name:'Stone Potion', icon:'ST', type:'special1', serial:1,
-    priceRarity:3000, stock:1, isSpecial:true,
-    desc:'+300% luck, -50% roll speed for 5 minutes',
-    effect:{ luckPct:300, speedPct:-50, durationMs:5*60*1000, rolls:0 }
-  },
-  { id:'charged', name:'Charged Potion', icon:'CH', type:'special1', serial:2,
-    priceRarity:4500, stock:1, isSpecial:true,
-    desc:'+100% luck, +30% roll speed for 5 minutes',
-    effect:{ luckPct:100, speedPct:30, durationMs:5*60*1000, rolls:0 }
-  },
-  // Special 2 (Unrestricted — next N rolls)
-  { id:'unres1', name:'Unrestricted Potion I', icon:'U1', type:'special2', serial:1,
-    priceRarity:25000, stock:1, isSpecial:true,
-    desc:'+10,000% luck for next 1 roll',
-    effect:{ luckPct:10000, speedPct:0, durationMs:0, rolls:1 }
-  },
-  { id:'unres2', name:'Unrestricted Potion II', icon:'U2', type:'special2', serial:2,
-    priceRarity:200000, stock:1, isSpecial:true,
-    desc:'+100,000% luck for next 1 roll',
-    effect:{ luckPct:100000, speedPct:0, durationMs:0, rolls:1 }
-  },
-  { id:'unres3', name:'Unrestricted Potion III', icon:'U3', type:'special2', serial:3,
-    priceRarity:3000000, stock:1, isSpecial:true,
-    desc:'+1,000,000% luck for next 1 roll',
-    effect:{ luckPct:1000000, speedPct:0, durationMs:0, rolls:1 }
-  },
-  // Special 3 (Purify)
-  { id:'purify', name:'Purifying Potion', icon:'PU', type:'special3', serial:1,
-    priceRarity:5000, stock:1, isSpecial:true,
-    desc:'Remove all current effects immediately',
-    effect:{ luckPct:0, speedPct:0, durationMs:0, rolls:0, purify:true }
-  },
+  { id:'luck1', name:'Luck Potion I', icon:'L1', type:'luck', serial:1, priceRarity:500, stock:5, isSpecial:false, desc:'+100% luck for 3 minutes', effect:{ luckPct:100, speedPct:0, durationMs:3*60*1000, rolls:0 } },
+  { id:'luck2', name:'Luck Potion II', icon:'L2', type:'luck', serial:2, priceRarity:1000, stock:5, isSpecial:false, desc:'+250% luck for 3 minutes', effect:{ luckPct:250, speedPct:0, durationMs:3*60*1000, rolls:0 } },
+  { id:'luck3', name:'Luck Potion III', icon:'L3', type:'luck', serial:3, priceRarity:2000, stock:5, isSpecial:false, desc:'+500% luck for 3 minutes', effect:{ luckPct:500, speedPct:0, durationMs:3*60*1000, rolls:0 } },
+  { id:'speed1', name:'Speed Potion I', icon:'S1', type:'speed', serial:1, priceRarity:2000, stock:5, isSpecial:false, desc:'+40% roll speed for 2 minutes', effect:{ luckPct:0, speedPct:40, durationMs:2*60*1000, rolls:0 } },
+  { id:'speed2', name:'Speed Potion II', icon:'S2', type:'speed', serial:2, priceRarity:4000, stock:5, isSpecial:false, desc:'+60% roll speed for 2 minutes', effect:{ luckPct:0, speedPct:60, durationMs:2*60*1000, rolls:0 } },
+  { id:'speed3', name:'Speed Potion III', icon:'S3', type:'speed', serial:3, priceRarity:6000, stock:5, isSpecial:false, desc:'+80% roll speed for 2 minutes', effect:{ luckPct:0, speedPct:80, durationMs:2*60*1000, rolls:0 } },
+  { id:'stone', name:'Stone Potion', icon:'ST', type:'special1', serial:1, priceRarity:3000, stock:1, isSpecial:true, desc:'+300% luck, -50% roll speed for 5 minutes', effect:{ luckPct:300, speedPct:-50, durationMs:5*60*1000, rolls:0 } },
+  { id:'charged', name:'Charged Potion', icon:'CH', type:'special1', serial:2, priceRarity:4500, stock:1, isSpecial:true, desc:'+100% luck, +30% roll speed for 5 minutes', effect:{ luckPct:100, speedPct:30, durationMs:5*60*1000, rolls:0 } },
+  { id:'unres1', name:'Unrestricted Potion I', icon:'U1', type:'special2', serial:1, priceRarity:25000, stock:1, isSpecial:true, desc:'+10,000% luck for next 1 roll', effect:{ luckPct:10000, speedPct:0, durationMs:0, rolls:1 } },
+  { id:'unres2', name:'Unrestricted Potion II', icon:'U2', type:'special2', serial:2, priceRarity:200000, stock:1, isSpecial:true, desc:'+100,000% luck for next 1 roll', effect:{ luckPct:100000, speedPct:0, durationMs:0, rolls:1 } },
+  { id:'unres3', name:'Unrestricted Potion III', icon:'U3', type:'special2', serial:3, priceRarity:3000000, stock:1, isSpecial:true, desc:'+1,000,000% luck for next 1 roll', effect:{ luckPct:1000000, speedPct:0, durationMs:0, rolls:1 } },
+  { id:'purify', name:'Purifying Potion', icon:'PU', type:'special3', serial:1, priceRarity:5000, stock:1, isSpecial:true, desc:'Remove all current effects immediately', effect:{ luckPct:0, speedPct:0, durationMs:0, rolls:0, purify:true } }
 ];
 
-// Special 4 — exclusive, non-purchasable (future rewards only)
 const POTION_SPECIAL4 = [];
 
 const ITEMS = [
@@ -626,7 +568,7 @@ let state = {
   autoRollTimer: null,
   equippedItem: null,
   ownedItems: [],
-  shopStock: [],       // { type:'item'|'potion', id, stock (for potions) }
+  shopStock: [],
   lastShopUpdate: Date.now(),
   theme: 'light',
   filterThreshold: 8,
@@ -641,9 +583,7 @@ let state = {
   specialPlayer: false,
   maxInventorySlots: 50,
   inventoryUpgradeLevel: 0,
-  // Potions inventory: { [potionId]: qty }
   potionInventory: {},
-  // Active effects: array of { potionId, luckPct, speedPct, durationMs, rolls, startedAt, remainingMs }
   activeEffects: []
 };
 
@@ -679,7 +619,6 @@ function formatNumber(num) {
 // ============================================================
 function getPotionById(id){ return POTIONS.find(p=>p.id===id); }
 
-// Returns combined luck multiplier from active effects (as a multiplier, not %)
 function getEffectsLuckMultiplier() {
   let totalPct = 0;
   state.activeEffects.forEach(e => {
@@ -688,18 +627,16 @@ function getEffectsLuckMultiplier() {
   return 1 + totalPct / 100;
 }
 
-// Returns combined speed boost from active effects (as fraction, positive = faster)
 function getEffectsSpeedBoost() {
   let totalPct = 0;
   state.activeEffects.forEach(e => {
     if(e.rolls > 0 || e.durationMs > 0) totalPct += e.speedPct;
   });
-  return totalPct; // e.g. 40 means 40% faster
+  return totalPct;
 }
 
 function getRollDurationMs() {
   const speedBoost = getEffectsSpeedBoost();
-  // base 1500ms, speed potion reduces it
   const base = 1500;
   if(speedBoost > 0) return Math.max(300, base * (1 - speedBoost/100));
   if(speedBoost < 0) return base * (1 + Math.abs(speedBoost)/100);
@@ -707,7 +644,6 @@ function getRollDurationMs() {
 }
 
 function getRollIntervalMs() {
-  // base flicker: 150ms, quick: 75ms
   const speedBoost = getEffectsSpeedBoost();
   const base = state.quickRollActive ? 75 : 150;
   if(speedBoost > 0) return Math.max(30, base * (1 - speedBoost/100));
@@ -716,7 +652,6 @@ function getRollIntervalMs() {
 }
 
 function consumeRollEffect() {
-  // Called after each roll to decrement roll-based effects
   state.activeEffects = state.activeEffects.filter(e => {
     if(e.rolls > 0) {
       e.rolls--;
@@ -735,7 +670,7 @@ function tickEffects() {
 
   let changed = false;
   state.activeEffects = state.activeEffects.filter(e => {
-    if(e.rolls > 0) return true; // roll-based don't tick
+    if(e.rolls > 0) return true;
     if(e.durationMs <= 0) return false;
     e.remainingMs -= delta;
     if(e.remainingMs <= 0) {
@@ -756,7 +691,6 @@ function usePotion(potionId) {
 
   const effect = potion.effect;
 
-  // Purify special
   if(effect.purify) {
     state.activeEffects = [];
     state.potionInventory[potionId]--;
@@ -767,15 +701,13 @@ function usePotion(potionId) {
     return;
   }
 
-  // Type-lock: same potion id can stack (extend/add time); different id of same type is blocked if active
   const typeLockTypes = ['luck','speed','special1','special2'];
   if(typeLockTypes.includes(potion.type)) {
     const conflictActive = state.activeEffects.some(e => {
       const ep = getPotionById(e.potionId);
       return ep && ep.type === potion.type && ep.id !== potionId && (e.rolls > 0 || e.remainingMs > 0);
     });
-    if(conflictActive) return; // blocked — different potion of same type is active
-    // Same id: stack by adding remaining time / rolls to existing effect entry
+    if(conflictActive) return;
     const existing = state.activeEffects.find(e => e.potionId === potionId && (e.rolls > 0 || e.remainingMs > 0));
     if(existing) {
       if(existing.rolls > 0) existing.rolls += effect.rolls;
@@ -810,7 +742,6 @@ function renderEffectsBar() {
   const noLabel = document.getElementById('noEffectsLabel');
   if(!bar) return;
 
-  // Clear all icons (keep noEffectsLabel)
   Array.from(bar.children).forEach(c => { if(c !== noLabel) c.remove(); });
 
   const effects = state.activeEffects.filter(e => e.rolls > 0 || e.remainingMs > 0);
@@ -830,13 +761,13 @@ function renderEffectsBar() {
 
     let timerText = '';
     if(e.rolls > 0) {
-      timerText = `${e.rolls} roll${e.rolls>1?'s':''}`;
+      timerText = `${e.rolls}r`;
     } else if(e.remainingMs > 0) {
       timerText = formatMs(e.remainingMs);
     }
 
     icon.innerHTML = `
-      <span style="font-size:0.7rem; font-weight:bold;">${potion.icon}</span>
+      <span style="font-size:0.7rem; font-weight:bold; color:white;">${potion.icon}</span>
       ${timerText ? `<div class="effect-timer">${timerText}</div>` : ''}
     `;
 
@@ -861,7 +792,7 @@ function showEffectTooltip(effect, potion) {
   overlay.className = 'effect-tooltip-overlay';
 
   let remainStr = '';
-  if(effect.rolls > 0) remainStr = `<div class="effect-remaining">${effect.rolls} roll${effect.rolls>1?'s':''} remaining</div>`;
+  if(effect.rolls > 0) remainStr = `<div class="effect-remaining">${effect.rolls} rolls remaining</div>`;
   else if(effect.remainingMs > 0) remainStr = `<div class="effect-remaining">${formatMs(effect.remainingMs)} remaining</div>`;
 
   overlay.innerHTML = `
@@ -882,9 +813,6 @@ function showEffectTooltip(effect, potion) {
 // SHOP
 // ============================================================
 function refreshShop() {
-  // Each of 5 slots independently rolls for type:
-  // item 30%, luck 25%, speed 25%, special1 10%, special2 10%, special3 10%
-  // (these sum to 110 — normalised below)
   const typeWeights = [
     { type:'item',     weight:30 },
     { type:'luck',     weight:25 },
@@ -895,7 +823,6 @@ function refreshShop() {
   ];
   const totalWeight = typeWeights.reduce((s,t)=>s+t.weight,0);
 
-  // Pool trackers so we don't repeat same id in same rotation
   const usedItems = new Set();
   const usedPotions = new Set();
 
@@ -909,14 +836,12 @@ function refreshShop() {
     }
 
     if(chosenType === 'item'){
-      // Pick a random item not yet used this rotation (including zenith only for special players)
       const pool = ITEMS.filter(i => !usedItems.has(i.id) && (i.id !== 'thezenith' || state.specialPlayer));
-      if(pool.length === 0){ i--; continue; } // retry if pool empty
+      if(pool.length === 0){ i--; continue; }
       const picked = pool[Math.floor(Math.random()*pool.length)];
       usedItems.add(picked.id);
       slots.push({ type:'item', id:picked.id });
     } else {
-      // Pick a random potion of that type not yet used this rotation
       const pool = POTIONS.filter(p => p.type === chosenType && !usedPotions.has(p.id));
       if(pool.length === 0){ i--; continue; }
       const picked = pool[Math.floor(Math.random()*pool.length)];
@@ -965,7 +890,7 @@ function renderShop() {
     } else if(slot.type === 'potion') {
       const potion = POTIONS.find(p=>p.id===slot.id);
       if(!potion) return;
-      if(slot.stock <= 0) return; // out of stock, don't show
+      if(slot.stock <= 0) return;
 
       const div = document.createElement('div');
       div.className = 'shop-potion-item';
@@ -992,7 +917,6 @@ function renderShop() {
     }
   });
 
-  // Buy item handlers
   cont.querySelectorAll('.buy-item-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
@@ -1011,7 +935,6 @@ function renderShop() {
     });
   });
 
-  // Buy potion handlers — open chyrchle selector for payment
   cont.querySelectorAll('.buy-potion-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const slotIdx = parseInt(btn.dataset.slotidx);
@@ -1025,13 +948,12 @@ function renderShop() {
 }
 
 function showPotionPayOverlay(potion, slotIdx) {
-  // Show list of chyrchles player has that meet the price rarity
   const eligible = state.inventory.filter(c => c.rarity >= potion.priceRarity);
 
   const overlay = document.createElement('div');
   overlay.className = 'potion-pay-overlay';
 
-  const listHtml = eligible.length === 0 ? '<p style="opacity:0.6; text-align:center;">No eligible Chyrchles! You need a Chyrchle with rarity ≥ 1 in ' + potion.priceRarity.toLocaleString() + '</p>' :
+  const listHtml = eligible.length === 0 ? '<p style="opacity:0.6; text-align:center;">No eligible Chyrchles! Requires rarity ≥ 1 in ' + potion.priceRarity.toLocaleString() + '</p>' :
     eligible.map((c, i) => {
       const realIdx = state.inventory.indexOf(c);
       const colorStyle = getColorStyle(c);
@@ -1060,12 +982,9 @@ function showPotionPayOverlay(potion, slotIdx) {
   overlay.querySelectorAll('.potion-select-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const realIdx = parseInt(btn.dataset.realidx);
-      // Remove that chyrchle
       state.inventory.splice(realIdx, 1);
-      // Give potion
       if(!state.potionInventory[potion.id]) state.potionInventory[potion.id] = 0;
       state.potionInventory[potion.id]++;
-      // Reduce shop stock
       if(state.shopStock[slotIdx]) state.shopStock[slotIdx].stock--;
       overlay.remove();
       updateAllUI();
@@ -1093,7 +1012,6 @@ function renderMyPotions() {
     const qty = state.potionInventory[potion.id] || 0;
     if(qty <= 0) return;
 
-    // Check if a DIFFERENT potion of the same type is active (same id is allowed to stack)
     const typeLockTypes = ['luck','speed','special1','special2'];
     let isTypeLocked = false;
     if(typeLockTypes.includes(potion.type)) {
@@ -1218,7 +1136,7 @@ function rollChyrchle() {
   const totalRolls = rollsToMake + (Math.random() < fractional ? 1 : 0);
 
   let bestRoll = null, bestRarity = -1;
-  for(let i=0;i<totalRolls;i++) {
+  for(let i=0; i<totalRolls; i++) {
     let total = 0;
     CHYRCHLES.filter(c=>!c.fixedRoll).forEach(c=>total+=1/c.rarity);
     let rand = Math.random()*total;
@@ -1291,7 +1209,7 @@ function performRoll() {
       resultDiv.innerHTML = `
         <div style="font-weight:bold;">${rolled.name}</div>
         <div style="font-size:0.85rem;">1 in ${rolled.rarity.toLocaleString()}</div>
-        <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(rolled)}; margin-top:4px;">
+        <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(rolled)}; margin-top:4px; color:#111;">
           Gain: ${rolledWithGain.gain.toFixed(1)}/bounce
         </div>
       `;
@@ -1349,7 +1267,7 @@ function showCutscene(chyrchle) {
     <div class="cutscene-name" style="color:${rarityColor};">${chyrchle.name}</div>
     <div class="cutscene-rarity-text">1 in ${chyrchle.rarity.toLocaleString()}</div>
     <div class="cutscene-quote">"${chyrchle.desc}"</div>
-    <button class="cutscene-continue" style="border-color:${rarityColor};">Continue</button>
+    <button class="cutscene-continue" style="border-color:${rarityColor}; color:inherit;">Continue</button>
   `;
   overlay.appendChild(content);
   content.querySelector('.cutscene-continue').onclick = ()=>{ overlay.remove(); activeCutscene=null; };
@@ -1394,7 +1312,7 @@ function finishZenithRoll(selected) {
   document.getElementById('rolledResult').innerHTML=`
     <div style="font-weight:bold;">${selected.name}</div>
     <div style="font-size:0.85rem;">1 in ${selected.rarity.toLocaleString()}</div>
-    <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(selected)}; margin-top:4px;">
+    <div style="display:inline-block; padding:4px 12px; border-radius:20px; background:${getColorStyle(selected)}; margin-top:4px; color:#111;">
       Gain: ${rwg.gain.toFixed(1)}/bounce
     </div>
   `;
@@ -1503,7 +1421,6 @@ function loadState() {
   try {
     const saved = localStorage.getItem('chyrchle_save_v3');
     if(!saved) {
-      // Try migrating from v2.5
       const old = localStorage.getItem('chyrchle_save');
       if(old) {
         const p = JSON.parse(old);
@@ -1532,7 +1449,6 @@ function loadState() {
   } catch(e){ state.activeEffects=[]; state.potionInventory={}; }
 
   if(state.ownedItems.includes('bob')) state.specialPlayer=true;
-  // Special players always have THE ZENITH in their items
   if(state.specialPlayer && !state.ownedItems.includes('thezenith')) {
     state.ownedItems.push('thezenith');
   }
@@ -1728,9 +1644,32 @@ function initBounceSim() {
   timeOffset=0;
 }
 
+function updateBounceEstimates() {
+  const sorted = [...state.inventory].sort((a,b)=>{
+    if(a.special==='alwaysDeploy') return -1;
+    if(b.special==='alwaysDeploy') return 1;
+    if(a.special==='alwaysLast') return 1;
+    if(b.special==='alwaysLast') return -1;
+    return b.gain-a.gain;
+  });
+  const bestN = sorted.slice(0, state.maxDeploy);
+  const totalGain = bestN.reduce((acc, curr)=>acc+curr.gain, 0);
+  const gainMult = getGainMultiplier();
+  const adjustedGain = totalGain * gainMult;
+
+  // Approximate physics speed: ~1 bounce iteration per circle per ~1.5 seconds under standard velocity
+  const bouncesPerMin = 40; 
+  const estPerMin = adjustedGain * bouncesPerMin;
+  
+  document.getElementById('estimatedPerMin').innerText = formatNumber(estPerMin);
+  document.getElementById('estimatedPerHour').innerText = formatNumber(estPerMin * 60);
+  document.getElementById('deployedCount').innerText = state.inventory.length;
+  document.getElementById('best5Display').innerText = bestN.length ? bestN.map(c=>c.name).join(', ') : 'None';
+}
+
 function updateSimulation() {
   if(!circles.length) return;
-  const gainMult=getGainMultiplier();
+  const gainMult = getGainMultiplier();
   circles.forEach(c=>{
     c.x+=c.vx; c.y+=c.vy;
     const r=c.r;
@@ -1757,13 +1696,21 @@ function updateSimulation() {
 function drawBounce() {
   if(!canvas||!ctx){animationFrame=requestAnimationFrame(drawBounce);return;}
   updateSimulation();
-  if(!document.getElementById('screen-bounce').classList.contains('active')){animationFrame=requestAnimationFrame(drawBounce);return;}
+  
+  // Keep physics running in background, but skip drawing calculations if bounce tab is hidden
+  if(!document.getElementById('screen-bounce').classList.contains('active')){
+    animationFrame=requestAnimationFrame(drawBounce);
+    return;
+  }
+  
   timeOffset+=0.05;
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  
   circles.forEach(c=>{
     ctx.save();
     const baseSize=getChyrchleSize(c.rarity);
     c.r=baseSize;
+    
     if(c.effectType==='pulse'||c.effectType==='wave'){const p=Math.sin(timeOffset*5)*2;c.r=Math.max(baseSize-2,Math.min(baseSize+3,baseSize+p));}
     if(c.effectType==='unhonored'){ctx.shadowColor='#ffffff';ctx.shadowBlur=30+Math.sin(timeOffset*2)*10;const p=Math.sin(timeOffset*1.5)*3;c.r=Math.max(baseSize-2,Math.min(baseSize+4,baseSize+p));ctx.beginPath();ctx.arc(c.x,c.y,c.r+8+Math.sin(timeOffset)*3,0,2*Math.PI);ctx.strokeStyle='#ffffff80';ctx.lineWidth=2;ctx.stroke();}
     if(c.effectType==='unordinary'){ctx.shadowColor='#ffffff';ctx.shadowBlur=25+Math.sin(timeOffset*3)*8;ctx.strokeStyle='#ffffff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(c.x,c.y,c.r+3,0,2*Math.PI);ctx.stroke();}
@@ -1780,223 +1727,191 @@ function drawBounce() {
       ctx.shadowColor=`hsl(${timeOffset*100%360},100%,50%)`;ctx.shadowBlur=50+Math.sin(timeOffset*5)*20;
       for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(c.x,c.y,c.r+10+i*8+Math.sin(timeOffset*3+i)*5,0,2*Math.PI);ctx.strokeStyle=`hsla(${(timeOffset*50+i*60)%360},100%,50%,${0.3-i*0.05})`;ctx.lineWidth=3;ctx.stroke();}
     }
+    
     ctx.beginPath();
     ctx.arc(c.x,c.y,c.r,0,2*Math.PI);
+    
     if(c.color==='loop-shift'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'#1e3a8a');g.addColorStop(1,'#7dd3fc');ctx.fillStyle=g;}
     else if(c.color==='loop-fast'){const g=ctx.createRadialGradient(c.x-8,c.y-8,2,c.x,c.y,c.r);g.addColorStop(0,'#1e3a8a');g.addColorStop(0.5,'#bae6fd');g.addColorStop(1,'#1e3a8a');ctx.fillStyle=g;}
     else if(c.color==='loop-rainbow'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'red');g.addColorStop(0.16,'orange');g.addColorStop(0.33,'yellow');g.addColorStop(0.5,'green');g.addColorStop(0.66,'blue');g.addColorStop(0.83,'indigo');g.addColorStop(1,'violet');ctx.fillStyle=g;}
     else if(c.color==='loop-multiverse'){const g=ctx.createLinearGradient(c.x-15,c.y-15,c.x+15,c.y+15);g.addColorStop(0,'#ff00ff');g.addColorStop(0.5,'#00ffff');g.addColorStop(1,'#ff00ff');ctx.fillStyle=g;}
-    else if(c.color==='loop-absolute'){const g=ctx.createRadialGradient(c.x-10,c.y-10,2,c.x,c.y,c.r+10);g.addColorStop(0,'gold');g.addColorStop(0.25,'crimson');g.addColorStop(0.5,'purple');g.addColorStop(0.75,'cyan');g.addColorStop(1,'gold');ctx.fillStyle=g;}
-    else ctx.fillStyle=c.color;
+    else if(c.color==='loop-absolute'){const g=ctx.createRadialGradient(c.x-10,c.y-10,2,c.x,c.y,c.r);g.addColorStop(0,'gold');g.addColorStop(0.3,'crimson');g.addColorStop(0.6,'purple');g.addColorStop(0.8,'cyan');g.addColorStop(1,'gold');ctx.fillStyle=g;}
+    else {ctx.fillStyle=c.color;}
+    
     ctx.fill();
-    if(c.effectType==='ring'||c.effectType==='absolute'||c.effectType==='unhonored'){ctx.shadowBlur=0;ctx.strokeStyle='#ffffff80';ctx.lineWidth=2;ctx.beginPath();ctx.arc(c.x,c.y,c.r+5+Math.sin(timeOffset*2)*2,0,2*Math.PI);ctx.stroke();}
     ctx.restore();
   });
+  
+  // Soft UI synchronization updates 
+  if(Date.now() - lastMoneyUpdate > 250) {
+    document.getElementById('moneyDisplay').innerText=formatNumber(Math.floor(state.money));
+    document.getElementById('shopMoney').innerText=formatNumber(Math.floor(state.money));
+    lastMoneyUpdate = Date.now();
+  }
+  
   animationFrame=requestAnimationFrame(drawBounce);
-  const now=Date.now();
-  if(now-lastMoneyUpdate>1000){updateAllUI();lastMoneyUpdate=now;}
-}
-
-function updateBounceEstimates() {
-  const sorted=[...state.inventory].sort((a,b)=>{
-    if(a.special==='alwaysDeploy') return -1;
-    if(b.special==='alwaysDeploy') return 1;
-    if(a.special==='alwaysLast') return 1;
-    if(b.special==='alwaysLast') return -1;
-    return b.gain-a.gain;
-  });
-  const bestN=sorted.slice(0,state.maxDeploy);
-  const gainMult=getGainMultiplier();
-  const sumGain=bestN.reduce((s,c)=>s+(c.gain*gainMult),0);
-  const perMin=Math.floor(sumGain*30);
-  document.getElementById('estimatedPerMin').innerText=formatNumber(perMin);
-  document.getElementById('estimatedPerHour').innerText=formatNumber(perMin*60);
-  document.getElementById('best5Display').innerText=bestN.map(c=>c.name).join(', ')||'none';
-  document.getElementById('deployedCount').innerText=state.inventory.length;
 }
 
 // ============================================================
-// SHOP TIMER
+// CODES & ROUTINES
 // ============================================================
-function updateShopTimer() {
-  const timerEl=document.getElementById('shopTimer');
-  if(!timerEl) return;
-  const now=Date.now();
-  const timeSince=now-state.lastShopUpdate;
-  const timeUntil=(15*60*1000)-timeSince;
-  if(timeUntil<=0){ refreshShop(); renderShop(); }
-  else { const m=Math.floor(timeUntil/60000),s=Math.floor((timeUntil%60000)/1000); timerEl.innerText=`${m}:${('0'+s).slice(-2)}`; }
-}
+function redeemCode() {
+  const input = document.getElementById('codeInput');
+  const code = input.value.trim();
+  if(!code) return;
 
-// ============================================================
-// AUTO ROLL
-// ============================================================
-function startAutoRoll() {
-  if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-  if(state.autoRoll) {
-    state.autoRollTimer = setInterval(()=>{ if(!isRolling) performRoll(); }, getRollDurationMs()+200);
+  if(EXPIRED_CODES.includes(code)) {
+    alert("Code expired!");
+    input.value = '';
+    return;
   }
-}
 
-// ============================================================
-// CODES
-// ============================================================
-function showCodeResult(title, message, isError) {
-  const existing = document.getElementById('codeResultOverlay');
-  if(existing) existing.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'codeResultOverlay';
-  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);display:flex;justify-content:center;align-items:center;z-index:2000;backdrop-filter:blur(4px);';
-  const color = isError ? '#ef4444' : '#22c55e';
-  overlay.innerHTML =
-    '<div style="background:#1e2432;padding:28px 32px;border-radius:24px;max-width:360px;width:90%;text-align:center;color:white;border:1px solid ' + color + ';box-shadow:0 20px 60px rgba(0,0,0,0.5);">' +
-    '<div style="font-size:1.4rem;font-weight:bold;color:' + color + ';margin-bottom:12px;">' + title + '</div>' +
-    '<div style="font-size:0.95rem;opacity:0.9;margin-bottom:20px;">' + message + '</div>' +
-    '<button id="codeResultClose" style="width:100%;background:' + color + ';color:white;border:none;border-radius:30px;padding:10px;">OK</button>' +
-    '</div>';
-  document.body.appendChild(overlay);
-  overlay.querySelector('#codeResultClose').addEventListener('click', function(){ overlay.remove(); });
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-}
+  if(state.codesUsed.includes(code)) {
+    alert("Code already used!");
+    input.value = '';
+    return;
+  }
 
-function redeemCode(code) {
-  if(state.codesUsed.includes(code)){ showCodeResult('Already Used', 'You have already redeemed this code.', true); return; }
-  if(EXPIRED_CODES.includes(code)){ showCodeResult('Expired', 'This code has expired and can no longer be redeemed.', true); return; }
-  const codeData=CODES[code];
-  if(!codeData){ showCodeResult('Invalid Code', 'That code does not exist. Check your spelling!', true); return; }
-
-  if(codeData.type==='money'){
-    state.money+=codeData.reward;
+  const found = CODES[code];
+  if(found) {
     state.codesUsed.push(code);
-    saveState(); updateAllUI();
-    showCodeResult('Code Redeemed!', 'C' + formatNumber(codeData.reward) + ' Chyrch has been added to your balance.', false);
-  } else if(codeData.type==='item'){
-    const itemId=codeData.reward;
-    if(!state.ownedItems.includes(itemId)){
-      state.ownedItems.push(itemId);
-      if(!state.equippedItem) state.equippedItem=itemId;
-      state.codesUsed.push(code);
-      saveState(); updateAllUI();
-      const item = ITEMS.find(i=>i.id===itemId);
-      showCodeResult('Item Unlocked!', (item ? item.name : 'A special item') + ' has been added to your items.', false);
+    if(found.type === 'money') {
+      state.money += found.reward;
+      alert(`Redeemed! +C${found.reward}`);
+    } else if(found.type === 'item') {
+      if(!state.ownedItems.includes(found.reward)) state.ownedItems.push(found.reward);
+      alert(`Redeemed! Obtained item.`);
+    } else if(found.type === 'potions') {
+      found.reward.forEach(p => {
+        if(!state.potionInventory[p.id]) state.potionInventory[p.id] = 0;
+        state.potionInventory[p.id] += p.qty;
+      });
+      alert(`Redeemed! Obtained bonus startup potions.`);
     }
-  } else if(codeData.type==='potions'){
-    const rewards=codeData.reward;
-    const names = [];
-    rewards.forEach(r=>{
-      if(!state.potionInventory[r.id]) state.potionInventory[r.id]=0;
-      state.potionInventory[r.id]+=r.qty;
-      const p = getPotionById(r.id);
-      if(p) names.push(p.name + ' x' + r.qty);
-    });
-    state.codesUsed.push(code);
-    saveState(); updateAllUI();
-    showCodeResult('Potions Received!', names.join(', ') + ' added to your potions.', false);
+    input.value = '';
+    updateAllUI();
+    saveState();
+  } else {
+    alert("Invalid code!");
   }
 }
 
 // ============================================================
-// INIT
+// ENGINE INITIALIZATION & ROUTINES
 // ============================================================
-window.addEventListener('load', ()=>{
+document.addEventListener("DOMContentLoaded", ()=>{
   loadState();
+  initBounceSim();
+  drawBounce();
 
-  canvas=document.getElementById('bounceCanvas');
-  if(canvas){ ctx=canvas.getContext('2d'); initBounceSim(); animationFrame=requestAnimationFrame(drawBounce); }
-
-  document.querySelectorAll('.nav-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  // Navigation Logic
+  document.querySelectorAll('nav .nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav .nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       btn.classList.add('active');
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
-      updateAllUI();
+      const target = btn.dataset.screen;
+      document.getElementById(`screen-${target}`).classList.add('active');
+      if(target === 'bounce') initBounceSim();
     });
   });
 
-  document.querySelectorAll('[data-shoptab]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('[data-shoptab]').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const tab=btn.dataset.shoptab;
-      document.getElementById('shopTabContent').style.display=tab==='shop'?'block':'none';
-      document.getElementById('itemsTabContent').style.display=tab==='items'?'block':'none';
-      document.getElementById('potionsTabContent').style.display=tab==='potions'?'block':'none';
-      if(tab==='items') renderOwnedItems();
-      if(tab==='potions') renderMyPotions();
+  // Main Screen Buttons
+  document.getElementById('rollButton').addEventListener('click', performRoll);
+  document.getElementById('openInventoryBtn').addEventListener('click', () => {
+    document.getElementById('inventoryPanel').style.display = 'block';
+    document.getElementById('inventoryOverlay').style.display = 'block';
+  });
+  document.getElementById('closeInventoryBtn').addEventListener('click', () => {
+    document.getElementById('inventoryPanel').style.display = 'none';
+    document.getElementById('inventoryOverlay').style.display = 'none';
+  });
+  document.getElementById('openCapacityUpgradeBtn').addEventListener('click', showCapacityUpgrade);
+
+  // Auto Roll Engine Trigger
+  document.getElementById('autoRollToggle').addEventListener('click', () => {
+    state.autoRoll = !state.autoRoll;
+    const toggleBtn = document.getElementById('autoRollToggle');
+    if(state.autoRoll) {
+      toggleBtn.innerText = "Auto ON";
+      toggleBtn.style.background = "#22c55e";
+      toggleBtn.style.color = "white";
+      state.autoRollTimer = setInterval(() => {
+        if(!isRolling && !pendingZenithRoll && state.inventory.length < state.maxInventorySlots) {
+          performRoll();
+        }
+      }, 400);
+    } else {
+      toggleBtn.innerText = "Auto OFF";
+      toggleBtn.style.background = "";
+      toggleBtn.style.color = "";
+      clearInterval(state.autoRollTimer);
+    }
+  });
+
+  // Bounce sub tabs
+  document.querySelectorAll('[data-bouncetab]').forEach(tabBtn => {
+    tabBtn.addEventListener('click', () => {
+      document.querySelectorAll('[data-bouncetab]').forEach(b => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      if(tabBtn.dataset.bouncetab === 'stats') {
+        document.getElementById('bounceStatsContent').style.display = 'block';
+        document.getElementById('bounceUpgradeContent').style.display = 'none';
+      } else {
+        document.getElementById('bounceStatsContent').style.display = 'none';
+        document.getElementById('bounceUpgradeContent').style.display = 'block';
+      }
     });
   });
 
-  document.querySelectorAll('[data-bouncetab]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('[data-bouncetab]').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const tab=btn.dataset.bouncetab;
-      document.getElementById('bounceStatsContent').style.display=tab==='stats'?'block':'none';
-      document.getElementById('bounceUpgradeContent').style.display=tab==='upgrade'?'block':'none';
-      if(tab==='upgrade') renderUpgrades();
+  // Shop sub tabs
+  document.querySelectorAll('[data-shoptab]').forEach(tabBtn => {
+    tabBtn.addEventListener('click', () => {
+      document.querySelectorAll('[data-shoptab]').forEach(b => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      const target = tabBtn.dataset.shoptab;
+      document.getElementById('shopTabContent').style.display = target==='shop'?'block':'none';
+      document.getElementById('itemsTabContent').style.display = target==='items'?'block':'none';
+      document.getElementById('potionsTabContent').style.display = target==='potions'?'block':'none';
     });
   });
 
-  document.getElementById('rollButton').addEventListener('click',()=>performRoll());
-
-  document.getElementById('autoRollToggle').addEventListener('click',e=>{
-    state.autoRoll=!state.autoRoll;
-    e.target.innerText=state.autoRoll?'Auto ON':'Auto OFF';
-    if(state.autoRoll) startAutoRoll();
-    else if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-    saveState();
-  });
-
-  document.getElementById('openInventoryBtn').addEventListener('click',()=>{
-    document.getElementById('inventoryPanel').style.display='block';
-    document.getElementById('inventoryOverlay').style.display='block';
-    applyTheme(); renderInventory();
-  });
-  document.getElementById('openCapacityUpgradeBtn').addEventListener('click',()=>showCapacityUpgrade());
-  document.getElementById('closeInventoryBtn').addEventListener('click',()=>{
-    document.getElementById('inventoryPanel').style.display='none';
-    document.getElementById('inventoryOverlay').style.display='none';
-  });
-
-  document.getElementById('toggleThemeBtn').addEventListener('click',()=>{
-    state.theme=state.theme==='light'?'dark':'light';
+  // Settings Input listeners
+  document.getElementById('toggleThemeBtn').addEventListener('click', () => {
+    state.theme = state.theme === 'light' ? 'dark' : 'light';
     applyTheme(); updateAllUI(); saveState();
   });
-  document.getElementById('showTutorialBtn').addEventListener('click',()=>showTutorial());
+  document.getElementById('showTutorialBtn').addEventListener('click', showTutorial);
+  document.getElementById('applyFilterBtn').addEventListener('click', applyFilterNow);
+  document.getElementById('submitCodeBtn').addEventListener('click', redeemCode);
 
-  document.getElementById('skipCutsceneToggle').addEventListener('change',e=>{ state.skipCutsceneEnabled=e.target.checked; saveState(); });
-  document.getElementById('skipCutsceneThreshold').addEventListener('change',e=>{ state.skipCutsceneThreshold=parseInt(e.target.value)||100000; saveState(); });
-  document.getElementById('autoDeleteToggle').addEventListener('change',e=>{ state.autoDeleteEnabled=e.target.checked; saveState(); });
-  document.getElementById('applyFilterBtn').addEventListener('click',applyFilterNow);
-  document.getElementById('filterThreshold').addEventListener('change',e=>{ state.filterThreshold=parseInt(e.target.value)||8; saveState(); });
-  document.getElementById('submitCodeBtn').addEventListener('click',()=>{
-    const inp=document.getElementById('codeInput');
-    redeemCode(inp.value.trim()); inp.value='';
+  document.getElementById('autoDeleteToggle').addEventListener('change', e => {
+    state.autoDeleteEnabled = e.target.checked; saveState();
   });
-  document.getElementById('codeInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const inp=e.target; redeemCode(inp.value.trim()); inp.value=''; } });
+  document.getElementById('skipCutsceneToggle').addEventListener('change', e => {
+    state.skipCutsceneEnabled = e.target.checked; saveState();
+  });
+  document.getElementById('skipCutsceneThreshold').addEventListener('input', e => {
+    state.skipCutsceneThreshold = parseInt(e.target.value) || 0; saveState();
+  });
 
-  shopTimerInterval=setInterval(updateShopTimer,1000);
-  updateShopTimer();
+  // Background Clocks (Potions tick rate & Shop cycle)
+  effectsTickInterval = setInterval(tickEffects, 200);
 
-  // Effects tick — every second while online
-  effectsTickInterval=setInterval(()=>{ tickEffects(); },1000);
-
-  lastOnlineTime=Date.now();
-
-  setInterval(saveState,30000);
-  updateAllUI();
-});
-
-window.addEventListener('beforeunload',()=>{
-  if(animationFrame) cancelAnimationFrame(animationFrame);
-  if(shopTimerInterval) clearInterval(shopTimerInterval);
-  if(effectsTickInterval) clearInterval(effectsTickInterval);
-  if(state.autoRollTimer) clearInterval(state.autoRollTimer);
-  if(rollInterval) clearInterval(rollInterval);
-  if(rollTimeout) clearTimeout(rollTimeout);
-  if(activeCutscene) activeCutscene.remove();
-  saveState();
+  shopTimerInterval = setInterval(() => {
+    const now = Date.now();
+    const passed = now - state.lastShopUpdate;
+    const duration = 15*60*1000;
+    if(passed >= duration) {
+      refreshShop(); renderShop();
+    } else {
+      const left = duration - passed;
+      const m = Math.floor(left / 60000);
+      const s = Math.floor((left % 60000) / 1000);
+      const timerEl = document.getElementById('shopTimer');
+      if(timerEl) timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+  }, 1000);
 });
 
 })();
